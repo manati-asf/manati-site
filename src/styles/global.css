@@ -172,6 +172,8 @@ footer a:hover{color:#fff}
 footer p{color:#aaa496}
 .compliance{font-size:12.5px;color:#8d8779;margin-top:14px;line-height:1.5}
 .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-top:22px;color:#8d8779;font-size:13px}
+.foot-legal{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.foot-legal a{display:inline;margin:0}
 
 @media (max-width:900px){
   .hero-grid{grid-template-columns:1fr;gap:36px;padding:60px 0}
