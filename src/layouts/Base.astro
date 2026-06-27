@@ -22,21 +22,8 @@ const {
       href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Duru+Sans&display=swap"
       rel="stylesheet"
     />
-    <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <slot />
-    <script is:inline>
-      // Redirect to the CMS after accepting a Netlify Identity invite / logging in.
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on('init', (user) => {
-          if (!user) {
-            window.netlifyIdentity.on('login', () => {
-              document.location.href = '/admin/';
-            });
-          }
-        });
-      }
-    </script>
   </body>
 </html>

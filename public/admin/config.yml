@@ -1,11 +1,13 @@
 # Decap CMS configuration.
 # Editing happens in the browser at /admin and commits changes back to the
-# Git repo, which triggers a rebuild on Netlify/Cloudflare Pages.
+# Git repo, which triggers a rebuild on Netlify.
 #
-# For production, connect a Git backend (recommended: GitHub) and enable
-# Netlify Identity / git-gateway, or use the GitHub backend directly.
+# Backend: GitHub (direct). Requires a one-time GitHub OAuth App + Netlify
+# OAuth provider install — see the setup notes provided with this change.
+# Login at /admin uses "Login with GitHub". No Netlify Identity/Git Gateway needed.
 backend:
-  name: git-gateway
+  name: github
+  repo: riaanjonck/manati-site
   branch: main
 
 # Lets you run the CMS locally with `npx decap-server` for testing
