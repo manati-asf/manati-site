@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+// TODO: replace with Manati's live Landbot application URL
+const APPLY_URL = '#apply-form';
+---
+<Base title="How to apply — Manati" description="Manati's entire application process is online. Apply for a study loan in minutes — no branches, no queues.">
+  <Header />
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">How to apply</span>
+      <h1>The whole application is online</h1>
+      <p>You'll never have to take time off work to visit a branch or stand in a queue. Apply from anywhere, and improve your chances by applying with joint household income.</p>
+      <div style="margin-top:24px"><a class="btn btn-primary" href={APPLY_URL}>Start your application →</a></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Three simple steps</span>
+        <h2>How it works</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <h4>Apply online</h4>
+          <p>Complete the application from any device. Add your spouse or partner's income (with their consent) to apply with joint household income and strengthen your application.</p>
+        </div>
+        <div class="step">
+          <h4>We assess</h4>
+          <p>We review your academic results and the employability of your course to structure a reasonable loan on a case-by-case basis.</p>
+        </div>
+        <div class="step">
+          <h4>Study &amp; succeed</h4>
+          <p>Your instalments stay stable for the loan term, and we offer employment support to help you graduate and repay with confidence.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block bg-soft">
+    <div class="wrap two-col">
+      <div>
+        <span class="eyebrow">Before you start</span>
+        <h2>What you'll need</h2>
+        <p>Having these ready makes the online application quick and smooth:</p>
+        <ul style="list-style:none;padding:0">
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">✓</span> South African ID (and your partner's, if applying jointly)</li>
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">✓</span> Proof of income / latest payslips</li>
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">✓</span> Your institution and course details</li>
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">✓</span> Recent academic results</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h4>Estimate your repayment first</h4>
+        <p>Use the repayment calculator on our homepage to get an indicative monthly figure before you apply.</p>
+        <div style="margin-top:14px"><a class="btn btn-dark" href="/#apply">Open the calculator</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="apply-form">
+    <div class="wrap" style="text-align:center">
+      <div class="cta">
+        <h2>Apply now</h2>
+        <p>Start your online application — it only takes a few minutes.</p>
+        <a class="btn" style="background:var(--gold);color:#231f20" href={APPLY_URL}>Apply for funding →</a>
+        <p style="font-size:12.5px;opacity:.8;margin-top:16px;margin-bottom:0">[Connect this button to Manati's live Landbot application]</p>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

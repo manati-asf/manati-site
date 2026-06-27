@@ -1,0 +1,30 @@
+# Decap CMS configuration.
+# Editing happens in the browser at /admin and commits changes back to the
+# Git repo, which triggers a rebuild on Netlify/Cloudflare Pages.
+#
+# For production, connect a Git backend (recommended: GitHub) and enable
+# Netlify Identity / git-gateway, or use the GitHub backend directly.
+backend:
+  name: git-gateway
+  branch: main
+
+# Lets you run the CMS locally with `npx decap-server` for testing
+# without any auth (run `npm run dev` in another terminal).
+local_backend: true
+
+media_folder: "public/assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "insights"
+    label: "Insights / Articles"
+    folder: "src/content/insights"
+    create: true
+    slug: "{{slug}}"
+    summary: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish date", name: "date", widget: "datetime" }
+      - { label: "Tag", name: "tag", widget: "string", hint: "e.g. Partnership, Guidance" }
+      - { label: "Summary", name: "summary", widget: "text", hint: "1–2 lines shown on the card" }
+      - { label: "Body", name: "body", widget: "markdown" }
