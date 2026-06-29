@@ -5,3 +5,13 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Serverless functions (the TaskFlow application proxy lives here)
+[functions]
+  directory = "netlify/functions"
+
+# Friendly path for the application proxy
+[[redirects]]
+  from = "/api/apply"
+  to = "/.netlify/functions/apply"
+  status = 200

@@ -1,0 +1,181 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+// NOTE: This is the new in-house application bot (test route), posting to our
+// own Netlify proxy (/api/apply) which forwards to TaskFlow. It runs alongside
+// the live Landbot embed on /how-to-apply until we're ready to cut over.
+// Field coverage is currently a first-pass subset; documents and the full
+// field set are the next phase.
+---
+<Base title="Apply — Manati (new bot, preview)" description="Manati online application — new in-house bot (preview).">
+  <Header />
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Apply · preview</span>
+      <h1>Apply for funding</h1>
+      <p>Our new in-house application — answer a few questions and we'll be in touch. This is a preview of the bot that will replace the embedded one.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap" style="max-width:520px">
+      <div class="ab-device">
+        <div class="ab-banner" id="ab-banner">Preview — submits to our TaskFlow proxy (<code>/api/apply</code>).</div>
+        <div class="ab-head">
+          <div class="ab-av">W</div>
+          <div><div class="ab-logo">Wandi</div><div class="ab-sub">Manati application assistant</div></div>
+        </div>
+        <div class="ab-prog"><i id="ab-bar"></i></div>
+        <div class="ab-chat" id="ab-chat"></div>
+        <div class="ab-dock" id="ab-dock"></div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>
+
+<style is:global>
+  #ab-chat,#ab-dock{font-family:'Duru Sans',system-ui,sans-serif}
+  .ab-device{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:640px;max-height:80vh}
+  .ab-banner{background:#fff7cf;color:#6b5e10;font-size:11.5px;text-align:center;padding:6px 10px;border-bottom:1px solid #f0e6a8}
+  .ab-banner code{background:rgba(0,0,0,.05);padding:1px 4px;border-radius:4px}
+  .ab-head{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:11px}
+  .ab-av{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy)}
+  .ab-logo{font-family:'Varela Round';font-weight:700;font-size:16px}
+  .ab-sub{font-size:12px;color:#cfc9bd}
+  .ab-prog{height:4px;background:#efece4}
+  .ab-prog>i{display:block;height:100%;width:0;background:var(--gold);transition:width .4s}
+  .ab-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .ab-row{display:flex;gap:8px;align-items:flex-end}
+  .ab-row.me{justify-content:flex-end}
+  .ab-bub{max-width:82%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5}
+  .ab-row.bot .ab-bub{background:#f3f1ea;color:#322f29;border-bottom-left-radius:5px}
+  .ab-row.me .ab-bub{background:var(--navy);color:#fff;border-bottom-right-radius:5px}
+  .ab-pic{width:28px;height:28px;border-radius:50%;background:var(--gold);flex:none;display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy);font-size:13px}
+  .ab-dock{border-top:1px solid var(--line);padding:12px;background:#fff;min-height:62px}
+  .ab-field{display:flex;gap:8px}
+  .ab-dock input,.ab-dock select{flex:1;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;outline:none}
+  .ab-dock input:focus{border-color:var(--teal-d);box-shadow:0 0 0 3px rgba(222,195,35,.25)}
+  .ab-ip{position:relative;flex:1}
+  .ab-ip .pfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600}
+  .ab-ip.has-pfx input{padding-left:30px}
+  .ab-send{background:var(--gold);color:var(--navy);font-weight:700;border:0;border-radius:12px;padding:0 18px;font-family:'Varela Round';cursor:pointer}
+  .ab-send:hover{background:var(--teal-d)}
+  .ab-choices{display:flex;flex-direction:column;gap:8px}
+  .ab-choice{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;font-weight:600;color:var(--navy);cursor:pointer}
+  .ab-choice:hover{border-color:var(--gold);background:var(--bg-soft)}
+  .ab-consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .ab-review{font-size:13.5px;background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  .ab-review div{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed var(--line)}
+  .ab-review div:last-child{border:0}
+  .ab-review .k{color:var(--muted)}.ab-review .v{font-weight:600;text-align:right;color:var(--navy)}
+  .ab-err{color:#c0392b;font-size:12px;margin-top:6px}
+  .ab-hint{font-size:11.5px;color:#a59f90;text-align:center;margin-top:8px}
+</style>
+
+<script is:inline>
+(function(){
+  var chat=document.getElementById('ab-chat'), dock=document.getElementById('ab-dock'), bar=document.getElementById('ab-bar');
+  var state={};
+  var steps=[
+    { intro:true, bot:["Hi! I'm Wandi 👋 I'll help you apply for Manati funding — it only takes a few minutes."], input:'choice', options:[{label:"Let's start →",value:'start'}] },
+    { key:'who', bot:["First — who's applying today?"], input:'choice', options:[{label:"I'm the student",value:'Student'},{label:"I'm a parent / sponsor",value:'Sponsor'}] },
+    { key:'fullname', bot:["What's your full name?"], input:'text', placeholder:'e.g. Thandi Mokoena', validate:v=>v.trim().split(' ').length>=2?null:"Please enter your first and last name." },
+    { key:'email', bot:[s=>"Thanks "+(state.fullname||'').split(' ')[0]+". What's the best email to reach you?"], input:'email', placeholder:'you@example.com', validate:v=>/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)?null:"That doesn't look like a valid email." },
+    { key:'mobile', bot:["And a mobile number?"], input:'tel', placeholder:'e.g. 082 123 4567', validate:v=>v.replace(/\D/g,'').length>=9?null:"Please enter a valid mobile number." },
+    { key:'institution', bot:["Which university or college will you study at?"], input:'text', placeholder:'e.g. University of the Western Cape', validate:v=>v.trim().length>=2?null:"Please enter the institution." },
+    { key:'course', bot:["And what course or qualification?"], input:'text', placeholder:'e.g. BCom Accounting', validate:v=>v.trim().length>=2?null:"Please enter the course." },
+    { key:'cost', bot:["Roughly how much funding do you need per year?"], input:'number', prefix:'R', placeholder:'e.g. 60000', validate:v=>(+v>0)?null:"Please enter an amount." },
+    { key:'income', bot:["What's your gross monthly household income (for affordability)?"], input:'number', prefix:'R', placeholder:'e.g. 18000', validate:v=>(+v>0)?null:"Please enter an amount." },
+    { key:'consent', bot:["Last step — we need your consent to process your information and run the necessary checks."], input:'consent' },
+    { review:true, bot:["Here's what I've got — submit?"], input:'review' },
+    { done:true, bot:[], input:'done' }
+  ];
+  var i=0;
+  function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">W</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
+  function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
+  function prog(){bar.style.width=Math.round((i/(steps.length-1))*100)+'%';}
+
+  function buildData(){
+    var who=state.who||'Student';
+    var parts=(state.fullname||'').trim().split(' ');
+    var first=parts.shift()||''; var last=parts.join(' ');
+    var d={};
+    d['x_student_or_sponsor']=who;
+    d['x_crm.lead-x_consent_credit_check']='Yes';
+    d['x_crm.lead-x_educational_institution_id']=state.institution||null;
+    d['x_crm.lead-x_qualification']=state.course||null;
+    d['x_crm.lead-x_loan_amount']=state.cost?Number(state.cost):null;
+    d['x_crm.lead-x_gross_salary']=state.income?Number(state.income):null;
+    d['x_sponsor_two_yes_no']='No';
+    if(who==='Student'){
+      d['x_student-x_name']=first; d['x_student-x_surname']=last;
+      d['x_student-email']=state.email||null; d['x_student-phone']=state.mobile||null;
+    } else {
+      d['x_sponsor.one-name']=first; d['X_sponsor.one-surname']=last;
+      d['x_sponsor.one-email']=state.email||null; d['x_sponsor.one-phone']=state.mobile||null;
+    }
+    return d;
+  }
+
+  async function submitApplication(){
+    dock.innerHTML='<div class="ab-hint">Submitting your application…</div>';
+    try{
+      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:''})});
+      var out=await res.json().catch(()=>({}));
+      if(res.ok && out.ok){
+        addBot("🎉 Done! Your application has been submitted. A Manati consultant will be in touch shortly. Thank you!");
+        dock.innerHTML='<div class="ab-hint">Submitted successfully.</div>';
+      } else {
+        addBot("Hmm, something went wrong submitting your application. Please try again, or email applications@manati.co.za.");
+        dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-retry" style="flex:1">Try again</button></div><div class="ab-err">'+((out&&out.error)||('Error '+res.status))+'</div>';
+        document.getElementById('ab-retry').onclick=submitApplication;
+      }
+    }catch(e){
+      addBot("We couldn't reach our servers just now. Please try again in a moment.");
+      dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-retry" style="flex:1">Try again</button></div>';
+      document.getElementById('ab-retry').onclick=submitApplication;
+    }
+  }
+
+  function render(step){
+    dock.innerHTML='';
+    var t=step.input;
+    if(t==='choice'){
+      var w=document.createElement('div');w.className='ab-choices';
+      step.options.forEach(function(o){var b=document.createElement('button');b.className='ab-choice';b.textContent=o.label;b.onclick=function(){if(step.key)state[step.key]=o.value;if(!step.intro)addMe(o.label);advance();};w.appendChild(b);});
+      dock.appendChild(w);return;
+    }
+    if(t==='consent'){
+      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb"> I confirm my details are true, I\'m authorised to share them, and I consent to Manati processing my information in line with the <a href="/privacy" target="_blank" style="color:var(--teal-d);font-weight:600">Privacy Notice</a>.</label><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">I agree &amp; continue</button></div><div class="ab-err" id="ab-err"></div>';
+      document.getElementById('ab-go').onclick=function(){if(!document.getElementById('ab-cb').checked){document.getElementById('ab-err').textContent="Please tick the box to continue.";return;}state.consent='Yes';addMe('I agree ✓');advance();};
+      return;
+    }
+    if(t==='review'){
+      var rows=[['Applicant',state.who],['Name',state.fullname],['Email',state.email],['Mobile',state.mobile],['Institution',state.institution],['Course',state.course],['Funding / yr',state.cost?'R'+Number(state.cost).toLocaleString('en-ZA'):'—'],['Gross income / mo',state.income?'R'+Number(state.income).toLocaleString('en-ZA'):'—']];
+      dock.innerHTML='<div class="ab-review">'+rows.map(r=>'<div><span class="k">'+r[0]+'</span><span class="v">'+(r[1]||'—')+'</span></div>').join('')+'</div><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">Submit application</button></div>';
+      document.getElementById('ab-go').onclick=function(){addMe('Submit ✓');submitApplication();};
+      return;
+    }
+    if(t==='done'){return;}
+    // text/email/tel/number
+    var pfx=step.prefix?'<span class="pfx">'+step.prefix+'</span>':'';
+    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.prefix?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+t+'" placeholder="'+(step.placeholder||'')+'"></div><button class="ab-send" id="ab-go">Send</button></div><div class="ab-err" id="ab-err"></div>';
+    var inp=document.getElementById('ab-inp');inp.focus();
+    function go(){var v=inp.value;if(step.validate){var e=step.validate(v);if(e){document.getElementById('ab-err').textContent=e;return;}}state[step.key]=v.trim();addMe(step.prefix?(step.prefix+Number(v).toLocaleString('en-ZA')):v.trim());advance();}
+    document.getElementById('ab-go').onclick=go;
+    inp.addEventListener('keydown',function(e){if(e.key==='Enter')go();});
+  }
+
+  function runStep(){
+    prog();var step=steps[i];var msgs=step.bot.map(m=>typeof m==='function'?m(state):m);
+    dock.innerHTML='';var k=0;
+    (function next(){if(k>=msgs.length){render(step);return;}addBot(msgs[k]);k++;setTimeout(next,350);})();
+  }
+  function advance(){i++;runStep();}
+  runStep();
+})();
+</script>
