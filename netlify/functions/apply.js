@@ -140,10 +140,10 @@ const TEMPLATE = {
   "mail_notify_force_send": false
 };
 
-const json = (statusCode, obj) => ({
-  statusCode,
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(obj)
+// Netlify Functions v2 (export default) must return a Web Response object.
+const json = (status, obj) => new Response(JSON.stringify(obj), {
+  status,
+  headers: { "Content-Type": "application/json" }
 });
 
 function buildPayload(data) {
