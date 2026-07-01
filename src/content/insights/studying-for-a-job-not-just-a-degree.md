@@ -2,7 +2,7 @@
 title: "Studying for a job, not just a degree"
 date: 2026-06-12
 tag: "Employability"
-summary: "A qualification is only the start. Why the employability of your course matters more than ever — and how Manati factors it in."
+summary: "A qualification is only the start. Why the employability of your course matters more than ever when you choose what to study."
 ---
 
 South Africa produces more than 200,000 graduates a year, and yet many of them struggle to find work. Graduate unemployment sits at around 30%, and for young people aged 15–24 the broader rate is far higher. Behind those numbers are real families who did everything right — studied hard, qualified — and still hit a wall.
@@ -17,7 +17,7 @@ That doesn't mean only "safe" careers are worth studying. It means going in with
 
 ## How Manati looks at it
 
-This is exactly why Manati doesn't fund on a credit score alone. When we assess an application, we look at your academic results *and* the employability of your course — because we're backing your future earning ability, not just your enrolment. And because getting you into work is in everyone's interest, we offer employment support to help graduates transition into the workplace, which also makes repayment far more manageable.
+This is exactly why Manati doesn't fund on a credit score alone. We provide individually-assessed study loans — looking at your circumstances and affordability, including joint household income — so that capable students who fall outside traditional funding can access tertiary education and pursue a career-focused qualification.
 
 Study with purpose, choose with the job market in mind, and let your funding be structured around where you're going — not just where you're starting.
 

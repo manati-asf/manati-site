@@ -34,7 +34,7 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdro
 .nav{display:flex;align-items:center;justify-content:space-between;height:72px}
 .logo{display:flex;align-items:center;gap:11px;font-weight:800;font-size:22px;color:var(--navy)}
 .brand-logo{display:inline-flex;align-items:center}
-.brand-logo svg{height:42px;width:auto;display:block}
+.brand-logo svg{height:54px;width:auto;display:block}
 .foot-logo svg{height:52px;width:auto;display:block;margin-bottom:4px}
 .nav-links{display:flex;gap:30px;align-items:center}
 .nav-links a{color:var(--muted);font-weight:500;font-size:15px}
@@ -158,6 +158,12 @@ section.block{padding:84px 0}
   .page-hero h1{font-size:32px}
 }
 
+/* NPS trust band */
+.nps-band{background:var(--navy);color:#fff;border-radius:20px;padding:26px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 28px;text-align:center;box-shadow:var(--shadow)}
+.nps-score{font-family:'Varela Round',sans-serif;font-size:48px;font-weight:700;color:var(--gold);line-height:1}
+.nps-title{font-family:'Varela Round',sans-serif;font-weight:700;font-size:19px}
+.nps-sub{color:#cfc9bd;font-size:14.5px;margin-top:3px;max-width:560px;text-align:left}
+
 /* CTA */
 .cta{background:linear-gradient(135deg,#231f20,#3a3531);color:#fff;border-radius:24px;padding:54px;text-align:center;box-shadow:var(--shadow)}
 .cta h2{font-size:32px;font-weight:800;margin-bottom:10px}
@@ -181,5 +187,8 @@ footer p{color:#aaa496}
   .cards3,.steps,.foot-grid{grid-template-columns:1fr}
   .nav-links{display:none}
   .menu-btn{display:block}
+  .brand-logo svg{height:46px}
+  header.nav-open .nav-links{display:flex;flex-direction:column;gap:0;position:absolute;left:0;right:0;top:100%;background:#fff;border-bottom:1px solid var(--line);padding:6px 24px 14px;box-shadow:var(--shadow)}
+  header.nav-open .nav-links a{padding:13px 2px;font-size:16px;border-bottom:1px solid var(--line)}
   .cta{padding:38px 24px}
 }

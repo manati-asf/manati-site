@@ -16,6 +16,15 @@ const isActive = (href: string) =>
     <div class="nav-cta">
       <a class="btn btn-dark" href="/how-to-apply">Apply now</a>
     </div>
-    <button class="menu-btn" aria-label="Menu">☰</button>
+    <button class="menu-btn" id="mn-menu" aria-label="Menu" aria-expanded="false">☰</button>
   </div>
 </header>
+<script is:inline>
+  (function(){
+    var h=document.querySelector('header'), b=document.getElementById('mn-menu');
+    if(!h||!b) return;
+    function set(open){ h.classList.toggle('nav-open', open); b.setAttribute('aria-expanded', open?'true':'false'); b.textContent = open?'✕':'☰'; }
+    b.addEventListener('click', function(){ set(!h.classList.contains('nav-open')); });
+    h.querySelectorAll('.nav-links a').forEach(function(a){ a.addEventListener('click', function(){ set(false); }); });
+  })();
+</script>

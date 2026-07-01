@@ -19,7 +19,7 @@ The maths is unforgiving. With 2026 tuition increases capped at roughly 4.15% an
 
 ## Where Manati fits
 
-Manati was built for exactly this gap. We provide alternative, individually-assessed study loans for capable students who can't secure traditional funding. Rather than a blunt credit score, we look at your academic record and the employability of your course, and we structure a loan that's reasonable for your situation — with instalments that stay stable for the term of the loan, and employment support to help you find work after you graduate.
+Manati was built for exactly this gap. We provide alternative, individually-assessed study loans for capable students who can't secure traditional funding. Rather than relying on a blunt credit score alone, we assess each application individually — including affordability and joint household income — and structure a loan that's reasonable for your situation, with instalments that stay stable for the term of the loan.
 
 Debt taken on thoughtfully, to fund a qualification that leads to a job, is an investment — not a trap. If you're caught in the middle, talk to us about what's possible.
 
