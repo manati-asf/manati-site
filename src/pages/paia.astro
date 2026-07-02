@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+const MANUAL_URL = '/assets/Manati-PAIA-Manual.pdf';
+---
+<Base title="PAIA & Access to Information — Manati" description="How to request access to records held by Manati Alternate Student Funding under the Promotion of Access to Information Act (PAIA), and a download of our full PAIA Manual.">
+  <Header />
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Legal</span>
+      <h1>Access to information (PAIA)</h1>
+      <p>The Promotion of Access to Information Act (PAIA) gives you the right to request access to records we hold. This page explains how, and links to our full PAIA Manual.</p>
+      <div style="margin-top:24px"><a class="btn btn-primary" href={MANUAL_URL} target="_blank" rel="noopener">Download the full PAIA Manual (PDF) →</a></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap" style="max-width:820px">
+      <div class="sec-head" style="text-align:left">
+        <h2>What this is</h2>
+      </div>
+      <p style="color:var(--muted)">Manati Alternate Student Funding (Pty) Ltd is a private body under PAIA. Our PAIA Manual, compiled in terms of section 51 of the Promotion of Access to Information Act 2 of 2000, sets out the records we hold and how you can request access to them. You're welcome to read the short summary below or download the full manual above.</p>
+
+      <h3 style="margin-top:34px">Your right to request records</h3>
+      <p style="color:var(--muted)">Under PAIA you may request access to a record we hold where that record is required to exercise or protect a right. Some categories of records are available on request; others are governed by other legislation (such as the Companies Act, National Credit Act and POPIA). The full manual lists these categories.</p>
+
+      <h3 style="margin-top:34px">How to make a request</h3>
+      <ol style="color:var(--muted);line-height:1.7;padding-left:20px">
+        <li>Complete the prescribed PAIA request form (Form 2), available from the Information Regulator at <a href="https://inforegulator.org.za" target="_blank" rel="noopener" style="color:var(--teal-d);font-weight:600">inforegulator.org.za</a>.</li>
+        <li>Send the completed form to our Information Officer using the contact details below.</li>
+        <li>Describe the record you're requesting and the right you're seeking to exercise or protect.</li>
+        <li>A reasonable prescribed fee may be payable before a request is processed, in line with the PAIA regulations.</li>
+      </ol>
+
+      <h3 style="margin-top:34px">Who to contact</h3>
+      <div class="info-card" style="margin-top:14px">
+        <p style="margin:0 0 6px"><strong>Information Officer</strong></p>
+        <p style="margin:0;color:var(--muted)">Email: <a href="mailto:privacy@manati.co.za" style="color:var(--teal-d);font-weight:600">privacy@manati.co.za</a></p>
+        <p style="margin:18px 0 6px"><strong>Deputy Information Officer</strong></p>
+        <p style="margin:0;color:var(--muted)">Email: <a href="mailto:privacy@manati.co.za" style="color:var(--teal-d);font-weight:600">privacy@manati.co.za</a></p>
+        <p style="margin:18px 0 6px"><strong>General &amp; head office</strong></p>
+        <p style="margin:0;color:var(--muted)">Suite 310 Sovereign Quay, 34 Somerset Road, Green Point, Cape Town, 8005<br />
+        Tel: +27 10 594 5398 · Email: <a href="mailto:info@manati.co.za" style="color:var(--teal-d);font-weight:600">info@manati.co.za</a></p>
+      </div>
+
+      <h3 style="margin-top:34px">The PAIA Guide</h3>
+      <p style="color:var(--muted)">The Information Regulator has published a Guide on how to use PAIA, available in all official languages. You can obtain it from the Regulator's website at <a href="https://inforegulator.org.za" target="_blank" rel="noopener" style="color:var(--teal-d);font-weight:600">inforegulator.org.za</a> or on request from our Information Officer.</p>
+
+      <div style="margin-top:36px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--paper, #faf9f6)">
+        <p style="margin:0 0 12px;font-weight:700">Full PAIA Manual</p>
+        <p style="margin:0 0 16px;color:var(--muted)">The complete manual includes the categories of records we hold, applicable legislation, how we process personal information, and our security measures.</p>
+        <a class="btn btn-dark" href={MANUAL_URL} target="_blank" rel="noopener">Download the PAIA Manual (PDF) →</a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

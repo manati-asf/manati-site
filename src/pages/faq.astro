@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const faqs = [
+  {
+    q: "Who can apply for a Manati loan?",
+    a: "Students who have been provisionally accepted at, or are registered with, a recognised university or college are welcome to apply. We assess each application individually — including affordability and joint household income — rather than on a credit score alone.",
+  },
+  {
+    q: "How do you decide whether to fund me?",
+    a: "Every application is assessed individually. We look at your circumstances and affordability — including joint household income where applicable — and structure a loan that's reasonable for your situation.",
+  },
+  {
+    q: "What does the loan cover?",
+    a: "Manati funds study-related costs such as tuition. The exact structure is confirmed on assessment, based on your institution, course and circumstances.",
+  },
+  {
+    q: "What interest rate will I pay?",
+    a: "Your rate is determined individually when we assess your application — we aim to keep it low. You can use the repayment calculator on our homepage for an indicative monthly estimate before you apply.",
+  },
+  {
+    q: "Are my instalments fixed?",
+    a: "Your instalments stay stable for the term of the loan, so you can plan with confidence. They are not technically “fixed”, but they remain consistent throughout your repayment period.",
+  },
+  {
+    q: "Can I apply with joint household income?",
+    a: "Yes — and we encourage it. With your spouse or partner's consent, you can include their income on your application, which can improve your chances of approval.",
+  },
+  {
+    q: "When do I start repaying?",
+    a: "Repayment terms are structured around your circumstances and confirmed on assessment, with instalments that stay stable for the term of the loan so you can plan with confidence.",
+  },
+  {
+    q: "I'm an existing loan holder with a question about my loan.",
+    a: "Please contact your Account Manager directly, or email Collections@manati.co.za and we'll assist you.",
+  },
+  {
+    q: "I represent an institution — how do we partner with Manati?",
+    a: "We'd love to talk. Visit our For Institutions page or get in touch via the Contact page and we'll set up a conversation.",
+  },
+];
+---
+<Base title="FAQ — Manati" description="Frequently asked questions about Manati Alternate Student Funding — applying, eligibility, interest, repayment and more.">
+  <Header />
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Help &amp; FAQ</span>
+      <h1>Frequently asked questions</h1>
+      <p>Quick answers to the questions we hear most. Can't find what you're looking for? We're a message away.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="faq">
+        {faqs.map((f) => (
+          <details>
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+      <div style="max-width:780px;margin-top:28px">
+        <a class="btn btn-dark" href="/contact">Still have a question? Contact us →</a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

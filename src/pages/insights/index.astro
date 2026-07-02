@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+const posts = (await getCollection('insights')).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+const thumbs = ['', 'alt', 'alt2'];
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<Base title="Insights — Manati" description="Articles and guidance from Manati Alternate Student Funding.">
+  <Header />
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Insights</span>
+        <h2>Articles &amp; guidance</h2>
+        <p>Write an article once here — it publishes to the site and can be shared automatically to LinkedIn and other channels. <a href="/rss.xml" style="color:var(--teal-d);font-weight:600">RSS feed</a>.</p>
+      </div>
+      <div class="cards3">
+        {posts.map((p, i) => (
+          <a class="card art" href={`/insights/${p.slug}/`}>
+            <div class={`thumb ${thumbs[i % 3]}`}></div>
+            <div class="body">
+              <span class="tag">{p.data.tag}</span>
+              <h3>{p.data.title}</h3>
+              <p style="color:var(--muted);font-size:13px;margin:2px 0 8px">{fmt(p.data.date)}</p>
+              <p>{p.data.summary}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+  <Footer />
+</Base>
