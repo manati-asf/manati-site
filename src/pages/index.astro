@@ -98,10 +98,32 @@ const thumbs = ['', 'alt', 'alt2'];
 <section class="block" style="padding-top:6px">
   <div class="wrap">
     <div class="nps-band">
-      <div class="nps-score">76</div>
-      <div>
+      <div class="nps-gauge">
+        <svg viewBox="0 0 320 200" role="img" aria-label="Net Promoter Score gauge showing 76 out of 100, in the world-class range">
+          <g fill="none" stroke-width="20">
+            <path d="M42,155 A118,118 0 0 1 160,37" stroke="#e2574c"/>
+            <path d="M160,37 A118,118 0 0 1 213.6,49.9" stroke="#e0a030"/>
+            <path d="M213.6,49.9 A118,118 0 0 1 265.1,101.4" stroke="#9ccc4f"/>
+            <path d="M265.1,101.4 A118,118 0 0 1 278,155" stroke="#2fb56b"/>
+          </g>
+          <line x1="160" y1="155" x2="249.3" y2="119.7" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="160" cy="155" r="7" fill="#dec323"/>
+          <text x="160" y="140" text-anchor="middle" font-family="'Varela Round',Verdana,sans-serif" font-size="42" font-weight="bold" fill="#dec323">76</text>
+          <text x="34" y="178" text-anchor="middle" font-size="11" fill="#cfc9bd">−100</text>
+          <text x="160" y="30" text-anchor="middle" font-size="11" fill="#cfc9bd">0</text>
+          <text x="286" y="178" text-anchor="middle" font-size="11" fill="#cfc9bd">+100</text>
+        </svg>
+      </div>
+      <div class="nps-copy">
         <div class="nps-title">Our Net Promoter Score is 76</div>
-        <div class="nps-sub">That's a <strong>world-class</strong> level of customer satisfaction (a score above 70) — and well above the banking-sector norm. It's the clearest measure of how our students feel about us.</div>
+        <div class="nps-sub">A score above 70 is widely regarded as <strong>world-class</strong> — and well above the banking-sector norm. It's the clearest measure of how our students feel about us.</div>
+        <details class="nps-more">
+          <summary>How the Net Promoter Score works</summary>
+          <div class="nps-more-body">
+            <p>NPS runs from −100 to +100. It comes from a single question — "How likely are you to recommend us?" (0–10) — where the percentage of <strong>Promoters</strong> (9–10) minus the percentage of <strong>Detractors</strong> (0–6) gives the score.</p>
+            <p>As a rule of thumb: above <strong>0</strong> is good, above <strong>30</strong> is great, above <strong>50</strong> is excellent, and above <strong>70</strong> is considered world-class. Many benchmarks put the banking-sector average near 30 — so our 76 sits firmly in the top tier.</p>
+          </div>
+        </details>
       </div>
     </div>
   </div>
