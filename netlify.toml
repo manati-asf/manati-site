@@ -15,3 +15,40 @@
   from = "/api/apply"
   to = "/.netlify/functions/apply"
   status = 200
+
+# --- SEO: 301 redirects from the old WordPress URLs to the new structure ---
+# Preserves search ranking and inbound links after the domain cut-over.
+[[redirects]]
+  from = "/about-us"
+  to = "/about"
+  status = 301
+
+[[redirects]]
+  from = "/contact-us"
+  to = "/contact"
+  status = 301
+
+[[redirects]]
+  from = "/apply-for-bursary"
+  to = "/how-to-apply"
+  status = 301
+
+[[redirects]]
+  from = "/frequently-asked-questions-2"
+  to = "/faq"
+  status = 301
+
+[[redirects]]
+  from = "/thank-you-for-applying-at-manati"
+  to = "/how-to-apply"
+  status = 301
+
+[[redirects]]
+  from = "/sample-page"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/636-2"
+  to = "/"
+  status = 301
