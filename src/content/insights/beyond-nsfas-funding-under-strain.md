@@ -22,7 +22,7 @@ A few practical steps go a long way:
 
 ## Where alternative funding fits
 
-Manati exists to be that reliable backup — and, for many, the primary route. We provide individually-assessed study loans for students who fall outside government support or need to close a gap, with instalments that stay stable for the loan term so repayment stays predictable.
+Manati exists to be that reliable backup — and, for many, the primary route. We provide individually-assessed study loans for students who fall outside government support or need to close a gap, with repayment structured to suit your circumstances so it stays manageable.
 
 When the system is under strain, a clear plan is the best protection. If you'd like help mapping out yours, we're a conversation away.
 
