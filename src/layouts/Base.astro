@@ -8,6 +8,33 @@ const {
   title = 'Manati — Alternate Student Funding',
   description = 'Manati Alternate Student Funding provides low-interest study loans for South African students who cannot secure traditional funding.',
 } = Astro.props;
+
+const site = Astro.site ?? new URL('https://manati.co.za');
+let path = Astro.url.pathname;
+if (!path.endsWith('/') && !(path.split('/').pop() || '').includes('.')) path += '/';
+const canonical = new URL(path, site).href;
+const ogImage = new URL('/assets/og-image.jpg', site).href;
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Manati Alternate Student Funding',
+  url: 'https://manati.co.za',
+  logo: 'https://manati.co.za/assets/manati-logo.png',
+  description:
+    'Manati provides individually-assessed, low-interest study loans for South African students who fall outside traditional funding.',
+  sameAs: [
+    'https://www.linkedin.com/company/manati-alternate-student-funding-south-africa/',
+    'https://www.instagram.com/manati_asf/',
+  ],
+  identifier: { '@type': 'PropertyValue', name: 'NCRCP', value: 'NCRCP8052' },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer service',
+    email: 'info@manati.co.za',
+    telephone: '+27105945398',
+  },
+};
 ---
 <!doctype html>
 <html lang="en">
@@ -16,6 +43,25 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Manati Alternate Student Funding" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

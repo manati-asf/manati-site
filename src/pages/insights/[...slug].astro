@@ -17,12 +17,29 @@ const { Content } = await post.render();
 const dateStr = post.data.date.toLocaleDateString('en-ZA', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
+const site = Astro.site ?? new URL('https://manati.co.za');
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.summary,
+  datePublished: post.data.date.toISOString(),
+  author: { '@type': 'Organization', name: 'Manati Alternate Student Funding' },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Manati Alternate Student Funding',
+    logo: { '@type': 'ImageObject', url: 'https://manati.co.za/assets/manati-logo.png' },
+  },
+  image: new URL('/assets/og-image.jpg', site).href,
+  mainEntityOfPage: new URL(`/insights/${post.slug}/`, site).href,
+};
 ---
 <Base title={`${post.data.title} — Manati`} description={post.data.summary}>
   <Header />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <article class="block">
     <div class="wrap" style="max-width:760px">
-      <a href="/insights" style="color:var(--muted);font-size:14px">← Back to all insights</a>
+      <a href="/insights/" style="color:var(--muted);font-size:14px">← Back to all insights</a>
       <span class="eyebrow" style="display:block;margin-top:22px">{post.data.tag}</span>
       <h1 style="color:var(--navy);font-size:36px;line-height:1.15;margin:10px 0 8px">{post.data.title}</h1>
       <p style="color:var(--muted);font-size:14px;margin-bottom:26px">{dateStr}</p>

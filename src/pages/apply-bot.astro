@@ -269,7 +269,7 @@ import Footer from '../components/Footer.astro';
       return;
     }
     if(t==='consent'){
-      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb"> I confirm my details are true, I\'m authorised to share them, and I consent to Manati processing my information and running credit and affordability checks, in line with the <a href="/privacy" target="_blank" style="color:var(--teal-d);font-weight:600">Privacy Notice</a>.</label><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">I agree &amp; continue</button></div><div class="ab-err" id="ab-err"></div>';
+      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb"> I confirm my details are true, I\'m authorised to share them, and I consent to Manati processing my information and running credit and affordability checks, in line with the <a href="/privacy/" target="_blank" style="color:var(--teal-d);font-weight:600">Privacy Notice</a>.</label><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">I agree &amp; continue</button></div><div class="ab-err" id="ab-err"></div>';
       document.getElementById('ab-go').onclick=function(){if(!document.getElementById('ab-cb').checked){document.getElementById('ab-err').textContent="Please tick the box to continue.";return;}S.consent='Yes';addMe('I agree ✓');advance();};
       return;
     }

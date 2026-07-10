@@ -17,38 +17,59 @@
   status = 200
 
 # --- SEO: 301 redirects from the old WordPress URLs to the new structure ---
-# Preserves search ranking and inbound links after the domain cut-over.
+# Preserves search ranking and inbound links. Targets are trailing-slash to
+# match the built pages and avoid an extra redirect hop.
 [[redirects]]
   from = "/about-us"
-  to = "/about"
+  to = "/about/"
   status = 301
 
 [[redirects]]
   from = "/contact-us"
-  to = "/contact"
+  to = "/contact/"
   status = 301
 
 [[redirects]]
   from = "/apply-for-bursary"
-  to = "/how-to-apply"
+  to = "/how-to-apply/"
+  status = 301
+
+[[redirects]]
+  from = "/apply"
+  to = "/how-to-apply/"
+  status = 301
+
+[[redirects]]
+  from = "/frequently-asked-questions"
+  to = "/faq/"
   status = 301
 
 [[redirects]]
   from = "/frequently-asked-questions-2"
-  to = "/faq"
+  to = "/faq/"
+  status = 301
+
+[[redirects]]
+  from = "/loan-calculator"
+  to = "/#apply"
+  status = 301
+
+[[redirects]]
+  from = "/blog"
+  to = "/insights/"
   status = 301
 
 [[redirects]]
   from = "/thank-you-for-applying-at-manati"
-  to = "/how-to-apply"
-  status = 301
-
-[[redirects]]
-  from = "/sample-page"
-  to = "/"
+  to = "/how-to-apply/"
   status = 301
 
 [[redirects]]
   from = "/636-2"
+  to = "/terms/"
+  status = 301
+
+[[redirects]]
+  from = "/sample-page"
   to = "/"
   status = 301

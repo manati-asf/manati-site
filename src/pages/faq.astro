@@ -41,9 +41,20 @@ const faqs = [
     a: "We'd love to talk. Visit our For Institutions page or get in touch via the Contact page and we'll set up a conversation.",
   },
 ];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
 ---
 <Base title="FAQ — Manati" description="Frequently asked questions about Manati Alternate Student Funding — applying, eligibility, interest, repayment and more.">
   <Header />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
   <section class="page-hero">
     <div class="wrap">
@@ -64,7 +75,7 @@ const faqs = [
         ))}
       </div>
       <div style="max-width:780px;margin-top:28px">
-        <a class="btn btn-dark" href="/contact">Still have a question? Contact us →</a>
+        <a class="btn btn-dark" href="/contact/">Still have a question? Contact us →</a>
       </div>
     </div>
   </section>
