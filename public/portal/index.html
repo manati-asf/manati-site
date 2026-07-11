@@ -31,8 +31,6 @@
   h1, h2, h3, .brand, button, .tab {
     font-family: 'Varela Round', Verdana, sans-serif;
   }
-
-  /* ---------- header ---------- */
   header {
     background: var(--charcoal); color: #fff;
     padding: 0 24px; height: 64px;
@@ -48,12 +46,8 @@
     padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 13px;
   }
   .btn-ghost:hover { border-color: var(--citrine); color: var(--citrine); }
-
-  /* ---------- layout ---------- */
   main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
   .hidden { display: none !important; }
-
-  /* ---------- login ---------- */
   .login-wrap { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 24px; }
   .login-card {
     background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
@@ -85,28 +79,22 @@
     padding: 10px 14px; font-size: 13px; margin-top: 16px;
   }
   .note { font-size: 12.5px; color: var(--muted); margin-top: 18px; text-align: center; }
-
-  /* ---------- dashboard ---------- */
   .greeting { margin-bottom: 20px; }
   .greeting h1 { font-size: 24px; }
   .greeting p { color: var(--muted); font-size: 14px; }
-
   .loan-chips { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
   .chip {
     padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--line);
     background: var(--card); cursor: pointer; font-size: 13.5px; font-family: 'Varela Round', Verdana, sans-serif;
   }
   .chip.active { background: var(--charcoal); color: var(--citrine); border-color: var(--charcoal); }
-
   .banner-overdue {
     background: #fdecea; border-left: 4px solid var(--red);
     border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 14px;
   }
   .banner-overdue b { display: block; margin-bottom: 2px; }
-
   .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 20px; }
   @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-
   .card {
     background: var(--card); border-radius: var(--radius);
     box-shadow: var(--shadow); padding: 26px;
@@ -118,15 +106,12 @@
   }
   .progress-fill { background: var(--citrine); height: 100%; border-radius: 999px; transition: width .6s ease; }
   .progress-label { font-size: 13px; color: var(--muted); }
-
   .next-pay .amount { font-size: 28px; font-family: 'Varela Round', Verdana, sans-serif; margin: 4px 0 2px; }
   .next-pay .when { color: var(--muted); font-size: 14px; }
   .next-pay .debit { font-size: 13px; color: var(--muted); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
-
   .kv { display: flex; justify-content: space-between; padding: 9px 0; font-size: 14px; border-bottom: 1px solid var(--line); }
   .kv:last-child { border-bottom: none; }
   .kv span:first-child { color: var(--muted); }
-
   .actions { display: flex; gap: 12px; margin: 4px 0 26px; flex-wrap: wrap; }
   .action-btn {
     display: inline-flex; align-items: center; gap: 8px;
@@ -137,7 +122,6 @@
   .action-btn:hover { color: var(--citrine); }
   .action-btn.secondary { background: var(--card); color: var(--charcoal); border: 1.5px solid var(--line); }
   .action-btn.secondary:hover { border-color: var(--citrine); color: var(--charcoal); }
-
   .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 0; flex-wrap: wrap; }
   .tab {
     background: none; border: none; padding: 12px 20px; font-size: 14.5px;
@@ -145,7 +129,6 @@
   }
   .tab.active { color: var(--charcoal); border-bottom-color: var(--citrine); }
   .tab-panel { background: var(--card); border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); padding: 6px 26px 20px; }
-
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th { text-align: left; color: var(--muted); font-weight: normal; font-size: 12.5px; padding: 14px 10px 8px; border-bottom: 1px solid var(--line); }
   td { padding: 11px 10px; border-bottom: 1px solid var(--line); }
@@ -154,13 +137,11 @@
   .pill { font-size: 11.5px; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); }
   .pill.paid { background: #e6f9f0; color: #1e7a4f; }
   .pill.overdue { background: #fdecea; color: #a4271c; }
-
   .loading { text-align: center; color: var(--muted); padding: 60px 0; }
   footer { text-align: center; font-size: 12px; color: var(--muted); padding: 26px 20px 40px; }
 </style>
 </head>
 <body>
-
 <header>
   <div class="brand">manati<b>.</b></div>
   <div class="header-right">
@@ -168,8 +149,6 @@
     <button id="btn-logout" class="btn-ghost hidden" onclick="logout()">Log out</button>
   </div>
 </header>
-
-<!-- ============ LOGIN ============ -->
 <div id="view-login" class="login-wrap">
   <div class="login-card">
     <div id="step-id">
@@ -191,17 +170,13 @@
     <div id="login-error" class="error hidden"></div>
   </div>
 </div>
-
-<!-- ============ DASHBOARD ============ -->
 <main id="view-dash" class="hidden">
   <div class="greeting">
     <h1 id="greet">Your account</h1>
     <p id="greet-sub">Here's where your study loan stands today.</p>
   </div>
-
   <div id="loan-chips" class="loan-chips hidden"></div>
   <div id="banner-overdue" class="banner-overdue hidden"></div>
-
   <div class="grid">
     <div class="card">
       <h2>Outstanding balance</h2>
@@ -216,12 +191,10 @@
       <div class="debit" id="debit-info"></div>
     </div>
   </div>
-
   <div class="actions">
     <button class="action-btn" onclick="downloadStatement()">Download statement (PDF)</button>
     <button class="action-btn secondary" onclick="alert('Settlement quotes are coming soon. For now, please contact us and we will gladly help.')">Ask about settling early</button>
   </div>
-
   <div class="tabs">
     <button class="tab active" data-tab="overview" onclick="showTab('overview')">Overview</button>
     <button class="tab" data-tab="schedule" onclick="showTab('schedule')">Payment schedule</button>
@@ -230,7 +203,6 @@
     <button class="tab" data-tab="documents" onclick="showTab('documents')">Documents</button>
     <button class="tab" data-tab="help" onclick="showTab('help')">Help</button>
   </div>
-
   <div class="tab-panel">
     <div id="tab-overview">
       <div class="kv"><span>Loan reference</span><span id="ov-ref"></span></div>
@@ -254,7 +226,6 @@
         <tbody id="tx-body"></tbody>
       </table>
     </div>
-
     <div id="tab-details" class="hidden">
       <div class="kv"><span>Name</span><span id="pf-name"></span></div>
       <div class="kv"><span>Mobile number</span><span id="pf-mobile"></span></div>
@@ -289,7 +260,6 @@
         <p id="ch-msg" class="note" style="text-align:left;"></p>
       </div>
     </div>
-
     <div id="tab-documents" class="hidden">
       <table>
         <thead><tr><th>Document</th><th>Type</th><th>Received</th></tr></thead>
@@ -317,7 +287,6 @@
         <p id="doc-msg" class="note" style="text-align:left;"></p>
       </div>
     </div>
-
     <div id="tab-help" class="hidden">
       <div style="padding-top:6px;">
         <h3 style="font-size:14px; margin-bottom:10px;">Log a query</h3>
@@ -344,24 +313,14 @@
     </div>
   </div>
 </main>
-
 <footer>
   Manati is a registered credit provider. Need help? Contact us at manati.co.za and we'll gladly assist.
 </footer>
-
 <script>
-/* ============================================================
-   Configuration
-   - Local testing: leave as localhost (middleware on your Mac)
-   - Production: change to the deployed middleware URL, e.g.
-     https://api.manati.co.za
-   ============================================================ */
-const API_BASE = "http://localhost:8000";
-
+const API_BASE = "https://api.manati.co.za";
 let token = sessionStorage.getItem("manati_token") || null;
 let loans = [];
 let currentLoan = null;
-
 const R = new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" });
 const fmtR = v => R.format(v ?? 0);
 const fmtDate = s => {
@@ -370,10 +329,7 @@ const fmtDate = s => {
   return d.toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" });
 };
 const el = id => document.getElementById(id);
-
-/* ---------- api helper ---------- */
 async function api(path, opts = {}) {
-  // FormData uploads must NOT get a JSON content-type; the browser sets it.
   const isForm = opts.body instanceof FormData;
   const headers = Object.assign(
     isForm ? {} : { "Content-Type": "application/json" },
@@ -386,14 +342,11 @@ async function api(path, opts = {}) {
   }
   return res;
 }
-
-/* ---------- login flow ---------- */
 function showError(msg) {
   const box = el("login-error");
   box.textContent = msg; box.classList.remove("hidden");
 }
 function clearError() { el("login-error").classList.add("hidden"); }
-
 async function sendOtp() {
   clearError();
   const idn = el("id-number").value.trim();
@@ -408,7 +361,6 @@ async function sendOtp() {
     showError("We couldn't reach the server. Please try again in a moment.");
   } finally { btn.disabled = false; btn.textContent = "Send me a one-time PIN"; }
 }
-
 async function verifyOtp() {
   clearError();
   const idn = el("id-number").value.trim();
@@ -426,13 +378,11 @@ async function verifyOtp() {
     if (e.message !== "Session expired") showError("We couldn't reach the server. Please try again in a moment.");
   } finally { btn.disabled = false; btn.textContent = "Log in"; }
 }
-
 function backToId() {
   clearError();
   el("step-otp").classList.add("hidden");
   el("step-id").classList.remove("hidden");
 }
-
 function logout() {
   token = null; loans = []; currentLoan = null;
   sessionStorage.removeItem("manati_token");
@@ -443,8 +393,6 @@ function logout() {
   backToId();
   el("id-number").value = ""; el("otp").value = "";
 }
-
-/* ---------- dashboard ---------- */
 async function enterDashboard() {
   el("view-login").classList.add("hidden");
   el("view-dash").classList.remove("hidden");
@@ -473,7 +421,6 @@ async function enterDashboard() {
   }
   selectLoan(loans[0].id);
 }
-
 async function selectLoan(id) {
   document.querySelectorAll(".chip").forEach(c =>
     c.classList.toggle("active", Number(c.dataset.id) === id));
@@ -483,28 +430,20 @@ async function selectLoan(id) {
   render(currentLoan);
   loadSchedule(id); loadTransactions(id);
 }
-
 function render(l) {
   el("balance").textContent = fmtR(l.balance);
   const pct = l.instalments_total ? Math.min(100, Math.round(100 * l.instalments_done / l.instalments_total)) : 0;
   el("progress").style.width = pct + "%";
-  el("progress-label").textContent =
-    `Instalment ${l.instalments_done} of ${l.instalments_total} · ${pct}% of the way`;
-
+  el("progress-label").textContent = `Instalment ${l.instalments_done} of ${l.instalments_total} · ${pct}% of the way`;
   el("next-amount").textContent = fmtR(l.next_payment_amount);
   el("next-date").textContent = "on " + fmtDate(l.next_payment_date);
   const d = l.debit_order || {};
-  el("debit-info").textContent = d.account_masked
-    ? `Debit order from account ${d.account_masked}` + (d.day_of_month ? `, day: ${d.day_of_month}` : "")
-    : "";
-
+  el("debit-info").textContent = d.account_masked ? `Debit order from account ${d.account_masked}` + (d.day_of_month ? `, day: ${d.day_of_month}` : "") : "";
   const banner = el("banner-overdue");
   if (l.amount_overdue > 0) {
-    banner.innerHTML = `<b>A payment of ${fmtR(l.amount_overdue)} is outstanding.</b>` +
-      `If this month is difficult, please get in touch. We're here to help you find a way forward.`;
+    banner.innerHTML = `<b>A payment of ${fmtR(l.amount_overdue)} is outstanding.</b>` + `If this month is difficult, please get in touch. We're here to help you find a way forward.`;
     banner.classList.remove("hidden");
   } else banner.classList.add("hidden");
-
   el("ov-ref").textContent = l.reference;
   el("ov-amount").textContent = fmtR(l.loan_amount);
   el("ov-start").textContent = fmtDate(l.start_date);
@@ -515,7 +454,6 @@ function render(l) {
   el("ov-settle").textContent = fmtR(l.settlement_amount);
   el("ov-settle-exp").textContent = fmtDate(l.settlement_expiry_date);
 }
-
 async function loadSchedule(id) {
   const body = el("schedule-body");
   body.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
@@ -523,15 +461,10 @@ async function loadSchedule(id) {
   const rows = res.ok ? await res.json() : [];
   body.innerHTML = rows.length ? "" : `<tr><td colspan="5" class="loading">No schedule available.</td></tr>`;
   rows.forEach(r => {
-    const pill = r.overdue ? `<span class="pill overdue">Overdue</span>`
-      : r.status === "paid" ? `<span class="pill paid">Paid</span>`
-      : `<span class="pill">Upcoming</span>`;
-    body.insertAdjacentHTML("beforeend",
-      `<tr><td>${r.number}</td><td>${fmtDate(r.date)}</td>` +
-      `<td class="num">${fmtR(r.amount)}</td><td class="num">${fmtR(r.amount_paid)}</td><td>${pill}</td></tr>`);
+    const pill = r.overdue ? `<span class="pill overdue">Overdue</span>` : r.status === "paid" ? `<span class="pill paid">Paid</span>` : `<span class="pill">Upcoming</span>`;
+    body.insertAdjacentHTML("beforeend", `<tr><td>${r.number}</td><td>${fmtDate(r.date)}</td>` + `<td class="num">${fmtR(r.amount)}</td><td class="num">${fmtR(r.amount_paid)}</td><td>${pill}</td></tr>`);
   });
 }
-
 async function loadTransactions(id) {
   const body = el("tx-body");
   body.innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
@@ -539,19 +472,13 @@ async function loadTransactions(id) {
   const rows = res.ok ? await res.json() : [];
   body.innerHTML = rows.length ? "" : `<tr><td colspan="4" class="loading">No transactions yet.</td></tr>`;
   rows.forEach(t => {
-    body.insertAdjacentHTML("beforeend",
-      `<tr><td>${fmtDate(t.date)}</td><td>${t.type}</td>` +
-      `<td class="num">${fmtR(t.amount)}</td><td class="num">${fmtR(t.balance)}</td></tr>`);
+    body.insertAdjacentHTML("beforeend", `<tr><td>${fmtDate(t.date)}</td><td>${t.type}</td>` + `<td class="num">${fmtR(t.amount)}</td><td class="num">${fmtR(t.balance)}</td></tr>`);
   });
 }
-
 async function downloadStatement() {
   if (!currentLoan) return;
   const res = await api(`/loans/${currentLoan.id}/statement`);
-  if (!res.ok) {
-    alert("Your statement is temporarily unavailable. Please try again shortly.");
-    return;
-  }
+  if (!res.ok) { alert("Your statement is temporarily unavailable. Please try again shortly."); return; }
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -559,8 +486,6 @@ async function downloadStatement() {
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
-
-/* ---------- Phase 2: my details ---------- */
 async function loadProfile() {
   const res = await api("/profile");
   if (!res.ok) return;
@@ -570,20 +495,15 @@ async function loadProfile() {
   el("pf-email").textContent = p.email_masked || "not on file";
   el("pf-address").textContent = [p.street, p.city, p.zip].filter(Boolean).join(", ") || "not on file";
 }
-
 async function sendChangeOtp() {
   const val = el("ch-value").value.trim();
   const msg = el("ch-msg");
   if (!val) { msg.textContent = "Please enter the new value first."; return; }
   const res = await api("/profile/change/otp", { method: "POST" });
-  if (!res.ok) {
-    msg.textContent = "We couldn't send a PIN right now. Please try again shortly or contact us.";
-    return;
-  }
+  if (!res.ok) { msg.textContent = "We couldn't send a PIN right now. Please try again shortly or contact us."; return; }
   el("ch-otp-row").classList.remove("hidden");
   msg.textContent = "We sent a PIN to the mobile number on your account.";
 }
-
 async function applyChange() {
   const field = el("ch-field").value;
   const val = el("ch-value").value.trim();
@@ -591,29 +511,21 @@ async function applyChange() {
   const msg = el("ch-msg");
   if (!/^\d{6}$/.test(otp)) { msg.textContent = "The PIN is 6 digits."; return; }
   const changes = {}; changes[field] = val;
-  const res = await api("/profile/change", { method: "POST",
-    body: JSON.stringify({ otp, changes }) });
-  if (!res.ok) {
-    msg.textContent = "That PIN didn't match or has expired. Please request a new one.";
-    return;
-  }
+  const res = await api("/profile/change", { method: "POST", body: JSON.stringify({ otp, changes }) });
+  if (!res.ok) { msg.textContent = "That PIN didn't match or has expired. Please request a new one."; return; }
   el("ch-otp-row").classList.add("hidden");
   el("ch-value").value = ""; el("ch-otp").value = "";
   msg.textContent = "Done. Your details have been updated.";
   loadProfile();
 }
-
-/* ---------- Phase 2: documents ---------- */
 async function loadDocuments() {
   const body = el("doc-body");
   body.innerHTML = `<tr><td colspan="3" class="loading">Loading…</td></tr>`;
   const res = await api("/documents");
   const rows = res.ok ? await res.json() : [];
   body.innerHTML = rows.length ? "" : `<tr><td colspan="3" class="loading">No documents on file yet.</td></tr>`;
-  rows.forEach(d => body.insertAdjacentHTML("beforeend",
-    `<tr><td>${d.name}</td><td>${d.type}</td><td>${fmtDate(d.date)}</td></tr>`));
+  rows.forEach(d => body.insertAdjacentHTML("beforeend", `<tr><td>${d.name}</td><td>${d.type}</td><td>${fmtDate(d.date)}</td></tr>`));
 }
-
 async function uploadDocument() {
   const input = el("doc-file");
   const msg = el("doc-msg");
@@ -629,8 +541,6 @@ async function uploadDocument() {
   msg.textContent = "Received, thank you. Our team will take it from here.";
   loadDocuments();
 }
-
-/* ---------- Phase 2: help / queries ---------- */
 async function loadQueryCategories() {
   const sel = el("q-category");
   if (sel.options.length) return;
@@ -638,43 +548,32 @@ async function loadQueryCategories() {
   const cats = res.ok ? await res.json() : ["Something else"];
   cats.forEach(c => sel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
 }
-
 async function loadQueries() {
   const body = el("q-body");
   body.innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
   const res = await api("/queries");
   const rows = res.ok ? await res.json() : [];
   body.innerHTML = rows.length ? "" : `<tr><td colspan="4" class="loading">No queries yet.</td></tr>`;
-  rows.forEach(q => body.insertAdjacentHTML("beforeend",
-    `<tr><td>${fmtDate(q.date)}</td><td>${q.category}</td>` +
-    `<td>${q.message.length > 60 ? q.message.slice(0, 60) + "…" : q.message}</td>` +
-    `<td><span class="pill">${q.status}</span></td></tr>`));
+  rows.forEach(q => body.insertAdjacentHTML("beforeend", `<tr><td>${fmtDate(q.date)}</td><td>${q.category}</td>` + `<td>${q.message.length > 60 ? q.message.slice(0, 60) + "…" : q.message}</td>` + `<td><span class="pill">${q.status}</span></td></tr>`));
 }
-
 async function submitQuery() {
   const msg = el("q-msg");
   const message = el("q-message").value.trim();
   if (message.length < 5) { msg.textContent = "Please tell us a little more so we can help."; return; }
-  const res = await api("/queries", { method: "POST",
-    body: JSON.stringify({ category: el("q-category").value, message }) });
+  const res = await api("/queries", { method: "POST", body: JSON.stringify({ category: el("q-category").value, message }) });
   if (!res.ok) { msg.textContent = "Something went wrong. Please try again."; return; }
   el("q-message").value = "";
   msg.textContent = "Thank you, we've received your query and will be in touch.";
   loadQueries();
 }
-
-/* ---------- tabs ---------- */
 const TABS = ["overview", "schedule", "transactions", "details", "documents", "help"];
 function showTab(name) {
-  document.querySelectorAll(".tab").forEach(t =>
-    t.classList.toggle("active", t.dataset.tab === name));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
   TABS.forEach(n => el("tab-" + n).classList.toggle("hidden", n !== name));
   if (name === "details") loadProfile();
   if (name === "documents") loadDocuments();
   if (name === "help") { loadQueryCategories(); loadQueries(); }
 }
-
-/* ---------- boot ---------- */
 ["id-number", "otp"].forEach(id => {
   el(id).addEventListener("keydown", e => {
     if (e.key === "Enter") (id === "id-number" ? sendOtp : verifyOtp)();
