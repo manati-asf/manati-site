@@ -138,7 +138,7 @@
   .action-btn.secondary { background: var(--card); color: var(--charcoal); border: 1.5px solid var(--line); }
   .action-btn.secondary:hover { border-color: var(--citrine); color: var(--charcoal); }
 
-  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 0; }
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 0; flex-wrap: wrap; }
   .tab {
     background: none; border: none; padding: 12px 20px; font-size: 14.5px;
     cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px;
@@ -226,6 +226,9 @@
     <button class="tab active" data-tab="overview" onclick="showTab('overview')">Overview</button>
     <button class="tab" data-tab="schedule" onclick="showTab('schedule')">Payment schedule</button>
     <button class="tab" data-tab="transactions" onclick="showTab('transactions')">Transactions</button>
+    <button class="tab" data-tab="details" onclick="showTab('details')">My details</button>
+    <button class="tab" data-tab="documents" onclick="showTab('documents')">Documents</button>
+    <button class="tab" data-tab="help" onclick="showTab('help')">Help</button>
   </div>
 
   <div class="tab-panel">
@@ -250,6 +253,94 @@
         <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th class="num">Balance</th></tr></thead>
         <tbody id="tx-body"></tbody>
       </table>
+    </div>
+
+    <div id="tab-details" class="hidden">
+      <div class="kv"><span>Name</span><span id="pf-name"></span></div>
+      <div class="kv"><span>Mobile number</span><span id="pf-mobile"></span></div>
+      <div class="kv"><span>Email</span><span id="pf-email"></span></div>
+      <div class="kv"><span>Address</span><span id="pf-address"></span></div>
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
+        <h3 style="font-size:14px; margin-bottom:10px;">Change a detail</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+          <div style="flex:1; min-width:140px;">
+            <label>What would you like to change?</label>
+            <select id="ch-field" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px;">
+              <option value="mobile">Mobile number</option>
+              <option value="email">Email</option>
+              <option value="street">Street</option>
+              <option value="city">City</option>
+              <option value="zip">Postal code</option>
+            </select>
+          </div>
+          <div style="flex:1.4; min-width:180px;">
+            <label>New value</label>
+            <input type="text" id="ch-value" style="letter-spacing:normal;">
+          </div>
+          <button class="action-btn secondary" id="ch-send" onclick="sendChangeOtp()">Send me a PIN</button>
+        </div>
+        <div id="ch-otp-row" class="hidden" style="display:flex; gap:10px; margin-top:12px; align-items:flex-end;">
+          <div style="min-width:140px;">
+            <label>PIN from SMS</label>
+            <input type="tel" id="ch-otp" maxlength="6" inputmode="numeric">
+          </div>
+          <button class="action-btn" onclick="applyChange()">Confirm change</button>
+        </div>
+        <p id="ch-msg" class="note" style="text-align:left;"></p>
+      </div>
+    </div>
+
+    <div id="tab-documents" class="hidden">
+      <table>
+        <thead><tr><th>Document</th><th>Type</th><th>Received</th></tr></thead>
+        <tbody id="doc-body"></tbody>
+      </table>
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
+        <h3 style="font-size:14px; margin-bottom:10px;">Send us a document</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+          <div style="min-width:180px;">
+            <label>Document type</label>
+            <select id="doc-type" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px;">
+              <option>Identity document</option>
+              <option>Proof of registration</option>
+              <option>Payslip</option>
+              <option>Proof of address</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>File (PDF, JPG or PNG, max 5 MB)</label>
+            <input type="file" id="doc-file" accept=".pdf,.jpg,.jpeg,.png" style="padding:9px; letter-spacing:normal;">
+          </div>
+          <button class="action-btn" onclick="uploadDocument()">Upload</button>
+        </div>
+        <p id="doc-msg" class="note" style="text-align:left;"></p>
+      </div>
+    </div>
+
+    <div id="tab-help" class="hidden">
+      <div style="padding-top:6px;">
+        <h3 style="font-size:14px; margin-bottom:10px;">Log a query</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div style="min-width:180px;">
+            <label>Topic</label>
+            <select id="q-category" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px;"></select>
+          </div>
+          <div style="flex:1; min-width:240px;">
+            <label>How can we help?</label>
+            <textarea id="q-message" rows="3" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px; letter-spacing:normal;"></textarea>
+          </div>
+        </div>
+        <button class="action-btn" style="margin-top:12px;" onclick="submitQuery()">Send query</button>
+        <p id="q-msg" class="note" style="text-align:left;"></p>
+      </div>
+      <div style="margin-top:20px; padding-top:8px; border-top:1px solid var(--line);">
+        <h3 style="font-size:14px; margin:10px 0;">Your queries</h3>
+        <table>
+          <thead><tr><th>Date</th><th>Topic</th><th>Message</th><th>Status</th></tr></thead>
+          <tbody id="q-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </main>
@@ -282,13 +373,17 @@ const el = id => document.getElementById(id);
 
 /* ---------- api helper ---------- */
 async function api(path, opts = {}) {
+  // FormData uploads must NOT get a JSON content-type; the browser sets it.
+  const isForm = opts.body instanceof FormData;
   const headers = Object.assign(
-    { "Content-Type": "application/json" },
+    isForm ? {} : { "Content-Type": "application/json" },
     token ? { "Authorization": "Bearer " + token } : {},
     opts.headers || {}
   );
   const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
-  if (res.status === 401 && token) { logout(); throw new Error("Session expired"); }
+  if (res.status === 401 && token && !path.startsWith("/profile/change")) {
+    logout(); throw new Error("Session expired");
+  }
   return res;
 }
 
@@ -465,12 +560,118 @@ async function downloadStatement() {
   URL.revokeObjectURL(url);
 }
 
+/* ---------- Phase 2: my details ---------- */
+async function loadProfile() {
+  const res = await api("/profile");
+  if (!res.ok) return;
+  const p = await res.json();
+  el("pf-name").textContent = p.name || "";
+  el("pf-mobile").textContent = p.mobile_masked || "not on file";
+  el("pf-email").textContent = p.email_masked || "not on file";
+  el("pf-address").textContent = [p.street, p.city, p.zip].filter(Boolean).join(", ") || "not on file";
+}
+
+async function sendChangeOtp() {
+  const val = el("ch-value").value.trim();
+  const msg = el("ch-msg");
+  if (!val) { msg.textContent = "Please enter the new value first."; return; }
+  const res = await api("/profile/change/otp", { method: "POST" });
+  if (!res.ok) {
+    msg.textContent = "We couldn't send a PIN right now. Please try again shortly or contact us.";
+    return;
+  }
+  el("ch-otp-row").classList.remove("hidden");
+  msg.textContent = "We sent a PIN to the mobile number on your account.";
+}
+
+async function applyChange() {
+  const field = el("ch-field").value;
+  const val = el("ch-value").value.trim();
+  const otp = el("ch-otp").value.trim();
+  const msg = el("ch-msg");
+  if (!/^\d{6}$/.test(otp)) { msg.textContent = "The PIN is 6 digits."; return; }
+  const changes = {}; changes[field] = val;
+  const res = await api("/profile/change", { method: "POST",
+    body: JSON.stringify({ otp, changes }) });
+  if (!res.ok) {
+    msg.textContent = "That PIN didn't match or has expired. Please request a new one.";
+    return;
+  }
+  el("ch-otp-row").classList.add("hidden");
+  el("ch-value").value = ""; el("ch-otp").value = "";
+  msg.textContent = "Done. Your details have been updated.";
+  loadProfile();
+}
+
+/* ---------- Phase 2: documents ---------- */
+async function loadDocuments() {
+  const body = el("doc-body");
+  body.innerHTML = `<tr><td colspan="3" class="loading">Loading…</td></tr>`;
+  const res = await api("/documents");
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="3" class="loading">No documents on file yet.</td></tr>`;
+  rows.forEach(d => body.insertAdjacentHTML("beforeend",
+    `<tr><td>${d.name}</td><td>${d.type}</td><td>${fmtDate(d.date)}</td></tr>`));
+}
+
+async function uploadDocument() {
+  const input = el("doc-file");
+  const msg = el("doc-msg");
+  if (!input.files.length) { msg.textContent = "Please choose a file first."; return; }
+  const f = input.files[0];
+  if (f.size > 5 * 1024 * 1024) { msg.textContent = "That file is larger than 5 MB."; return; }
+  const fd = new FormData();
+  fd.append("file", f);
+  fd.append("doc_type", el("doc-type").value);
+  const res = await api("/documents", { method: "POST", body: fd });
+  if (!res.ok) { msg.textContent = "We couldn't upload that file. Please check it's a PDF, JPG or PNG."; return; }
+  input.value = "";
+  msg.textContent = "Received, thank you. Our team will take it from here.";
+  loadDocuments();
+}
+
+/* ---------- Phase 2: help / queries ---------- */
+async function loadQueryCategories() {
+  const sel = el("q-category");
+  if (sel.options.length) return;
+  const res = await api("/queries/categories");
+  const cats = res.ok ? await res.json() : ["Something else"];
+  cats.forEach(c => sel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+}
+
+async function loadQueries() {
+  const body = el("q-body");
+  body.innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+  const res = await api("/queries");
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="4" class="loading">No queries yet.</td></tr>`;
+  rows.forEach(q => body.insertAdjacentHTML("beforeend",
+    `<tr><td>${fmtDate(q.date)}</td><td>${q.category}</td>` +
+    `<td>${q.message.length > 60 ? q.message.slice(0, 60) + "…" : q.message}</td>` +
+    `<td><span class="pill">${q.status}</span></td></tr>`));
+}
+
+async function submitQuery() {
+  const msg = el("q-msg");
+  const message = el("q-message").value.trim();
+  if (message.length < 5) { msg.textContent = "Please tell us a little more so we can help."; return; }
+  const res = await api("/queries", { method: "POST",
+    body: JSON.stringify({ category: el("q-category").value, message }) });
+  if (!res.ok) { msg.textContent = "Something went wrong. Please try again."; return; }
+  el("q-message").value = "";
+  msg.textContent = "Thank you, we've received your query and will be in touch.";
+  loadQueries();
+}
+
 /* ---------- tabs ---------- */
+const TABS = ["overview", "schedule", "transactions", "details", "documents", "help"];
 function showTab(name) {
   document.querySelectorAll(".tab").forEach(t =>
     t.classList.toggle("active", t.dataset.tab === name));
-  ["overview", "schedule", "transactions"].forEach(n =>
-    el("tab-" + n).classList.toggle("hidden", n !== name));
+  TABS.forEach(n => el("tab-" + n).classList.toggle("hidden", n !== name));
+  if (name === "details") loadProfile();
+  if (name === "documents") loadDocuments();
+  if (name === "help") { loadQueryCategories(); loadQueries(); }
 }
 
 /* ---------- boot ---------- */
@@ -483,4 +684,3 @@ if (token) enterDashboard();
 </script>
 </body>
 </html>
-
