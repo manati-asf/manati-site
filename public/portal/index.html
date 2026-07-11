@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Unpublished: keep out of search engines until go-live -->
+<meta name="robots" content="noindex, nofollow">
+<title>My Account | Manati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Duru+Sans&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --citrine: #dec323;
+    --charcoal: #231f20;
+    --mint: #53dd9d;      /* sparing: paid / success only */
+    --red: #ef4136;       /* sparing: overdue only */
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --line: #e8e5df;
+    --muted: #6f6a66;
+    --radius: 14px;
+    --shadow: 0 1px 3px rgba(35,31,32,.06), 0 8px 24px rgba(35,31,32,.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Duru Sans', Verdana, sans-serif;
+    background: var(--bg); color: var(--charcoal);
+    min-height: 100vh; font-size: 15px; line-height: 1.55;
+  }
+  h1, h2, h3, .brand, button, .tab {
+    font-family: 'Varela Round', Verdana, sans-serif;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    background: var(--charcoal); color: #fff;
+    padding: 0 24px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .brand { font-size: 24px; letter-spacing: .5px; color: #fff; }
+  .brand b { color: var(--citrine); font-weight: normal; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-right span { font-size: 13px; opacity: .75; }
+  .btn-ghost {
+    background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35);
+    padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: 13px;
+  }
+  .btn-ghost:hover { border-color: var(--citrine); color: var(--citrine); }
+
+  /* ---------- layout ---------- */
+  main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+  .hidden { display: none !important; }
+
+  /* ---------- login ---------- */
+  .login-wrap { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-card {
+    background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 40px 36px; width: 100%; max-width: 420px;
+    border-top: 4px solid var(--citrine);
+  }
+  .login-card h1 { font-size: 22px; margin-bottom: 6px; }
+  .login-card p.sub { color: var(--muted); font-size: 14px; margin-bottom: 26px; }
+  label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--muted); }
+  input[type=text], input[type=tel] {
+    width: 100%; padding: 13px 14px; font-size: 16px;
+    border: 1.5px solid var(--line); border-radius: 10px;
+    font-family: inherit; letter-spacing: 1px; background: #fff; color: var(--charcoal);
+  }
+  input:focus { outline: none; border-color: var(--citrine); }
+  .btn {
+    width: 100%; margin-top: 18px; padding: 14px; font-size: 15px;
+    background: var(--citrine); color: var(--charcoal); border: none;
+    border-radius: 999px; cursor: pointer; transition: filter .15s;
+  }
+  .btn:hover { filter: brightness(.95); }
+  .btn:disabled { opacity: .55; cursor: wait; }
+  .btn-link {
+    background: none; border: none; color: var(--muted); font-size: 13px;
+    margin-top: 14px; cursor: pointer; text-decoration: underline; width: 100%;
+  }
+  .error {
+    background: #fdecea; color: #a4271c; border-radius: 10px;
+    padding: 10px 14px; font-size: 13px; margin-top: 16px;
+  }
+  .note { font-size: 12.5px; color: var(--muted); margin-top: 18px; text-align: center; }
+
+  /* ---------- dashboard ---------- */
+  .greeting { margin-bottom: 20px; }
+  .greeting h1 { font-size: 24px; }
+  .greeting p { color: var(--muted); font-size: 14px; }
+
+  .loan-chips { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .chip {
+    padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--line);
+    background: var(--card); cursor: pointer; font-size: 13.5px; font-family: 'Varela Round', Verdana, sans-serif;
+  }
+  .chip.active { background: var(--charcoal); color: var(--citrine); border-color: var(--charcoal); }
+
+  .banner-overdue {
+    background: #fdecea; border-left: 4px solid var(--red);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 14px;
+  }
+  .banner-overdue b { display: block; margin-bottom: 2px; }
+
+  .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 26px;
+  }
+  .card h2 { font-size: 15px; color: var(--muted); font-weight: normal; margin-bottom: 6px; }
+  .big-amount { font-size: 38px; font-family: 'Varela Round', Verdana, sans-serif; letter-spacing: .5px; }
+  .progress-track {
+    background: var(--bg); border-radius: 999px; height: 10px; margin: 18px 0 8px; overflow: hidden;
+  }
+  .progress-fill { background: var(--citrine); height: 100%; border-radius: 999px; transition: width .6s ease; }
+  .progress-label { font-size: 13px; color: var(--muted); }
+
+  .next-pay .amount { font-size: 28px; font-family: 'Varela Round', Verdana, sans-serif; margin: 4px 0 2px; }
+  .next-pay .when { color: var(--muted); font-size: 14px; }
+  .next-pay .debit { font-size: 13px; color: var(--muted); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+
+  .kv { display: flex; justify-content: space-between; padding: 9px 0; font-size: 14px; border-bottom: 1px solid var(--line); }
+  .kv:last-child { border-bottom: none; }
+  .kv span:first-child { color: var(--muted); }
+
+  .actions { display: flex; gap: 12px; margin: 4px 0 26px; flex-wrap: wrap; }
+  .action-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--charcoal); color: #fff; border: none; cursor: pointer;
+    padding: 12px 22px; border-radius: 999px; font-size: 14px;
+    font-family: 'Varela Round', Verdana, sans-serif;
+  }
+  .action-btn:hover { color: var(--citrine); }
+  .action-btn.secondary { background: var(--card); color: var(--charcoal); border: 1.5px solid var(--line); }
+  .action-btn.secondary:hover { border-color: var(--citrine); color: var(--charcoal); }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line); margin-bottom: 0; }
+  .tab {
+    background: none; border: none; padding: 12px 20px; font-size: 14.5px;
+    cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px;
+  }
+  .tab.active { color: var(--charcoal); border-bottom-color: var(--citrine); }
+  .tab-panel { background: var(--card); border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); padding: 6px 26px 20px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: normal; font-size: 12.5px; padding: 14px 10px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 11px 10px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pill { font-size: 11.5px; padding: 3px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); }
+  .pill.paid { background: #e6f9f0; color: #1e7a4f; }
+  .pill.overdue { background: #fdecea; color: #a4271c; }
+
+  .loading { text-align: center; color: var(--muted); padding: 60px 0; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); padding: 26px 20px 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">manati<b>.</b></div>
+  <div class="header-right">
+    <span id="hdr-name" class="hidden"></span>
+    <button id="btn-logout" class="btn-ghost hidden" onclick="logout()">Log out</button>
+  </div>
+</header>
+
+<!-- ============ LOGIN ============ -->
+<div id="view-login" class="login-wrap">
+  <div class="login-card">
+    <div id="step-id">
+      <h1>Welcome back</h1>
+      <p class="sub">Log in to view your Manati study loan account.</p>
+      <label for="id-number">South African ID number</label>
+      <input type="tel" id="id-number" maxlength="13" inputmode="numeric" autocomplete="off" placeholder="13 digits">
+      <button class="btn" id="btn-send" onclick="sendOtp()">Send me a one-time PIN</button>
+      <p class="note">We'll SMS a PIN to the mobile number we have on file for you.</p>
+    </div>
+    <div id="step-otp" class="hidden">
+      <h1>Enter your PIN</h1>
+      <p class="sub">We sent a 6-digit PIN to the mobile number on your account. It expires in 5 minutes.</p>
+      <label for="otp">One-time PIN</label>
+      <input type="tel" id="otp" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="6 digits">
+      <button class="btn" id="btn-verify" onclick="verifyOtp()">Log in</button>
+      <button class="btn-link" onclick="backToId()">Use a different ID number</button>
+    </div>
+    <div id="login-error" class="error hidden"></div>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<main id="view-dash" class="hidden">
+  <div class="greeting">
+    <h1 id="greet">Your account</h1>
+    <p id="greet-sub">Here's where your study loan stands today.</p>
+  </div>
+
+  <div id="loan-chips" class="loan-chips hidden"></div>
+  <div id="banner-overdue" class="banner-overdue hidden"></div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Outstanding balance</h2>
+      <div class="big-amount" id="balance">–</div>
+      <div class="progress-track"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+    <div class="card next-pay">
+      <h2>Next payment</h2>
+      <div class="amount" id="next-amount">–</div>
+      <div class="when" id="next-date"></div>
+      <div class="debit" id="debit-info"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="action-btn" onclick="downloadStatement()">Download statement (PDF)</button>
+    <button class="action-btn secondary" onclick="alert('Settlement quotes are coming soon. For now, please contact us and we will gladly help.')">Ask about settling early</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview" onclick="showTab('overview')">Overview</button>
+    <button class="tab" data-tab="schedule" onclick="showTab('schedule')">Payment schedule</button>
+    <button class="tab" data-tab="transactions" onclick="showTab('transactions')">Transactions</button>
+  </div>
+
+  <div class="tab-panel">
+    <div id="tab-overview">
+      <div class="kv"><span>Loan reference</span><span id="ov-ref"></span></div>
+      <div class="kv"><span>Original loan amount</span><span id="ov-amount"></span></div>
+      <div class="kv"><span>Start date</span><span id="ov-start"></span></div>
+      <div class="kv"><span>Capital balance</span><span id="ov-capital"></span></div>
+      <div class="kv"><span>Interest balance</span><span id="ov-interest"></span></div>
+      <div class="kv"><span>Fees balance (insurance, initiation, admin)</span><span id="ov-fees"></span></div>
+      <div class="kv"><span>Settlement amount (if paid today)</span><span id="ov-settle"></span></div>
+      <div class="kv"><span>Settlement quote valid until</span><span id="ov-settle-exp"></span></div>
+    </div>
+    <div id="tab-schedule" class="hidden">
+      <table>
+        <thead><tr><th>#</th><th>Date</th><th class="num">Amount</th><th class="num">Paid</th><th>Status</th></tr></thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </div>
+    <div id="tab-transactions" class="hidden">
+      <table>
+        <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th class="num">Balance</th></tr></thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Manati is a registered credit provider. Need help? Contact us at manati.co.za and we'll gladly assist.
+</footer>
+
+<script>
+/* ============================================================
+   Configuration
+   - Local testing: leave as localhost (middleware on your Mac)
+   - Production: change to the deployed middleware URL, e.g.
+     https://api.manati.co.za
+   ============================================================ */
+const API_BASE = "http://localhost:8000";
+
+let token = sessionStorage.getItem("manati_token") || null;
+let loans = [];
+let currentLoan = null;
+
+const R = new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" });
+const fmtR = v => R.format(v ?? 0);
+const fmtDate = s => {
+  if (!s) return "–";
+  const d = new Date(s + "T00:00:00");
+  return d.toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" });
+};
+const el = id => document.getElementById(id);
+
+/* ---------- api helper ---------- */
+async function api(path, opts = {}) {
+  const headers = Object.assign(
+    { "Content-Type": "application/json" },
+    token ? { "Authorization": "Bearer " + token } : {},
+    opts.headers || {}
+  );
+  const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
+  if (res.status === 401 && token) { logout(); throw new Error("Session expired"); }
+  return res;
+}
+
+/* ---------- login flow ---------- */
+function showError(msg) {
+  const box = el("login-error");
+  box.textContent = msg; box.classList.remove("hidden");
+}
+function clearError() { el("login-error").classList.add("hidden"); }
+
+async function sendOtp() {
+  clearError();
+  const idn = el("id-number").value.trim();
+  if (!/^\d{13}$/.test(idn)) { showError("Please enter your 13-digit South African ID number."); return; }
+  const btn = el("btn-send"); btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    await api("/auth/otp/request", { method: "POST", body: JSON.stringify({ id_number: idn }) });
+    el("step-id").classList.add("hidden");
+    el("step-otp").classList.remove("hidden");
+    el("otp").focus();
+  } catch (e) {
+    showError("We couldn't reach the server. Please try again in a moment.");
+  } finally { btn.disabled = false; btn.textContent = "Send me a one-time PIN"; }
+}
+
+async function verifyOtp() {
+  clearError();
+  const idn = el("id-number").value.trim();
+  const otp = el("otp").value.trim();
+  if (!/^\d{6}$/.test(otp)) { showError("The PIN is 6 digits."); return; }
+  const btn = el("btn-verify"); btn.disabled = true; btn.textContent = "Checking…";
+  try {
+    const res = await api("/auth/otp/verify", { method: "POST", body: JSON.stringify({ id_number: idn, otp }) });
+    if (!res.ok) { showError("That PIN didn't match or has expired. Please request a new one."); return; }
+    const data = await res.json();
+    token = data.access_token;
+    sessionStorage.setItem("manati_token", token);
+    enterDashboard();
+  } catch (e) {
+    if (e.message !== "Session expired") showError("We couldn't reach the server. Please try again in a moment.");
+  } finally { btn.disabled = false; btn.textContent = "Log in"; }
+}
+
+function backToId() {
+  clearError();
+  el("step-otp").classList.add("hidden");
+  el("step-id").classList.remove("hidden");
+}
+
+function logout() {
+  token = null; loans = []; currentLoan = null;
+  sessionStorage.removeItem("manati_token");
+  el("view-dash").classList.add("hidden");
+  el("btn-logout").classList.add("hidden");
+  el("hdr-name").classList.add("hidden");
+  el("view-login").classList.remove("hidden");
+  backToId();
+  el("id-number").value = ""; el("otp").value = "";
+}
+
+/* ---------- dashboard ---------- */
+async function enterDashboard() {
+  el("view-login").classList.add("hidden");
+  el("view-dash").classList.remove("hidden");
+  el("btn-logout").classList.remove("hidden");
+  try {
+    const res = await api("/loans");
+    if (!res.ok) throw new Error("load failed");
+    loans = await res.json();
+  } catch (e) { return; }
+  if (!loans.length) {
+    el("greet").textContent = "No active loans found";
+    el("greet-sub").textContent = "If you believe this is a mistake, please contact us.";
+    return;
+  }
+  if (loans.length > 1) {
+    const chips = el("loan-chips");
+    chips.innerHTML = "";
+    loans.forEach(l => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.textContent = "Loan " + l.reference;
+      b.onclick = () => selectLoan(l.id);
+      b.dataset.id = l.id;
+      chips.appendChild(b);
+    });
+    chips.classList.remove("hidden");
+  }
+  selectLoan(loans[0].id);
+}
+
+async function selectLoan(id) {
+  document.querySelectorAll(".chip").forEach(c =>
+    c.classList.toggle("active", Number(c.dataset.id) === id));
+  const res = await api("/loans/" + id);
+  if (!res.ok) return;
+  currentLoan = await res.json();
+  render(currentLoan);
+  loadSchedule(id); loadTransactions(id);
+}
+
+function render(l) {
+  el("balance").textContent = fmtR(l.balance);
+  const pct = l.instalments_total ? Math.min(100, Math.round(100 * l.instalments_done / l.instalments_total)) : 0;
+  el("progress").style.width = pct + "%";
+  el("progress-label").textContent =
+    `Instalment ${l.instalments_done} of ${l.instalments_total} · ${pct}% of the way`;
+
+  el("next-amount").textContent = fmtR(l.next_payment_amount);
+  el("next-date").textContent = "on " + fmtDate(l.next_payment_date);
+  const d = l.debit_order || {};
+  el("debit-info").textContent = d.account_masked
+    ? `Debit order from account ${d.account_masked}` + (d.day_of_month ? `, day: ${d.day_of_month}` : "")
+    : "";
+
+  const banner = el("banner-overdue");
+  if (l.amount_overdue > 0) {
+    banner.innerHTML = `<b>A payment of ${fmtR(l.amount_overdue)} is outstanding.</b>` +
+      `If this month is difficult, please get in touch. We're here to help you find a way forward.`;
+    banner.classList.remove("hidden");
+  } else banner.classList.add("hidden");
+
+  el("ov-ref").textContent = l.reference;
+  el("ov-amount").textContent = fmtR(l.loan_amount);
+  el("ov-start").textContent = fmtDate(l.start_date);
+  const b = l.balance_breakdown || {};
+  el("ov-capital").textContent = fmtR(b.capital);
+  el("ov-interest").textContent = fmtR(b.interest);
+  el("ov-fees").textContent = fmtR((b.insurance || 0) + (b.initiation_fees || 0) + (b.admin_fees || 0));
+  el("ov-settle").textContent = fmtR(l.settlement_amount);
+  el("ov-settle-exp").textContent = fmtDate(l.settlement_expiry_date);
+}
+
+async function loadSchedule(id) {
+  const body = el("schedule-body");
+  body.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+  const res = await api(`/loans/${id}/schedule`);
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="5" class="loading">No schedule available.</td></tr>`;
+  rows.forEach(r => {
+    const pill = r.overdue ? `<span class="pill overdue">Overdue</span>`
+      : r.status === "paid" ? `<span class="pill paid">Paid</span>`
+      : `<span class="pill">Upcoming</span>`;
+    body.insertAdjacentHTML("beforeend",
+      `<tr><td>${r.number}</td><td>${fmtDate(r.date)}</td>` +
+      `<td class="num">${fmtR(r.amount)}</td><td class="num">${fmtR(r.amount_paid)}</td><td>${pill}</td></tr>`);
+  });
+}
+
+async function loadTransactions(id) {
+  const body = el("tx-body");
+  body.innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+  const res = await api(`/loans/${id}/transactions`);
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="4" class="loading">No transactions yet.</td></tr>`;
+  rows.forEach(t => {
+    body.insertAdjacentHTML("beforeend",
+      `<tr><td>${fmtDate(t.date)}</td><td>${t.type}</td>` +
+      `<td class="num">${fmtR(t.amount)}</td><td class="num">${fmtR(t.balance)}</td></tr>`);
+  });
+}
+
+async function downloadStatement() {
+  if (!currentLoan) return;
+  const res = await api(`/loans/${currentLoan.id}/statement`);
+  if (!res.ok) {
+    alert("Your statement is temporarily unavailable. Please try again shortly.");
+    return;
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `${currentLoan.reference}-statement.pdf`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- tabs ---------- */
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(t =>
+    t.classList.toggle("active", t.dataset.tab === name));
+  ["overview", "schedule", "transactions"].forEach(n =>
+    el("tab-" + n).classList.toggle("hidden", n !== name));
+}
+
+/* ---------- boot ---------- */
+["id-number", "otp"].forEach(id => {
+  el(id).addEventListener("keydown", e => {
+    if (e.key === "Enter") (id === "id-number" ? sendOtp : verifyOtp)();
+  });
+});
+if (token) enterDashboard();
+</script>
+</body>
+</html>
+
