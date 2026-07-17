@@ -264,10 +264,9 @@
     <div class="side-title">Do it yourself</div>
     <button class="side-item" onclick="openModal('statement')"><span class="ico">&#128196;</span>Download statement</button>
     <button class="side-item" onclick="openModal('details')"><span class="ico">&#9999;&#65039;</span>Update my details</button>
-    <button class="side-item" onclick="openModal('date')"><span class="ico">&#128197;</span>Change debit date</button>
     <button class="side-item" onclick="openModal('topup')"><span class="ico">&#127891;</span>Request a top-up</button>
     <button class="side-item" onclick="openModal('settle')"><span class="ico">&#129518;</span>Settlement quote</button>
-    <button class="side-item" onclick="openModal('hardship')"><span class="ico">&#129309;</span>I'm struggling this month</button>
+    <button class="side-item" onclick="openModal('hardship')"><span class="ico">&#129309;</span>I cannot make payment this month</button>
     <div class="side-gap"></div>
     <div class="side-note">Every routine task lives here, so you never have to email us for the basics.</div>
   </aside>
@@ -362,7 +361,7 @@
           <tr><td>1 Jul 2026</td><td>R 1 240</td><td><span class="pill mint">Paid</span></td></tr>
           <tr><td>1 Jun 2026</td><td>R 1 240</td><td><span class="pill mint">Paid</span></td></tr>
         </tbody></table>
-        <div class="note blue" style="margin-top:18px"><b>Life happens.</b> If a month looks tight, tell us before the debit date. Raising your hand early always gives you more options, and it never counts against you. <a href="#" onclick="openModal('hardship');return false" style="color:var(--blue)">See my options</a></div>
+        <div class="note blue" style="margin-top:18px"><b>Life happens.</b> If you are facing genuine financial difficulty, please tell us as early as you can so we can look at your circumstances and agree a workable arrangement. Reaching out early always gives you more options, and it never counts against you. <a href="#" onclick="openModal('hardship');return false" style="color:var(--blue)">Let us know</a></div>
       </div>
     </div>
   </section>
@@ -394,19 +393,19 @@
         </details>
         <details class="faq" data-k="missed payment debit order bounced failed hardship struggling">
           <summary>My debit order bounced or I cannot pay this month. What now?</summary>
-          <div class="body">First: do not panic, and do not go quiet. Tap "I'm struggling this month" in the shortcuts. You will see your options, which can include moving the debit date or setting up a payment arrangement. Telling us early always works in your favour. For anything sensitive, a trained person (not a bot) handles it within two business hours.
+          <div class="body">First: do not panic, and do not go quiet. Tap "I cannot make payment this month" in the menu on the left. A trained person, never a bot, will look at your circumstances and agree a workable arrangement with you, usually within two business hours. Telling us early always works in your favour, and it never counts against you.
             <div class="resolve"><button class="btn" onclick="solved(this)">This solved it</button><button class="btn ghost on-light" onclick="openChat(false)">I still need help</button></div>
           </div>
         </details>
         <details class="faq" data-k="settle early settlement quote save interest payoff">
           <summary>Can I pay my loan off early?</summary>
-          <div class="body">Yes, any time, with no penalty. Tap Settle for an instant figure that shows exactly how much interest you save. The quote is valid for 7 days and the settlement letter downloads immediately.
+          <div class="body">Yes, any time, with no penalty. Tap Settlement quote for an instant figure that shows exactly how much interest you save. The quote is valid for 7 days and the settlement letter downloads immediately.
             <div class="resolve"><button class="btn" onclick="solved(this)">This solved it</button><button class="btn ghost on-light" onclick="openChat(false)">I still need help</button></div>
           </div>
         </details>
         <details class="faq" data-k="top up next year semester more funding books">
           <summary>Can I get funding for my next semester or year?</summary>
-          <div class="body">Yes. Tap Top-up and we reassess your circumstances individually, the same way as your first application. Top-ups cover tuition, books and materials.
+          <div class="body">Yes. Tap Request a top-up and we reassess your circumstances individually, the same way as your first application. Top-ups cover tuition, books and materials.
             <div class="resolve"><button class="btn" onclick="solved(this)">This solved it</button><button class="btn ghost on-light" onclick="openChat(false)">I still need help</button></div>
           </div>
         </details>
@@ -521,8 +520,8 @@ var modals={
   details:'<h3>Update my details</h3><p>Changes to banking details are verified with an OTP to your registered number, to keep your account safe.</p><label>Mobile number</label><input value="072 555 0143"><label>Email</label><input value="thandi.m@example.com"><label>Bank account</label><input value="Capitec ...8821"><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Cancel</button><button class="btn" onclick="done(\'Details updated. We sent a confirmation to your email and phone.\')">Save changes</button></div>',
   date:'<h3>Change debit order date</h3><p>You can move your debit date within your allowed window. Your instalment amount stays the same.</p><label>New date each month</label><select><option>1st (current)</option><option>15th</option><option>25th</option><option>Last working day</option></select><div class="note">Moving your date changes the interest slightly on the transition month only. We will show you the exact figure before you confirm.</div><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Cancel</button><button class="btn" onclick="done(\'Done. Your debit order now runs on the 25th, starting September.\')">Confirm</button></div>',
   topup:'<h3>Request a top-up</h3><p>We reassess your circumstances individually, the same way as your first application. Top-ups cover tuition, books and materials.</p><label>What is it for?</label><select><option>Next semester tuition</option><option>Next year tuition</option><option>Books and materials</option></select><label>Estimated amount</label><input placeholder="R"><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Cancel</button><button class="btn" onclick="done(\'Request received. You can track its progress on the My application page, just like your first one.\')">Submit request</button></div>',
-  settle:'<h3>Early settlement quote</h3><p>Settling today: <b style="font-size:22px;font-family:\'Varela Round\'">R 36 902</b><br>You save <b style="color:var(--blue)">R 3 715</b> in future interest. No penalty, ever.</p><div class="note">This quote is valid for 7 days. Pay via EFT with your loan number as reference and your paid-up letter is issued automatically.</div><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Close</button><button class="btn" onclick="done(\'Settlement letter downloaded. Congratulations on being this close! 🎓\')">Download letter</button></div>',
-  hardship:'<h3>Let us figure this out together</h3><p>Money gets tight sometimes. Telling us early always gives you more options, and it never counts against you.</p><label>What describes your situation best?</label><select><option>This month is tight, next month is fine</option><option>My income has dropped for a while</option><option>I have lost my income</option><option>Something else</option></select><div class="note blue">Based on your answer we may offer a debit date move, a reduced instalment for a period, or a payment holiday. Anything sensitive goes straight to a trained person, never a bot, within 2 business hours.</div><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Not now</button><button class="btn dark" onclick="closeModal();openChat(true,\'hardship\')">Talk to a person</button></div>',
+  settle:'<h3>Early settlement quote</h3><p>Settling today: <b style="font-size:22px;font-family:\'Varela Round\'">R 36 902</b><br>You save <b style="color:var(--blue)">R 3 715</b> in future interest. No penalty, ever.</p><div class="note">This quote is valid for 7 days. Pay via EFT with your loan number as reference, and we will issue your paid-up letter to you.</div><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Close</button><button class="btn" onclick="done(\'Settlement letter downloaded. Congratulations on being this close! 🎓\')">Download letter</button></div>',
+  hardship:'<h3>Let us figure this out together</h3><p>If you are facing genuine financial difficulty, telling us early always gives you more options, and it never counts against you.</p><label>What describes your situation best?</label><select><option>My income has dropped for a while</option><option>I have lost my income</option><option>Something else</option></select><div class="note blue">A trained person, never a bot, will look at your circumstances and agree a workable arrangement with you, usually within 2 business hours.</div><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Not now</button><button class="btn dark" onclick="closeModal();openChat(true,\'hardship\')">Talk to a person</button></div>',
   docs:'<h3>Upload a document</h3><p>Drag a file here or browse. We accept PDF and photos.</p><div style="border:2px dashed var(--line);border-radius:16px;padding:34px;text-align:center;color:var(--muted)">Drop file here</div><div class="row"><button class="btn ghost on-light" onclick="closeModal()">Cancel</button><button class="btn" onclick="done(\'Document received and attached to your application. The assessment team has been notified.\')">Upload</button></div>'
 };
 function openModal(k){document.getElementById('modalBox').innerHTML=modals[k];document.getElementById('modalBg').classList.add('open');}
@@ -561,18 +560,18 @@ function ask(q){
   setTimeout(function(){
     if(q.includes('next payment')){
       bot("Your next payment of <b>R 1 240</b> comes off on <b>1 August 2026</b> from your Capitec account ending 8821. Your account is fully up to date. 🙌");
-      setQuick(['Send me my statement','Can I change the debit date?'],true);
+      setQuick(['Send me my statement','How do I settle early?'],true);
     } else if(q.includes('statement')){
-      bot("Done! I have emailed your latest statement to thandi.m@example.com and you can also grab any period from the shortcuts. Anything else?");
+      bot("Done! I have emailed your latest statement to thandi.m@example.com and you can also grab any period from the menu on the left. Anything else?");
       setQuick(['When is my next payment?','How do I settle early?'],true);
     } else if(q.includes('settle')){
       bot("Settling today would cost <b>R 36 902</b>, saving you <b>R 3 715</b> in future interest, with no penalty. Want the settlement letter?");
-      setQuick(['Yes, send the letter','Can I change the debit date?'],true);
+      setQuick(['Yes, send the letter','When is my next payment?'],true);
     } else if(q.includes('letter')){
-      bot("Sent to your email, valid for 7 days. Pay via EFT with reference MN-2039 and your paid-up letter is issued automatically. You are so close! 🎓");
+      bot("Sent to your email, valid for 7 days. Pay via EFT with reference MN-2039 and we will issue your paid-up letter to you. You are so close! 🎓");
       setQuick(['When is my next payment?'],true);
     } else if(q.includes('debit date')){
-      bot("You can move your debit date yourself via Debit date in the shortcuts. Available dates are the 1st, 15th, 25th or last working day. Shall I take you there?");
+      bot("Your debit date is set by us to line up with when funds are usually available, so it is not something you change in the portal. If the timing is a genuine problem, tap 'I cannot make payment this month' and a person will help.");
       setQuick(['When is my next payment?','Send me my statement'],true);
     } else {
       bot("I want to make sure you get a proper answer on that one, so let me hand you to a person on the team.");
