@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Unpublished beta: keep out of search engines -->
+<meta name="robots" content="noindex, nofollow">
+<title>My Account (beta) | Manati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Duru+Sans&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#dec323; --citrine:#dec323; --charcoal:#231f20; --red:#ef4136; --blue:#1c4ea2; --mint:#53dd9d;
+    --bg:#f4f2ec; --card:#ffffff; --line:#ece9e2; --muted:#7c776f; --chip:#f7f0cf; --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Duru Sans',Verdana,sans-serif;background:var(--bg);color:var(--charcoal);font-size:15px;line-height:1.55}
+  h1,h2,h3,h4,.btn,.tab{font-family:'Varela Round',Verdana,sans-serif;font-weight:normal}
+  .hidden{display:none !important}
+  .kicker{font-family:'Varela Round',Verdana,sans-serif;font-size:12px;text-transform:uppercase;letter-spacing:3px;color:#c9b32a;margin-bottom:8px}
+
+  .btn{display:inline-block;border:0;border-radius:30px;padding:13px 26px;font-size:14px;cursor:pointer;background:var(--yellow);color:var(--charcoal);transition:filter .15s}
+  .btn:hover{filter:brightness(1.05)} .btn:disabled{opacity:.55;cursor:wait}
+  .btn-block{display:block;width:100%;text-align:center;margin-top:10px;padding:15px}
+  .linkbtn{background:none;border:0;color:var(--blue);font-family:'Varela Round';font-size:13.5px;cursor:pointer;padding:8px 2px;width:100%;margin-top:8px}
+  .action-btn{display:inline-flex;align-items:center;gap:8px;background:var(--charcoal);color:#fff;border:0;cursor:pointer;padding:12px 22px;border-radius:30px;font-size:14px;font-family:'Varela Round',Verdana,sans-serif}
+  .action-btn:hover{filter:brightness(1.1)}
+  .action-btn.secondary{background:#fff;color:var(--charcoal);border:1.5px solid var(--line)}
+
+  label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+  input[type=text],input[type=tel],select,textarea{width:100%;padding:13px 14px;font-size:15px;border:1.5px solid var(--line);border-radius:12px;font-family:inherit;background:#fff;color:var(--charcoal)}
+  input[type=tel]{letter-spacing:1px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--charcoal)}
+  .error{background:#fdecea;color:#a4271c;border-radius:12px;padding:11px 15px;font-size:13px;margin-top:16px}
+
+  /* Login gate */
+  .authgate{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:22px;
+    background:radial-gradient(1100px 620px at 80% -12%, #4a3f22 0%, #2b2620 46%, #1b1815 100%)}
+  .auth-card{background:#fff;border-radius:28px;width:100%;max-width:430px;padding:34px 30px;box-shadow:0 30px 70px rgba(0,0,0,.45)}
+  .auth-logo{height:38px;display:block;margin:0 auto 20px}
+  .auth-card h1,.auth-card h2{font-size:24px;text-align:center;margin-bottom:6px}
+  .auth-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:22px}
+  .auth-card label{text-align:left}
+  .auth-foot{text-align:center;font-size:12.5px;color:var(--muted);margin-top:16px}
+
+  /* App shell */
+  .app{max-width:1180px;margin:0 auto;min-height:100vh}
+  .topbar{background:#fff;padding:12px 22px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line)}
+  .topbar .logo{height:34px;display:block}
+  .demo-tag{background:var(--chip);color:#6b5f16;font-size:10.5px;padding:3px 11px;border-radius:14px;font-family:'Varela Round';letter-spacing:1px}
+  .who{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .who span{font-size:13px;color:var(--muted)}
+  .signout{background:#fff;border:1px solid var(--line);color:var(--charcoal);border-radius:30px;padding:8px 18px;font-size:13px;cursor:pointer;font-family:'Varela Round'}
+  .signout:hover{background:var(--bg)}
+
+  .nav{display:flex;gap:6px;padding:14px 22px;overflow-x:auto;background:var(--bg);scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .tab{border:1px solid var(--line);background:#fff;padding:9px 20px;font-size:14px;color:var(--muted);cursor:pointer;border-radius:26px;white-space:nowrap;transition:.15s}
+  .tab:hover{color:var(--charcoal)}
+  .tab.active{color:#fff;background:var(--charcoal);border-color:var(--charcoal)}
+
+  .layout{display:flex;align-items:flex-start;gap:2px}
+  .sidebar{width:236px;flex:none;padding:22px 10px 22px 16px;display:flex;flex-direction:column;gap:2px}
+  .side-title{font-family:'Varela Round';font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:#c9b32a;padding:0 12px;margin-bottom:10px}
+  .side-item{display:flex;gap:12px;align-items:center;border:0;background:none;text-align:left;padding:9px 12px;border-radius:16px;font-size:13.5px;color:var(--charcoal);cursor:pointer;font-family:'Duru Sans',Verdana,sans-serif;width:100%;transition:background .15s}
+  .side-item:hover{background:#fff}
+  .side-item .ico{width:40px;height:40px;flex:none;background:var(--chip);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .side-gap{flex:1;min-height:14px}
+  .side-note{font-size:12px;color:var(--muted);padding:14px 12px 4px;border-top:1px solid var(--line);line-height:1.5;margin-top:8px}
+  .maincol{flex:1;min-width:0;padding:6px 22px 90px}
+
+  .greeting{margin:6px 0 14px}
+  .greeting h1{font-size:26px}
+  .greeting p{color:var(--muted);font-size:14px}
+  .loan-chips{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+  .chip{padding:8px 18px;border-radius:26px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:13.5px;font-family:'Varela Round',Verdana,sans-serif}
+  .chip.active{background:var(--charcoal);color:var(--yellow);border-color:var(--charcoal)}
+  .banner-overdue{background:#fdecea;border-left:4px solid var(--red);border-radius:14px;padding:14px 18px;margin-bottom:18px;font-size:14px}
+  .banner-overdue b{display:block;margin-bottom:2px}
+
+  /* Hero card */
+  .hero{background:radial-gradient(900px 460px at 88% -18%, #4a3f22 0%, #2b2620 48%, var(--charcoal) 100%);color:#fff;padding:30px;border-radius:28px;box-shadow:0 14px 40px rgba(35,31,32,.16);margin-bottom:20px}
+  .hero .kicker{color:var(--yellow)}
+  .hero .big-amount{font-size:40px;font-family:'Varela Round';letter-spacing:.5px}
+  .hero .progress{height:9px;background:#463f37;border-radius:6px;overflow:hidden;margin:20px 0 8px;max-width:560px}
+  .hero .progress i{display:block;height:100%;background:var(--yellow)}
+  .hero .progress-label{font-size:12.5px;color:#aaa49c}
+  .hero-stats{display:flex;gap:40px;margin-top:22px;flex-wrap:wrap}
+  .hero-stats .stat b{display:block;font-family:'Varela Round';font-size:26px;color:#fff}
+  .hero-stats .stat span{font-size:12.5px;color:#aaa49c}
+  .hero-stats .stat .debit{font-size:13px;color:#cfc9c0}
+
+  /* Panels / data */
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:8px 26px 22px;box-shadow:0 4px 16px rgba(35,31,32,.04)}
+  .kv{display:flex;justify-content:space-between;padding:11px 0;font-size:14px;border-bottom:1px solid var(--line);gap:16px}
+  .kv:last-child{border-bottom:none}
+  .kv span:first-child{color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;color:var(--muted);font-weight:normal;font-size:12.5px;padding:14px 10px 8px;border-bottom:1px solid var(--line)}
+  td{padding:11px 10px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .pill{font-size:11.5px;padding:3px 12px;border-radius:14px;background:var(--bg);color:var(--muted);font-family:'Varela Round'}
+  .pill.paid{background:#e6f9f0;color:#1e7a4f}
+  .pill.overdue{background:#fdecea;color:#a4271c}
+  .loading{text-align:center;color:var(--muted);padding:50px 0}
+  h3{font-size:14px}
+  .note{font-size:12.5px;color:var(--muted);margin-top:14px}
+  footer{padding:24px;text-align:center;font-size:12px;color:var(--muted)}
+
+  @media (max-width:860px){
+    .layout{flex-direction:column}
+    .sidebar{width:auto;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:4px;padding:12px 14px 4px;border-bottom:1px solid var(--line);scrollbar-width:none}
+    .sidebar::-webkit-scrollbar{display:none}
+    .side-title,.side-note,.side-gap{display:none}
+    .side-item{width:auto;flex:none;flex-direction:column;gap:6px;padding:6px 6px;font-size:11px;text-align:center;white-space:nowrap}
+    .side-item .ico{width:46px;height:46px}
+    .maincol{padding:16px 14px 90px}
+    .hero{padding:24px 20px}
+    .hero .big-amount{font-size:32px}
+  }
+</style></head>
+<body>
+
+<!-- LOGIN (real ID + OTP) -->
+<div id="view-login" class="authgate">
+  <div class="auth-card">
+    <img class="auth-logo" src="/assets/manati-logo.svg" alt="Manati">
+    <div id="step-id">
+      <h1>Welcome back</h1>
+      <p class="auth-sub">Log in to view your Manati study loan account.</p>
+      <label for="id-number">South African ID number</label>
+      <input type="tel" id="id-number" maxlength="13" inputmode="numeric" autocomplete="off" placeholder="13 digits">
+      <button class="btn btn-block" id="btn-send" onclick="sendOtp()">Send me a one-time PIN</button>
+      <p class="auth-foot">We will SMS a PIN to the mobile number we have on file for you.</p>
+    </div>
+    <div id="step-otp" class="hidden">
+      <h1>Enter your PIN</h1>
+      <p class="auth-sub">We sent a 6-digit PIN to the mobile number on your account. It expires in 5 minutes.</p>
+      <label for="otp">One-time PIN</label>
+      <input type="tel" id="otp" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="6 digits">
+      <button class="btn btn-block" id="btn-verify" onclick="verifyOtp()">Log in</button>
+      <button class="linkbtn" onclick="backToId()">Use a different ID number</button>
+    </div>
+    <div id="login-error" class="error hidden"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="view-dash" class="app hidden">
+  <header class="topbar">
+    <img class="logo" src="/assets/manati-logo.svg" alt="Manati">
+    <span class="demo-tag">BETA &middot; live data</span>
+    <div class="who">
+      <span id="hdr-name" class="hidden"></span>
+      <button id="btn-logout" class="signout hidden" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="tab active" data-tab="overview" onclick="showTab('overview')">My loan</button>
+    <button class="tab" data-tab="schedule" onclick="showTab('schedule')">Schedule</button>
+    <button class="tab" data-tab="transactions" onclick="showTab('transactions')">Transactions</button>
+    <button class="tab" data-tab="details" onclick="showTab('details')">My details</button>
+    <button class="tab" data-tab="documents" onclick="showTab('documents')">Documents</button>
+    <button class="tab" data-tab="help" onclick="showTab('help')">Help centre</button>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-title">Do it yourself</div>
+      <button class="side-item" onclick="downloadStatement()"><span class="ico">&#128196;</span>Download statement</button>
+      <button class="side-item" onclick="showTab('details')"><span class="ico">&#9999;&#65039;</span>Update my details</button>
+      <button class="side-item" onclick="showTab('overview')"><span class="ico">&#129518;</span>Settlement quote</button>
+      <button class="side-item" onclick="showTab('help')"><span class="ico">&#127891;</span>Request a top-up</button>
+      <button class="side-item" onclick="showTab('help')"><span class="ico">&#129309;</span>I cannot make payment this month</button>
+      <div class="side-gap"></div>
+      <div class="side-note">Every routine task lives here, so you never have to email us for the basics.</div>
+    </aside>
+
+    <main class="maincol">
+      <div class="greeting">
+        <div class="kicker">Your account</div>
+        <h1 id="greet">Your account</h1>
+        <p id="greet-sub">Here is where your study loan stands today.</p>
+      </div>
+      <div id="loan-chips" class="loan-chips hidden"></div>
+      <div id="banner-overdue" class="banner-overdue hidden"></div>
+
+      <div class="hero">
+        <div class="kicker">Outstanding balance</div>
+        <div class="big-amount" id="balance">&ndash;</div>
+        <div class="progress"><i id="progress" style="width:0%"></i></div>
+        <div class="progress-label" id="progress-label"></div>
+        <div class="hero-stats">
+          <div class="stat"><b id="next-amount">&ndash;</b><span id="next-date">next payment</span></div>
+          <div class="stat"><span class="debit" id="debit-info"></span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+
+    <div id="tab-overview">
+      <div class="kv"><span>Loan reference</span><span id="ov-ref"></span></div>
+      <div class="kv"><span>Original loan amount</span><span id="ov-amount"></span></div>
+      <div class="kv"><span>Start date</span><span id="ov-start"></span></div>
+      <div class="kv"><span>Capital balance</span><span id="ov-capital"></span></div>
+      <div class="kv"><span>Interest balance</span><span id="ov-interest"></span></div>
+      <div class="kv"><span>Fees balance (insurance, initiation, admin)</span><span id="ov-fees"></span></div>
+      <div class="kv"><span>Settlement amount (if paid today)</span><span id="ov-settle"></span></div>
+      <div class="kv"><span>Settlement quote valid until</span><span id="ov-settle-exp"></span></div>
+    </div>
+    <div id="tab-schedule" class="hidden">
+      <table>
+        <thead><tr><th>#</th><th>Date</th><th class="num">Amount</th><th class="num">Paid</th><th>Status</th></tr></thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </div>
+    <div id="tab-transactions" class="hidden">
+      <table>
+        <thead><tr><th>Date</th><th>Description</th><th class="num">Amount</th><th class="num">Balance</th></tr></thead>
+        <tbody id="tx-body"></tbody>
+      </table>
+    </div>
+    <div id="tab-details" class="hidden">
+      <div class="kv"><span>Name</span><span id="pf-name"></span></div>
+      <div class="kv"><span>Mobile number</span><span id="pf-mobile"></span></div>
+      <div class="kv"><span>Email</span><span id="pf-email"></span></div>
+      <div class="kv"><span>Address</span><span id="pf-address"></span></div>
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
+        <h3 style="font-size:14px; margin-bottom:10px;">Change a detail</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+          <div style="flex:1; min-width:140px;">
+            <label>What would you like to change?</label>
+            <select id="ch-field" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px;">
+              <option value="mobile">Mobile number</option>
+              <option value="email">Email</option>
+              <option value="street">Street</option>
+              <option value="city">City</option>
+              <option value="zip">Postal code</option>
+            </select>
+          </div>
+          <div style="flex:1.4; min-width:180px;">
+            <label>New value</label>
+            <input type="text" id="ch-value" style="letter-spacing:normal;">
+          </div>
+          <button class="action-btn secondary" id="ch-send" onclick="sendChangeOtp()">Send me a PIN</button>
+        </div>
+        <div id="ch-otp-row" class="hidden" style="display:flex; gap:10px; margin-top:12px; align-items:flex-end;">
+          <div style="min-width:140px;">
+            <label>PIN from SMS</label>
+            <input type="tel" id="ch-otp" maxlength="6" inputmode="numeric">
+          </div>
+          <button class="action-btn" onclick="applyChange()">Confirm change</button>
+        </div>
+        <p id="ch-msg" class="note" style="text-align:left;"></p>
+      </div>
+    </div>
+    <div id="tab-documents" class="hidden">
+      <table>
+        <thead><tr><th>Document</th><th>Type</th><th>Received</th></tr></thead>
+        <tbody id="doc-body"></tbody>
+      </table>
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line);">
+        <h3 style="font-size:14px; margin-bottom:10px;">Send us a document</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+          <div style="min-width:180px;">
+            <label>Document type</label>
+            <select id="doc-type" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px;">
+              <option>Identity document</option>
+              <option>Proof of registration</option>
+              <option>Payslip</option>
+              <option>Proof of address</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div style="flex:1; min-width:200px;">
+            <label>File (PDF, JPG or PNG, max 5 MB)</label>
+            <input type="file" id="doc-file" accept=".pdf,.jpg,.jpeg,.png" style="padding:9px; letter-spacing:normal;">
+          </div>
+          <button class="action-btn" onclick="uploadDocument()">Upload</button>
+        </div>
+        <p id="doc-msg" class="note" style="text-align:left;"></p>
+      </div>
+    </div>
+    <div id="tab-help" class="hidden">
+      <div style="padding-top:6px;">
+        <h3 style="font-size:14px; margin-bottom:10px;">Log a query</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div style="min-width:180px;">
+            <label>Topic</label>
+            <select id="q-category" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px;"></select>
+          </div>
+          <div style="flex:1; min-width:240px;">
+            <label>How can we help?</label>
+            <textarea id="q-message" rows="3" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:14px; letter-spacing:normal;"></textarea>
+          </div>
+        </div>
+        <button class="action-btn" style="margin-top:12px;" onclick="submitQuery()">Send query</button>
+        <p id="q-msg" class="note" style="text-align:left;"></p>
+      </div>
+      <div style="margin-top:20px; padding-top:8px; border-top:1px solid var(--line);">
+        <h3 style="font-size:14px; margin:10px 0;">Your queries</h3>
+        <table>
+          <thead><tr><th>Date</th><th>Topic</th><th>Message</th><th>Status</th></tr></thead>
+          <tbody id="q-body"></tbody>
+        </table>
+      </div>
+    </div>
+      </div>
+    </main>
+  </div>
+  <footer>Live data beta &middot; Manati customer portal &middot; connected to api.manati.co.za</footer>
+</div>
+
+<script>
+const API_BASE = "https://api.manati.co.za";
+let token = sessionStorage.getItem("manati_token") || null;
+let loans = [];
+let currentLoan = null;
+const R = new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" });
+const fmtR = v => R.format(v ?? 0);
+const fmtDate = s => {
+  if (!s) return "–";
+  const d = new Date(s + "T00:00:00");
+  return d.toLocaleDateString("en-ZA", { day: "numeric", month: "long", year: "numeric" });
+};
+const el = id => document.getElementById(id);
+async function api(path, opts = {}) {
+  const isForm = opts.body instanceof FormData;
+  const headers = Object.assign(
+    isForm ? {} : { "Content-Type": "application/json" },
+    token ? { "Authorization": "Bearer " + token } : {},
+    opts.headers || {}
+  );
+  const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
+  if (res.status === 401 && token && !path.startsWith("/profile/change")) {
+    logout(); throw new Error("Session expired");
+  }
+  return res;
+}
+function showError(msg) {
+  const box = el("login-error");
+  box.textContent = msg; box.classList.remove("hidden");
+}
+function clearError() { el("login-error").classList.add("hidden"); }
+async function sendOtp() {
+  clearError();
+  const idn = el("id-number").value.trim();
+  if (!/^\d{13}$/.test(idn)) { showError("Please enter your 13-digit South African ID number."); return; }
+  const btn = el("btn-send"); btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    await api("/auth/otp/request", { method: "POST", body: JSON.stringify({ id_number: idn }) });
+    el("step-id").classList.add("hidden");
+    el("step-otp").classList.remove("hidden");
+    el("otp").focus();
+  } catch (e) {
+    showError("We couldn't reach the server. Please try again in a moment.");
+  } finally { btn.disabled = false; btn.textContent = "Send me a one-time PIN"; }
+}
+async function verifyOtp() {
+  clearError();
+  const idn = el("id-number").value.trim();
+  const otp = el("otp").value.trim();
+  if (!/^\d{6}$/.test(otp)) { showError("The PIN is 6 digits."); return; }
+  const btn = el("btn-verify"); btn.disabled = true; btn.textContent = "Checking…";
+  try {
+    const res = await api("/auth/otp/verify", { method: "POST", body: JSON.stringify({ id_number: idn, otp }) });
+    if (!res.ok) { showError("That PIN didn't match or has expired. Please request a new one."); return; }
+    const data = await res.json();
+    token = data.access_token;
+    sessionStorage.setItem("manati_token", token);
+    enterDashboard();
+  } catch (e) {
+    if (e.message !== "Session expired") showError("We couldn't reach the server. Please try again in a moment.");
+  } finally { btn.disabled = false; btn.textContent = "Log in"; }
+}
+function backToId() {
+  clearError();
+  el("step-otp").classList.add("hidden");
+  el("step-id").classList.remove("hidden");
+}
+function logout() {
+  token = null; loans = []; currentLoan = null;
+  sessionStorage.removeItem("manati_token");
+  el("view-dash").classList.add("hidden");
+  el("btn-logout").classList.add("hidden");
+  el("hdr-name").classList.add("hidden");
+  el("view-login").classList.remove("hidden");
+  backToId();
+  el("id-number").value = ""; el("otp").value = "";
+}
+async function enterDashboard() {
+  el("view-login").classList.add("hidden");
+  el("view-dash").classList.remove("hidden");
+  el("btn-logout").classList.remove("hidden");
+  try {
+    const res = await api("/loans");
+    if (!res.ok) throw new Error("load failed");
+    loans = await res.json();
+  } catch (e) { return; }
+  if (!loans.length) {
+    el("greet").textContent = "No active loans found";
+    el("greet-sub").textContent = "If you believe this is a mistake, please contact us.";
+    return;
+  }
+  if (loans.length > 1) {
+    const chips = el("loan-chips");
+    chips.innerHTML = "";
+    loans.forEach(l => {
+      const b = document.createElement("button");
+      b.className = "chip"; b.textContent = "Loan " + l.reference;
+      b.onclick = () => selectLoan(l.id);
+      b.dataset.id = l.id;
+      chips.appendChild(b);
+    });
+    chips.classList.remove("hidden");
+  }
+  selectLoan(loans[0].id);
+}
+async function selectLoan(id) {
+  document.querySelectorAll(".chip").forEach(c =>
+    c.classList.toggle("active", Number(c.dataset.id) === id));
+  const res = await api("/loans/" + id);
+  if (!res.ok) return;
+  currentLoan = await res.json();
+  render(currentLoan);
+  loadSchedule(id); loadTransactions(id);
+}
+function render(l) {
+  el("balance").textContent = fmtR(l.balance);
+  const pct = l.instalments_total ? Math.min(100, Math.round(100 * l.instalments_done / l.instalments_total)) : 0;
+  el("progress").style.width = pct + "%";
+  el("progress-label").textContent = `Instalment ${l.instalments_done} of ${l.instalments_total} · ${pct}% of the way`;
+  el("next-amount").textContent = fmtR(l.next_payment_amount);
+  el("next-date").textContent = "on " + fmtDate(l.next_payment_date);
+  const d = l.debit_order || {};
+  el("debit-info").textContent = d.account_masked ? `Debit order from account ${d.account_masked}` + (d.day_of_month ? `, day: ${d.day_of_month}` : "") : "";
+  const banner = el("banner-overdue");
+  if (l.amount_overdue > 0) {
+    banner.innerHTML = `<b>A payment of ${fmtR(l.amount_overdue)} is outstanding.</b>` + `If this month is difficult, please get in touch. We're here to help you find a way forward.`;
+    banner.classList.remove("hidden");
+  } else banner.classList.add("hidden");
+  el("ov-ref").textContent = l.reference;
+  el("ov-amount").textContent = fmtR(l.loan_amount);
+  el("ov-start").textContent = fmtDate(l.start_date);
+  const b = l.balance_breakdown || {};
+  el("ov-capital").textContent = fmtR(b.capital);
+  el("ov-interest").textContent = fmtR(b.interest);
+  el("ov-fees").textContent = fmtR((b.insurance || 0) + (b.initiation_fees || 0) + (b.admin_fees || 0));
+  el("ov-settle").textContent = fmtR(l.settlement_amount);
+  el("ov-settle-exp").textContent = fmtDate(l.settlement_expiry_date);
+}
+async function loadSchedule(id) {
+  const body = el("schedule-body");
+  body.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+  const res = await api(`/loans/${id}/schedule`);
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="5" class="loading">No schedule available.</td></tr>`;
+  rows.forEach(r => {
+    const pill = r.overdue ? `<span class="pill overdue">Overdue</span>` : r.status === "paid" ? `<span class="pill paid">Paid</span>` : `<span class="pill">Upcoming</span>`;
+    body.insertAdjacentHTML("beforeend", `<tr><td>${r.number}</td><td>${fmtDate(r.date)}</td>` + `<td class="num">${fmtR(r.amount)}</td><td class="num">${fmtR(r.amount_paid)}</td><td>${pill}</td></tr>`);
+  });
+}
+async function loadTransactions(id) {
+  const body = el("tx-body");
+  body.innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+  const res = await api(`/loans/${id}/transactions`);
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="4" class="loading">No transactions yet.</td></tr>`;
+  rows.forEach(t => {
+    body.insertAdjacentHTML("beforeend", `<tr><td>${fmtDate(t.date)}</td><td>${t.type}</td>` + `<td class="num">${fmtR(t.amount)}</td><td class="num">${fmtR(t.balance)}</td></tr>`);
+  });
+}
+async function downloadStatement() {
+  if (!currentLoan) return;
+  const res = await api(`/loans/${currentLoan.id}/statement`);
+  if (!res.ok) { alert("Your statement is temporarily unavailable. Please try again shortly."); return; }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `${currentLoan.reference}-statement.pdf`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+async function loadProfile() {
+  const res = await api("/profile");
+  if (!res.ok) return;
+  const p = await res.json();
+  el("pf-name").textContent = p.name || "";
+  el("pf-mobile").textContent = p.mobile_masked || "not on file";
+  el("pf-email").textContent = p.email_masked || "not on file";
+  el("pf-address").textContent = [p.street, p.city, p.zip].filter(Boolean).join(", ") || "not on file";
+}
+async function sendChangeOtp() {
+  const val = el("ch-value").value.trim();
+  const msg = el("ch-msg");
+  if (!val) { msg.textContent = "Please enter the new value first."; return; }
+  const res = await api("/profile/change/otp", { method: "POST" });
+  if (!res.ok) { msg.textContent = "We couldn't send a PIN right now. Please try again shortly or contact us."; return; }
+  el("ch-otp-row").classList.remove("hidden");
+  msg.textContent = "We sent a PIN to the mobile number on your account.";
+}
+async function applyChange() {
+  const field = el("ch-field").value;
+  const val = el("ch-value").value.trim();
+  const otp = el("ch-otp").value.trim();
+  const msg = el("ch-msg");
+  if (!/^\d{6}$/.test(otp)) { msg.textContent = "The PIN is 6 digits."; return; }
+  const changes = {}; changes[field] = val;
+  const res = await api("/profile/change", { method: "POST", body: JSON.stringify({ otp, changes }) });
+  if (!res.ok) { msg.textContent = "That PIN didn't match or has expired. Please request a new one."; return; }
+  el("ch-otp-row").classList.add("hidden");
+  el("ch-value").value = ""; el("ch-otp").value = "";
+  msg.textContent = "Done. Your details have been updated.";
+  loadProfile();
+}
+async function loadDocuments() {
+  const body = el("doc-body");
+  body.innerHTML = `<tr><td colspan="3" class="loading">Loading…</td></tr>`;
+  const res = await api("/documents");
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="3" class="loading">No documents on file yet.</td></tr>`;
+  rows.forEach(d => body.insertAdjacentHTML("beforeend", `<tr><td>${d.name}</td><td>${d.type}</td><td>${fmtDate(d.date)}</td></tr>`));
+}
+async function uploadDocument() {
+  const input = el("doc-file");
+  const msg = el("doc-msg");
+  if (!input.files.length) { msg.textContent = "Please choose a file first."; return; }
+  const f = input.files[0];
+  if (f.size > 5 * 1024 * 1024) { msg.textContent = "That file is larger than 5 MB."; return; }
+  const fd = new FormData();
+  fd.append("file", f);
+  fd.append("doc_type", el("doc-type").value);
+  const res = await api("/documents", { method: "POST", body: fd });
+  if (!res.ok) { msg.textContent = "We couldn't upload that file. Please check it's a PDF, JPG or PNG."; return; }
+  input.value = "";
+  msg.textContent = "Received, thank you. Our team will take it from here.";
+  loadDocuments();
+}
+async function loadQueryCategories() {
+  const sel = el("q-category");
+  if (sel.options.length) return;
+  const res = await api("/queries/categories");
+  const cats = res.ok ? await res.json() : ["Something else"];
+  cats.forEach(c => sel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+}
+async function loadQueries() {
+  const body = el("q-body");
+  body.innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+  const res = await api("/queries");
+  const rows = res.ok ? await res.json() : [];
+  body.innerHTML = rows.length ? "" : `<tr><td colspan="4" class="loading">No queries yet.</td></tr>`;
+  rows.forEach(q => body.insertAdjacentHTML("beforeend", `<tr><td>${fmtDate(q.date)}</td><td>${q.category}</td>` + `<td>${q.message.length > 60 ? q.message.slice(0, 60) + "…" : q.message}</td>` + `<td><span class="pill">${q.status}</span></td></tr>`));
+}
+async function submitQuery() {
+  const msg = el("q-msg");
+  const message = el("q-message").value.trim();
+  if (message.length < 5) { msg.textContent = "Please tell us a little more so we can help."; return; }
+  const res = await api("/queries", { method: "POST", body: JSON.stringify({ category: el("q-category").value, message }) });
+  if (!res.ok) { msg.textContent = "Something went wrong. Please try again."; return; }
+  el("q-message").value = "";
+  msg.textContent = "Thank you, we've received your query and will be in touch.";
+  loadQueries();
+}
+const TABS = ["overview", "schedule", "transactions", "details", "documents", "help"];
+function showTab(name) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+  TABS.forEach(n => el("tab-" + n).classList.toggle("hidden", n !== name));
+  if (name === "details") loadProfile();
+  if (name === "documents") loadDocuments();
+  if (name === "help") { loadQueryCategories(); loadQueries(); }
+}
+["id-number", "otp"].forEach(id => {
+  el(id).addEventListener("keydown", e => {
+    if (e.key === "Enter") (id === "id-number" ? sendOtp : verifyOtp)();
+  });
+});
+if (token) enterDashboard();
+</script>
+</body></html>
