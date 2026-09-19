@@ -73,3 +73,20 @@
   from = "/sample-page"
   to = "/"
   status = 301
+
+
+# The applications console. Deliberately not linked from anywhere on this
+# site: staff reach it from the address in their email, and this path exists
+# so there is one Manati address to remember rather than two.
+# force = true so a future page at /console cannot quietly shadow it.
+[[redirects]]
+from = "/console"
+to = "https://console.manati.co.za"
+status = 302
+force = true
+
+[[redirects]]
+from = "/console/*"
+to = "https://console.manati.co.za/:splat"
+status = 302
+force = true
