@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 // In-house application bot — Phase 2 (full applicant field set, v1).
 // Documents are "collect-later" in v1 (we request them in a secure follow-up),
 // so no file uploads here. Posts to /api/apply (Netlify proxy → TaskFlow).
@@ -12,6 +13,8 @@ import Footer from '../components/Footer.astro';
 ---
 <Base title="Apply — Manati (new bot, preview)" description="Manati online application — new in-house bot (preview).">
   <Header />
+  {TS_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+  <div id="ab-ts" data-sitekey={TS_SITE_KEY} style="display:none"></div>
 
   <section class="page-hero">
     <div class="wrap">
@@ -239,10 +242,31 @@ import Footer from '../components/Footer.astro';
     return d;
   }
 
+  var _tsEl=document.getElementById('ab-ts');
+  var _tsKey=_tsEl?(_tsEl.getAttribute('data-sitekey')||''):'';
+  var _tsId=null;
+  function getTsToken(){
+    return new Promise(function(resolve){
+      if(!_tsKey || !window.turnstile){ return resolve(''); }
+      var settled=false;
+      function finish(t){ if(!settled){ settled=true; resolve(t||''); } }
+      try{
+        if(_tsId===null){
+          _tsId=window.turnstile.render('#ab-ts',{sitekey:_tsKey,size:'invisible',callback:function(tok){finish(tok);},'error-callback':function(){finish('');}});
+        } else {
+          window.turnstile.reset(_tsId);
+        }
+        window.turnstile.execute(_tsId);
+      }catch(e){ finish(''); }
+      setTimeout(function(){ finish(''); }, 5000);
+    });
+  }
+
   async function submitApp(){
     dock.innerHTML='<div class="ab-hint">Submitting your application…</div>';
     try{
-      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:''})});
+      var tsToken=await getTsToken();
+      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:tsToken})});
       var out=await res.json().catch(function(){return {};});
       if(res.ok && out.ok){
         addBot("🎉 Thank you! Your application has been submitted. A Manati consultant will be in touch shortly, and we'll request your supporting documents securely. ");

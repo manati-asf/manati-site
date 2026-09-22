@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 ---
 <Base title="Contact us — Manati" description="Get in touch with Manati Alternate Student Funding — WhatsApp, phone or email.">
   <Header />
@@ -43,8 +44,11 @@ import Footer from '../components/Footer.astro';
           </select>
           <label for="message">Message</label>
           <textarea id="message" name="message" required></textarea>
-          <div style="margin-top:18px"><button class="btn btn-primary" type="submit">Send message</button></div>
+          {TS_SITE_KEY && <div class="cf-turnstile" data-sitekey={TS_SITE_KEY} data-callback="onContactTs" data-expired-callback="onContactTsExpired" style="margin-top:16px"></div>}
+          <div style="margin-top:18px"><button class="btn btn-primary" type="submit" id="contact-submit" disabled={TS_SITE_KEY ? true : undefined}>Send message</button></div>
         </form>
+        {TS_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+        {TS_SITE_KEY && <script is:inline>{`window.onContactTs=function(){var b=document.getElementById('contact-submit');if(b)b.disabled=false;};window.onContactTsExpired=function(){var b=document.getElementById('contact-submit');if(b)b.disabled=true;};`}</script>}
       </div>
 
       <div>

@@ -183,6 +183,37 @@ export default async (req) => {
     return json(200, { ok: true, ref: null }); // silently accept + drop
   }
 
+  // Cloudflare Turnstile verification. Only enforced once TURNSTILE_SECRET_KEY
+  // is set in the Netlify environment, so the live form keeps working until the
+  // keys are in place. Once set, a valid token is required.
+  const TS_SECRET = process.env.TURNSTILE_SECRET_KEY;
+  if (TS_SECRET) {
+    const token = body && body.turnstileToken;
+    if (!token) {
+      return json(403, { ok: false, error: "Human verification required. Please try again." });
+    }
+    try {
+      const form = new URLSearchParams();
+      form.append("secret", TS_SECRET);
+      form.append("response", token);
+      const ip =
+        req.headers.get("x-nf-client-connection-ip") ||
+        (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      if (ip) form.append("remoteip", ip);
+      const vr = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: form
+      });
+      const vj = await vr.json().catch(() => ({ success: false }));
+      if (!vj.success) {
+        return json(403, { ok: false, error: "Human verification failed. Please try again." });
+      }
+    } catch (_) {
+      return json(502, { ok: false, error: "Could not verify your request. Please try again." });
+    }
+  }
+
   const data = (body && body.data) || {};
 
   // Minimal validation: need at least a contactable applicant and consent.
