@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base title="Thank you for applying — Manati" description="Thank you for applying for funding with Manati. We've received your application and a consultant will be in touch.">
+  <Header />
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Application received</span>
+      <h1>Thank you for applying</h1>
+      <p>We've received your application. One of our consultants will review it and be in touch to confirm your loan term and repayment. Applying with joint household income? That strengthens your application, so let us know if you'd like to add it.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap" style="max-width:760px">
+      <div class="info-card">
+        <h4>What happens next</h4>
+        <ul style="list-style:none;padding:0;margin:10px 0 0">
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">1</span> We assess your application individually, including affordability.</li>
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">2</span> A consultant contacts you to confirm your exact term and repayment.</li>
+          <li style="position:relative;padding-left:26px;margin:9px 0;color:var(--muted)"><span style="position:absolute;left:0;color:var(--teal-d);font-weight:800">3</span> Once approved, your funding is arranged with your institution.</li>
+        </ul>
+      </div>
+      <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn btn-dark" href="/">Back to home</a>
+        <a class="btn btn-ghost" href="/contact/">Contact us</a>
+      </div>
+      <p style="color:var(--muted);font-size:14px;margin-top:20px">Questions in the meantime? Email <a href="mailto:info@manati.co.za" style="color:var(--teal-d);font-weight:600">info@manati.co.za</a>.</p>
+    </div>
+  </section>
+
+  <Footer />
+
+  <script is:inline>
+    // Drop-off tracking: fire application_submit as the conversion event.
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'application_submit', { form_location: 'how-to-apply' });
+    }
+  </script>
+</Base>

@@ -125,6 +125,15 @@ const organizationSchema = {
         });
       })();
     </script>
+    <!-- Drop-off tracking: fire apply_click on any Apply CTA -->
+    <script is:inline>
+      document.addEventListener('click', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest('.js-apply') : null;
+        if (el && typeof window.gtag === 'function') {
+          window.gtag('event', 'apply_click', { apply_location: el.getAttribute('data-apply-loc') || 'unknown' });
+        }
+      });
+    </script>
   </body>
 </html>
 

@@ -13,7 +13,7 @@ const LANDBOT_URL = 'https://chats.landbot.io/v3/H-710586-TZA6006OCE2GJZWZ/index
       <span class="eyebrow">How to apply</span>
       <h1>The whole application is online</h1>
       <p>You'll never have to take time off work to visit a branch or stand in a queue. Apply from anywhere, and improve your chances by applying with joint household income.</p>
-      <div style="margin-top:24px"><a class="btn btn-primary" href={APPLY_URL}>Start your application →</a></div>
+      <div style="margin-top:24px"><a class="btn btn-primary js-apply" data-apply-loc="apply-page-hero" href={APPLY_URL}>Start your application →</a></div>
     </div>
   </section>
 
@@ -82,4 +82,25 @@ const LANDBOT_URL = 'https://chats.landbot.io/v3/H-710586-TZA6006OCE2GJZWZ/index
   </section>
 
   <Footer />
+
+  <script is:inline>
+    // Drop-off tracking: fire application_start once the application form scrolls into view.
+    (function () {
+      var form = document.getElementById('apply-form');
+      if (!form || !('IntersectionObserver' in window)) return;
+      var fired = false;
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting && !fired) {
+            fired = true;
+            if (typeof window.gtag === 'function') {
+              window.gtag('event', 'application_start', { form_location: 'how-to-apply' });
+            }
+            io.disconnect();
+          }
+        });
+      }, { threshold: 0.4 });
+      io.observe(form);
+    })();
+  </script>
 </Base>

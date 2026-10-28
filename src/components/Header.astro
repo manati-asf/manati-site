@@ -14,7 +14,7 @@ const isActive = (href: string) =>
       <a href="/contact/" aria-current={isActive('/contact') ? 'page' : undefined}>Contact</a>
     </nav>
     <div class="nav-cta">
-      <a class="btn btn-dark" href="/how-to-apply/">Apply now</a>
+      <a class="btn btn-dark js-apply" data-apply-loc="header" href="/how-to-apply/#apply-form">Apply now</a>
     </div>
     <button class="menu-btn" id="mn-menu" aria-label="Menu" aria-expanded="false">☰</button>
   </div>
