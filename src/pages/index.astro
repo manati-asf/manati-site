@@ -36,10 +36,10 @@ const thumbs = ['', 'alt', 'alt2'];
         <input type="range" id="amt" min="10000" max="200000" step="5000" value="60000" aria-label="Loan amount" />
       </div>
       <div class="slider-group">
-        <div class="slider-head"><label for="term">Repayment term</label><span class="calc-val" id="termVal">48 months</span></div>
-        <input type="range" id="term" min="12" max="60" step="6" value="48" aria-label="Repayment term" />
+        <div class="slider-head"><label for="course">Course duration</label><span class="calc-val" id="courseVal">1 year</span></div>
+        <input type="range" id="course" min="1" max="5" step="1" value="2" aria-label="Course duration" />
       </div>
-      <div class="calc-total"><span>Est. monthly repayment<br /><small style="color:#b9b3a6;font-weight:400">on a standard repayment plan</small></span><span class="big" id="monthly">R 1 655</span></div>
+      <div class="calc-total"><span>Est. monthly repayment<br /><small style="color:#b9b3a6;font-weight:400">over an estimated <span id="termShow">24</span>-month term</small></span><span class="big" id="monthly">R 2 897</span></div>
       <a class="btn btn-primary js-apply" data-apply-loc="home-calc" href="/how-to-apply/#apply-form" style="width:100%;justify-content:center;margin-top:20px">Start your application</a>
       <p class="calc-term-note" style="font-size:13px;color:var(--muted);margin:12px 0 0;line-height:1.5">Your loan term depends on your institution and course. Your consultant will confirm your exact term and repayment once we assess your application.</p>
       <div class="note"><strong>Tip: apply with joint household income to improve your chances of approval.</strong> This estimate is for guidance only and is not a quote or an offer of credit. It assumes an illustrative rate of 14.5% p.a.; your actual rate, fees and repayment are confirmed on individual assessment and approval, in line with the National Credit Act.</div>
@@ -223,18 +223,27 @@ const thumbs = ['', 'alt', 'alt2'];
 <script is:inline>
   (function () {
     var RATE = 0.145; // indicative annual interest rate (placeholder)
-    var amt = document.getElementById('amt'), term = document.getElementById('term');
-    var amtVal = document.getElementById('amtVal'), termVal = document.getElementById('termVal'), monthly = document.getElementById('monthly');
+    var MAX_TERM = 60; // cap on the estimated term, in months
+    // Course-duration slider position -> months of study funded
+    var STUDY_MONTHS = { '1': 6, '2': 12, '3': 24, '4': 36, '5': 48 };
+    var COURSE_LABEL = { '1': '6 months', '2': '1 year', '3': '2 years', '4': '3 years', '5': '4 years' };
+    var amt = document.getElementById('amt'), course = document.getElementById('course');
+    var amtVal = document.getElementById('amtVal'), courseVal = document.getElementById('courseVal');
+    var monthly = document.getElementById('monthly'), termShow = document.getElementById('termShow');
     function fmt(n) { return 'R ' + Math.round(n).toLocaleString('en-ZA').replace(/,/g, ' '); }
     function calc() {
-      var P = +amt.value, n = +term.value, r = RATE / 12;
+      var P = +amt.value;
+      var studyM = STUDY_MONTHS[course.value] || 12;
+      var n = Math.min(studyM * 2, MAX_TERM); // term = double the course duration, capped
+      var r = RATE / 12;
       var M = r === 0 ? P / n : P * r / (1 - Math.pow(1 + r, -n));
       amtVal.textContent = fmt(P);
-      termVal.textContent = n + ' months';
+      courseVal.textContent = COURSE_LABEL[course.value] || '';
+      termShow.textContent = n;
       monthly.textContent = fmt(M);
     }
     amt.addEventListener('input', calc);
-    term.addEventListener('input', calc);
+    course.addEventListener('input', calc);
     calc();
   })();
 </script>
