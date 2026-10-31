@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import INSTITUTIONS from '../data/institutions.json';
 const posts = (await getCollection('insights')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
@@ -31,6 +32,14 @@ const thumbs = ['', 'alt', 'alt2'];
     <div class="hero-card" id="apply">
       <h3>Estimate your repayment</h3>
       <div class="sub">Slide to explore. Indicative only — your actual rate and terms are set on assessment.</div>
+      <div class="slider-group">
+        <label for="inst" style="display:block;font-size:14px;color:var(--navy,#231f20);font-weight:600;margin-bottom:6px">Your institution <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <input list="inst-list" id="inst" placeholder="Start typing your institution…" autocomplete="off" style="width:100%;box-sizing:border-box;padding:11px 13px;border:1px solid var(--line,#e6ebf0);border-radius:12px;font-size:15px;font-family:inherit;background:#fff" />
+        <datalist id="inst-list">
+          {INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
+        </datalist>
+        <p id="instNote" style="font-size:12.5px;color:var(--muted);margin:7px 0 0;line-height:1.45;display:none"></p>
+      </div>
       <div class="slider-group">
         <div class="slider-head"><label for="amt">Loan amount</label><span class="calc-val" id="amtVal">R 60 000</span></div>
         <input type="range" id="amt" min="10000" max="200000" step="5000" value="60000" aria-label="Loan amount" />
@@ -220,30 +229,61 @@ const thumbs = ['', 'alt', 'alt2'];
 
 <Footer />
 
+<script type="application/json" id="inst-data" set:html={JSON.stringify(INSTITUTIONS)}></script>
 <script is:inline>
   (function () {
     var RATE = 0.145; // indicative annual interest rate (placeholder)
     var MAX_TERM = 48; // cap on the estimated term, in months (confirmed with Sales)
-    // Course-duration slider position -> months of study funded
+    // Course-duration slider position -> months of study funded (per year of study)
     var STUDY_MONTHS = { '1': 6, '2': 12, '3': 24, '4': 36, '5': 48 };
     var COURSE_LABEL = { '1': '6 months', '2': '1 year', '3': '2 years', '4': '3 years', '5': '4 years' };
-    var amt = document.getElementById('amt'), course = document.getElementById('course');
+    var INST = {};
+    try {
+      JSON.parse(document.getElementById('inst-data').textContent || '[]').forEach(function (i) {
+        if (i && i.name) INST[i.name.trim().toLowerCase()] = i;
+      });
+    } catch (e) {}
+    var amt = document.getElementById('amt'), course = document.getElementById('course'), inst = document.getElementById('inst');
     var amtVal = document.getElementById('amtVal'), courseVal = document.getElementById('courseVal');
-    var monthly = document.getElementById('monthly'), termShow = document.getElementById('termShow');
+    var monthly = document.getElementById('monthly'), termShow = document.getElementById('termShow'), instNote = document.getElementById('instNote');
     function fmt(n) { return 'R ' + Math.round(n).toLocaleString('en-ZA').replace(/,/g, ' '); }
+    function termFor(studyM) {
+      var typed = (inst.value || '').trim().toLowerCase();
+      var rec = INST[typed];
+      var note = '';
+      var n;
+      if (rec) {
+        if (rec.rule === 'fixed' && rec.fixedMonths) {
+          n = Math.min(rec.fixedMonths, MAX_TERM);
+        } else {
+          var cap = Math.min(rec.cap || MAX_TERM, MAX_TERM);
+          n = Math.min(Math.round(studyM * (rec.multiplier || 2)), cap);
+        }
+        if (rec.variesByQualification) note = 'Terms vary by qualification here; your consultant will confirm your exact term.';
+        else if (rec.shortCourseNote) note = rec.shortCourseNote + '; your consultant will confirm your exact term.';
+      } else {
+        n = Math.min(studyM * 2, MAX_TERM);
+        if (typed) note = 'We fund 100+ institutions. If yours is not listed, your consultant will confirm your term.';
+      }
+      return { n: n, note: note };
+    }
     function calc() {
       var P = +amt.value;
       var studyM = STUDY_MONTHS[course.value] || 12;
-      var n = Math.min(studyM * 2, MAX_TERM); // term = double the course duration, capped
+      var t = termFor(studyM);
       var r = RATE / 12;
-      var M = r === 0 ? P / n : P * r / (1 - Math.pow(1 + r, -n));
+      var M = r === 0 ? P / t.n : P * r / (1 - Math.pow(1 + r, -t.n));
       amtVal.textContent = fmt(P);
       courseVal.textContent = COURSE_LABEL[course.value] || '';
-      termShow.textContent = n;
+      termShow.textContent = t.n;
       monthly.textContent = fmt(M);
+      if (t.note) { instNote.textContent = t.note; instNote.style.display = 'block'; }
+      else { instNote.style.display = 'none'; }
     }
     amt.addEventListener('input', calc);
     course.addEventListener('input', calc);
+    inst.addEventListener('input', calc);
+    inst.addEventListener('change', calc);
     calc();
   })();
 </script>

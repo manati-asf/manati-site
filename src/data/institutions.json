@@ -1,0 +1,983 @@
+[
+ {
+  "name": "1000 Hills Chef School",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "43 Air School",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Academy of Sound Engineering (ASE)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 12,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Academy Training Group (ATG)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 6,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Accelerate Management School",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 24,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "ACT Cape Town",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Addiction Counsellor Certification and Support Association (ACCSA)",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 12,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Aerospace Training Academy of South Africa",
+  "rule": "multiple",
+  "multiplier": 1.5,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Aerospace Training Academy of South Africa (ATASA)",
+  "rule": "multiple",
+  "multiplier": 1.5,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "AFDA (part of Stadio Holdings)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Africa Learn",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "African Aviv",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "African Aviv Property Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Agricolleges International",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "BasadiPele",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Beauty Therapy Institute (BTI)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 12,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Bloomsbury Institute London",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 24,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Blulever Education",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Blush Academy Johannesburg",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Caraway International Hospitality Institute",
+  "rule": "multiple",
+  "multiplier": 1.5,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Care Champ College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Centre for Creative Education",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Cheeba Cannabis & Hemp Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 18,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "ChefMLK School of Cooking",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Chen Beauty Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Code College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "CodeSpace",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "COPA (Campus of Performing Arts)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "CTCFD (Cape Town College of Fashion Design)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "CTU Training Solutions",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "DaVinci Business School",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": true,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Davinci Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": true,
+  "shortCourseNote": "Short courses may not be covered"
+ },
+ {
+  "name": "Design Academy of Fashion (DAF)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Eduvos",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": "Short courses may not be covered"
+ },
+ {
+  "name": "Electrician Skills Lab (Coldfront)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Elizabeth Galloway",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "ENJO Consultants",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Funda Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 24,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Future Banker",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "GO-Fourth",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 18,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Graduate Preparatory School (GPS)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "HillCross College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "HTA School of Culinary Art",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 10,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "HyperionDev",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "IAS (Institute of Accounting Science)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "ICM Institute",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 12,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "IHS Trainee Programme",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 36,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Institute for Quality",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "International Academy of Health and Skincare",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "International Agricultural Academy for Africa",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "International Hotel School",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "International Hotel School *",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "ITCA (IT Certification Academy)",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 11,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Jackie Cameron School of Food and Wine",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "L2E Academia",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Le Wagon",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Legend Hospitality School",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 12,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Lyceum College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Madge Wallace",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Market Masters Program International",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Melsoft Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Midlands Hospitality Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Moonstone Business School of Excellence (MBSE)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 6,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Nanette Skills Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "NewBridge Graduate Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Nido Health",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 14,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "North West School of Design",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Oakfields College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Polytech Africa",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Pono Entsha Training Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Red & Yellow Creative School of Business",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": "Short courses may not be covered"
+ },
+ {
+  "name": "Regenesys Education",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Rhodes Business School",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Riches and Beyond",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": "Short courses may not be covered"
+ },
+ {
+  "name": "Rise Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 18,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Rosebank international",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "SA Perfumery and Cosmetics Training Institute (SAPACTI)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 18,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "SACAP (The South African College of Applied Psychology)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "SAE Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Skills Academy",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Skills Development Professionals",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "South African Perfumery and Cosmetics Training Institute (SAPACTI)",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 18,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Administration & Management",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Architecture & Engineering",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Arts & Humanities",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Commerce",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Education",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Fashion",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Information Technology",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Law",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Media & Design",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stadio - School of Policing & Law Enforcement",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Starquality Creative Arts College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 12,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Stellenbosch University",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 24,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Swift Skills Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Techblume",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 24,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "The Animation School",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 24,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "The DaVinci Institute",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": true,
+  "shortCourseNote": null
+ },
+ {
+  "name": "The Stage Performing Arts Studio",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Think Tank",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Trainsure Consultancy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Trifocus Fitness Academy",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": "Short courses may not be covered"
+ },
+ {
+  "name": "TSIBA",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 24,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "UniHaven",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "University of Cape Town (UCT)",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": 24,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Water Business College",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Waterfront Theatre School",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Windsor University School of Medicine",
+  "rule": "multiple",
+  "multiplier": 2,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "ZAIO",
+  "rule": "fixed",
+  "multiplier": 2,
+  "cap": 36,
+  "fixedMonths": 12,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ }
+]
