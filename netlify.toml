@@ -10,6 +10,14 @@
 [functions]
   directory = "netlify/functions"
 
+# Ask AI crawlers not to use the site for training / generative indexing.
+# Advisory signal (honoured by reputable AI bots); does not hard-block.
+# Does NOT include noindex, so normal search engines still list the site.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noai, noimageai"
+
 # Friendly path for the application proxy
 [[redirects]]
   from = "/api/apply"
