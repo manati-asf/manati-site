@@ -856,10 +856,10 @@
  },
  {
   "name": "Techblume",
-  "rule": "fixed",
+  "rule": "multiple",
   "multiplier": 2,
-  "cap": 48,
-  "fixedMonths": 24,
+  "cap": 24,
+  "fixedMonths": null,
   "variesByQualification": false,
   "shortCourseNote": null
  },
