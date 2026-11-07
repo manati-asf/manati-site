@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import INSTITUTIONS from '../data/institutions.json';
 const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 // In-house application bot — Phase 2 (full applicant field set, v1).
 // Documents are "collect-later" in v1 (we request them in a secure follow-up),
@@ -36,6 +37,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         <div class="ab-chat" id="ab-chat"></div>
         <div class="ab-dock" id="ab-dock"></div>
       </div>
+      <datalist id="ab-inst-list">
+        {INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
+      </datalist>
     </div>
   </section>
 
@@ -106,7 +110,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     {k:'student_email', t:'email', q:["Student's email address?"], ph:"you@example.com", opt:true, v:em},
 
     {sec:"Studies"},
-    {k:'institution', t:'text', q:["Which university or college?"], ph:"e.g. University of the Western Cape", v:req},
+    {k:'institution', t:'text', q:["Which university or college?"], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
     {k:'campus', t:'text', q:["Which campus? (if applicable)"], ph:"e.g. Bellville", opt:true},
     {k:'qualification', t:'text', q:["What qualification / course?"], ph:"e.g. BCom Accounting", v:req},
     {k:'year_of_study', t:'choice', q:["Year of study?"], opt:true, o:[{l:"1st year",v:"1"},{l:"2nd year",v:"2"},{l:"3rd year",v:"3"},{l:"4th year",v:"4"},{l:"Postgraduate",v:"Postgrad"}]},
@@ -311,7 +315,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     // text/email/tel/num
     var pfx=step.pfx?'<span class="pfx">'+step.pfx+'</span>':'';
     var itype=(t==='num')?'number':t;
-    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+itype+'" placeholder="'+(step.ph||'')+'"></div><button class="ab-send" id="ab-go">Send</button></div><div class="ab-err" id="ab-err"></div>';
+    var listAttr=step.list?(' list="'+step.list+'" autocomplete="off"'):'';
+    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+itype+'"'+listAttr+' placeholder="'+(step.ph||'')+'"></div><button class="ab-send" id="ab-go">Send</button></div><div class="ab-err" id="ab-err"></div>';
     var inp=document.getElementById('ab-inp'); inp.focus();
     function go(){var v=inp.value; if(!v && step.opt){skip();return;} if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} S[step.k]=(v||'').trim(); addMe(step.pfx?(step.pfx+Number(v).toLocaleString('en-ZA')):v.trim()); advance();}
     document.getElementById('ab-go').onclick=go;
