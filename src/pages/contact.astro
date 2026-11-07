@@ -47,8 +47,17 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           {TS_SITE_KEY && <div class="cf-turnstile" data-sitekey={TS_SITE_KEY} data-callback="onContactTs" data-expired-callback="onContactTsExpired" style="margin-top:16px"></div>}
           <div style="margin-top:18px"><button class="btn btn-primary" type="submit" id="contact-submit" disabled={TS_SITE_KEY ? true : undefined}>Send message</button></div>
         </form>
+        {TS_SITE_KEY && <script is:inline>
+          window.onContactTs = function () {
+            var b = document.getElementById('contact-submit');
+            if (b) b.disabled = false;
+          };
+          window.onContactTsExpired = function () {
+            var b = document.getElementById('contact-submit');
+            if (b) b.disabled = true;
+          };
+        </script>}
         {TS_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
-        {TS_SITE_KEY && <script is:inline>{`window.onContactTs=function(){var b=document.getElementById('contact-submit');if(b)b.disabled=false;};window.onContactTsExpired=function(){var b=document.getElementById('contact-submit');if(b)b.disabled=true;};`}</script>}
       </div>
 
       <div>
