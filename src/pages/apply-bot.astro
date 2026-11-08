@@ -4,19 +4,16 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import INSTITUTIONS from '../data/institutions.json';
 const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
-// In-house application bot — Phase 2 (v2, aligned to the live Wandi Landbot flow).
-// Order + question set now mirror the Landbot: WhatsApp consent → existing-customer →
-// institution → student/sponsor → employed-while-studying → employment status →
-// income (gross/net/additional) → bank → loan → course duration → applicant details
-// (identity + ID type + demographics, collected late) → second income → documents (deferred)
-// → credit/POPIA consent → review. Documents are "collect-later" in v2 (no uploads here).
-// Posts to /api/apply (Netlify proxy → TaskFlow). Runs on /apply-bot alongside the live
-// Landbot until cut-over.
-// NOTE (confirm before go-live): option VALUES for selection fields and the TaskFlow
-// payload keys for NEW fields (existing-customer, ID type, student demographics) and the
-// institution → ei_id mapping are best-guess and must be confirmed against the Landbot
-// webhook config. Test mode (TASKFLOW_TEST_MODE=1) echoes the exact payload so these can
-// be verified without touching TaskFlow.
+// In-house application bot — Phase 2 (v3): pop-out widget, mobile-first, grouped cards.
+// - Pop-out overlay (floating launcher + modal). Full-screen on mobile, card on desktop.
+// - Flow mirrors the Landbot but groups many questions into a few "form" cards to cut screens.
+// - Sponsor details collected in full first, then student details.
+// - Tuition only (no accommodation / equipment). No Skip buttons anywhere.
+// - Documents deferred (requested after submission). Both consents kept: WhatsApp (start) + credit/POPIA (end).
+// Posts to /api/apply (Netlify proxy → TaskFlow).
+// NOTE (confirm before go-live): option VALUES and payload keys for NEW fields
+// (existing-customer, ID type, demographics) and institution → ei_id mapping are best-guess;
+// test mode (TASKFLOW_TEST_MODE=1) echoes the exact payload so these can be verified.
 ---
 <Base title="Apply — Manati (new bot, preview)" description="Manati online application — new in-house bot (preview).">
   <Header />
@@ -27,193 +24,222 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     <div class="wrap">
       <span class="eyebrow">Apply · preview</span>
       <h1>Apply for funding</h1>
-      <p>Our new in-house application — Wandi will guide you through a few questions. This preview replaces the embedded bot.</p>
+      <p>Our new in-house application — Wandi will guide you through a few quick questions. It takes about 5 minutes.</p>
+      <p style="margin-top:18px"><button id="ab-open-hero" class="btn btn-primary" type="button">Start your application →</button></p>
     </div>
   </section>
 
   <section class="block">
-    <div class="wrap" style="max-width:540px">
-      <div class="ab-device">
-        <div class="ab-banner">Preview — submits to our TaskFlow proxy (<code>/api/apply</code>). Documents are requested after submission.</div>
-        <div class="ab-head">
-          <div class="ab-av">W</div>
-          <div><div class="ab-logo">Wandi</div><div class="ab-sub">Manati application assistant</div></div>
-        </div>
-        <div class="ab-prog"><i id="ab-bar"></i></div>
-        <div class="ab-chat" id="ab-chat"></div>
-        <div class="ab-dock" id="ab-dock"></div>
-      </div>
-      <datalist id="ab-inst-list">
-        {INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
-      </datalist>
+    <div class="wrap" style="max-width:720px">
+      <p style="color:var(--muted)">Prefer to apply now? Tap the button above or the <strong>Apply with Wandi</strong> button in the corner. You can apply on your own income, or add a sponsor's income to strengthen your application.</p>
     </div>
   </section>
+
+  <!-- Floating launcher -->
+  <button id="ab-launch" class="ab-launch" type="button" aria-label="Open the Manati application assistant">
+    <span class="ab-launch-dot">W</span> Apply with Wandi
+  </button>
+
+  <!-- Pop-out overlay -->
+  <div id="ab-overlay" class="ab-overlay" hidden>
+    <div class="ab-device" role="dialog" aria-label="Manati application assistant" aria-modal="true">
+      <div class="ab-head">
+        <div class="ab-av">W</div>
+        <div class="ab-head-t"><div class="ab-logo">Wandi</div><div class="ab-sub">Manati application assistant</div></div>
+        <button id="ab-close" class="ab-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="ab-prog"><i id="ab-bar"></i></div>
+      <div class="ab-chat" id="ab-chat"></div>
+      <div class="ab-dock" id="ab-dock"></div>
+      <div class="ab-foot">Preview — submits to our TaskFlow proxy. Documents are requested after submission.</div>
+    </div>
+  </div>
+
+  <datalist id="ab-inst-list">
+    {INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
+  </datalist>
 
   <Footer />
 </Base>
 
 <style is:global>
-  .ab-device{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;height:660px;max-height:82vh;font-family:'Duru Sans',system-ui,sans-serif}
-  .ab-banner{background:#fff7cf;color:#6b5e10;font-size:11.5px;text-align:center;padding:6px 10px;border-bottom:1px solid #f0e6a8}
-  .ab-banner code{background:rgba(0,0,0,.05);padding:1px 4px;border-radius:4px}
+  /* Launcher */
+  .ab-launch{position:fixed;right:18px;bottom:18px;z-index:9998;display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:var(--navy);border:0;border-radius:999px;padding:12px 18px;font-family:'Varela Round',system-ui,sans-serif;font-weight:700;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer}
+  .ab-launch:hover{filter:brightness(.97)}
+  .ab-launch-dot{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+
+  /* Overlay + device */
+  .ab-overlay{position:fixed;inset:0;z-index:9999;background:rgba(20,18,16,.55);display:flex;align-items:center;justify-content:center;padding:24px}
+  .ab-overlay[hidden]{display:none}
+  .ab-device{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;width:440px;max-width:100%;height:660px;max-height:92vh;font-family:'Duru Sans',system-ui,sans-serif}
   .ab-head{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:11px}
   .ab-av{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy)}
+  .ab-head-t{flex:1;min-width:0}
   .ab-logo{font-family:'Varela Round';font-weight:700;font-size:16px}
   .ab-sub{font-size:12px;color:#cfc9bd}
+  .ab-close{background:transparent;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 4px;opacity:.85}
+  .ab-close:hover{opacity:1}
   .ab-prog{height:4px;background:#efece4}
   .ab-prog>i{display:block;height:100%;width:0;background:var(--gold);transition:width .4s}
-  .ab-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .ab-chat{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
   .ab-row{display:flex;gap:8px;align-items:flex-end}
   .ab-row.me{justify-content:flex-end}
-  .ab-bub{max-width:82%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-line}
+  .ab-bub{max-width:85%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-line}
   .ab-row.bot .ab-bub{background:#f3f1ea;color:#322f29;border-bottom-left-radius:5px}
   .ab-row.me .ab-bub{background:var(--navy);color:#fff;border-bottom-right-radius:5px}
   .ab-pic{width:28px;height:28px;border-radius:50%;background:var(--gold);flex:none;display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy);font-size:13px}
-  .ab-dock{border-top:1px solid var(--line);padding:12px;background:#fff;min-height:62px}
+  .ab-dock{border-top:1px solid var(--line);padding:12px;background:#fff;max-height:62%;overflow-y:auto}
+  .ab-foot{font-size:10.5px;color:#a59f90;text-align:center;padding:5px 10px;background:#faf8f3;border-top:1px solid var(--line)}
   .ab-field{display:flex;gap:8px}
-  .ab-dock input:not([type=checkbox]),.ab-dock select{flex:1;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;outline:none}
-  .ab-dock input:not([type=checkbox]):focus{border-color:var(--teal-d);box-shadow:0 0 0 3px rgba(222,195,35,.25)}
+  .ab-dock input:not([type=checkbox]),.ab-dock select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;outline:none;background:#fff}
+  .ab-dock input:focus,.ab-dock select:focus{border-color:var(--teal-d);box-shadow:0 0 0 3px rgba(222,195,35,.25)}
+  .ab-dock input.bad,.ab-dock select.bad{border-color:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.12)}
   .ab-ip{position:relative;flex:1}
   .ab-ip .pfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600}
   .ab-ip.has-pfx input{padding-left:30px}
-  .ab-send{background:var(--gold);color:var(--navy);font-weight:700;border:0;border-radius:12px;padding:0 18px;font-family:'Varela Round';cursor:pointer}
-  .ab-send:hover{background:var(--teal-d)}
-  .ab-skip{background:transparent;color:var(--muted);border:0;font-family:'Varela Round';cursor:pointer;padding:0 10px;font-size:13px}
-  .ab-skip:hover{color:var(--navy)}
-  .ab-choices{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto}
-  .ab-choice{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;font-weight:600;color:var(--navy);cursor:pointer}
+  .ab-send{background:var(--gold);color:var(--navy);font-weight:700;border:0;border-radius:12px;padding:0 18px;font-family:'Varela Round';cursor:pointer;min-height:46px}
+  .ab-send:hover{filter:brightness(.97)}
+  .ab-choices{display:flex;flex-direction:column;gap:8px}
+  .ab-choice{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;text-align:left;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;font-size:14.5px}
   .ab-choice:hover{border-color:var(--gold);background:var(--bg-soft)}
+  /* Grouped form card */
+  .ab-form-t{font-family:'Varela Round';font-weight:700;color:var(--navy);font-size:15px;margin-bottom:10px}
+  .ab-fl{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin:10px 0 4px}
+  .ab-fl:first-of-type{margin-top:0}
+  .ab-fip{position:relative}
+  .ab-fip.has input{padding-left:30px}
+  .ab-fip .ab-pfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600}
   .ab-consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5}
   .ab-consent input[type=checkbox]{flex:none;width:18px;height:18px;margin-top:2px;cursor:pointer}
-  .ab-review{font-size:13px;background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px;max-height:200px;overflow-y:auto}
+  .ab-review{font-size:13px;background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:10px}
   .ab-review div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed var(--line)}
   .ab-review div:last-child{border:0}
   .ab-review .k{color:var(--muted)}.ab-review .v{font-weight:600;text-align:right;color:var(--navy)}
-  .ab-err{color:#c0392b;font-size:12px;margin-top:6px}
+  .ab-err{color:#c0392b;font-size:12px;margin-top:8px}
   .ab-hint{font-size:11.5px;color:#a59f90;text-align:center;margin-top:8px}
+
+  @media (max-width:600px){
+    .ab-overlay{padding:0}
+    .ab-device{width:100%;height:100%;max-height:100%;border-radius:0}
+    .ab-launch{right:12px;bottom:12px;padding:11px 16px;font-size:14px}
+  }
 </style>
 
 <script is:inline>
 (function(){
+  var overlay=document.getElementById('ab-overlay');
   var chat=document.getElementById('ab-chat'), dock=document.getElementById('ab-dock'), bar=document.getElementById('ab-bar');
-  var S={};
+  var S={}, started=false, finished=false;
 
   var PROV=["Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape"];
   var BANKS=["ABSA","Capitec","First National Bank (FNB)","Nedbank","Standard Bank","Other"];
-  // Employment statuses aligned to the live Landbot (8 options).
   var EMP=["Permanent","Government Employee","Fixed-term","Temporary","Independent Consultant","Pensioner","Self-employed","Unemployed"];
   var ETHNIC=["Black","Coloured","Indian","White","Other"];
   var DUR=["6 months","12 months","18 months","24 months","30 months","36 months","48 months"];
   var ID_TYPE=[{l:"South African ID",v:"id_number"},{l:"Passport",v:"passport"}];
   var GENDER=[{l:"Female",v:"f"},{l:"Male",v:"m"},{l:"Prefer not to say",v:""}];
+  var RELS=["Parent","Guardian","Spouse / Partner","Sibling","Other family","Other"];
+  var RELS2=["Spouse / Partner","Parent","Sibling","Other"];
   var yn=[{l:"Yes",v:"Yes"},{l:"No",v:"No"}];
 
   var WA_CONSENT="WhatsApp communication consent\n\nBy providing your mobile number and proceeding with this application, you consent to receive communications from Manati Alternate Student Funding via WhatsApp. These may include application updates, loan activation and payment confirmations, reminders, statements, collections and arrears messages, and customer support.\n\nStandard data charges may apply. You can withdraw consent at any time by replying STOP, or by contacting us. Withdrawal will not affect communications Manati must send in terms of the loan agreement, the law, or the administration of your account.";
 
-  // helpers for branching
   function isStudent(){return S.who==='Student';}
   function selfFunded(){return S.who==='Student' && S.employed_studying==='Yes';}
   function notSelf(){return !selfFunded();}
-  function j(){return S.sponsor_two_yes_no==='Yes';}
+  function j(){return notSelf() && S.sponsor_two_yes_no==='Yes';}
   function who(){return selfFunded()?"your":"the sponsor's";}
-
-  // Flow definition. t: intro|longconsent|choice|text|email|tel|num|consent|info|review|done
-  var FLOW=[
-    {t:'intro', q:["Hi! I'm Wandi 👋 I'll guide you through your Manati funding application. It takes about 10 minutes, and you can apply with a sponsor's income to strengthen your application."], o:[{l:"Let's begin →",v:"start"}]},
-
-    // 1. WhatsApp communications consent (matches Landbot — shown up front)
-    {k:'wa_consent', t:'info', q:[WA_CONSENT], o:[{l:"Yes, I agree and consent",v:"Yes"}]},
-
-    // 2. Existing Manati customer?
-    {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
-
-    // 3. Educational institution (strict list, asked early like the Landbot)
-    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
-
-    // 4. Student or sponsor?
-    {k:'who', t:'choice', q:["Are you the student, or a student's sponsor? (A sponsor is a parent, guardian or spouse who supports the application with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
-
-    // 5. Employed while studying? (student path) — decides self-fund vs sponsor
-    {k:'employed_studying', t:'choice', q:["Are you currently employed, and will you remain employed while studying?"], when:isStudent, o:yn},
-
-    // ---- Income (the student's if self-funded, otherwise the sponsor's) ----
-    {sec:"Income"},
-    {k:'emp_status', t:'choice', q:[function(){return "What is "+who()+" employment status?";}], o:EMP.map(function(e){return {l:e,v:e};})},
-    {k:'gross', t:'num', q:[function(){return "What is "+who()+" gross monthly income?";}], pfx:"R", v:req},
-    {k:'net', t:'num', q:["Net (take-home) monthly income?"], pfx:"R", v:req},
-    {k:'addl_value', t:'num', q:["Any additional income per month? (e.g. commission, maintenance, rental — enter 0 if none)"], pfx:"R", opt:true},
-
-    // ---- Banking ----
-    {k:'bank', t:'choice', q:[function(){return "Where does "+who()+" hold their personal bank account?";}], o:BANKS.map(function(b){return {l:b,v:b};})},
-
-    // ---- Loan amount ----
-    {sec:"The funding you need"},
-    {k:'loan_tuition', t:'num', q:["What is the tuition fee to be funded (per year)?"], pfx:"R", v:req},
-    {k:'loan_accommodation', t:'num', q:["How much for accommodation? (enter 0 if none)"], pfx:"R", opt:true},
-    {k:'loan_equipment', t:'num', q:["How much for equipment, e.g. laptop or books? (enter 0 if none)"], pfx:"R", opt:true},
-    {k:'loan_amount', t:'num', q:["Total funding needed (per year)?"], pfx:"R", v:req},
-
-    // ---- Course duration ----
-    {k:'course_duration', t:'choice', q:["Kindly select the total course duration."], o:DUR.map(function(x){return {l:x,v:x};})},
-
-    // ---- Applicant's details (identity + demographics, collected late like the Landbot) ----
-    {sec:"Student details"},
-    {k:'student_first', t:'text', q:["Student's first name?"], ph:"e.g. Thandi", v:nm},
-    {k:'student_last', t:'text', q:["Student's surname?"], ph:"e.g. Mokoena", v:nm},
-    {k:'student_id_type', t:'choice', q:["Student's identification type?"], o:ID_TYPE},
-    {k:'student_id', t:'text', q:["Student's ID / passport number?"], ph:"SA ID is 13 digits", opt:true, v:idsoft},
-    {k:'student_phone', t:'tel', q:["A mobile number for the student?"], ph:"e.g. 082 123 4567", v:ph},
-    {k:'student_alt_phone', t:'tel', q:["An alternative contact number? (optional)"], ph:"optional", opt:true, v:ph},
-    {k:'student_email', t:'email', q:["Student's email address?"], ph:"you@example.com", v:em},
-    {k:'student_gender', t:'choice', q:["Student's gender?"], opt:true, o:GENDER},
-    {k:'student_ethnicity', t:'choice', q:["Student's population group? (for reporting)"], opt:true, o:ETHNIC.map(function(r){return {l:r,v:r};})},
-    {k:'student_province', t:'choice', q:["Student's province of residence?"], opt:true, o:PROV.map(function(p){return {l:p,v:p};})},
-
-    // ---- Sponsor details (only when NOT self-funded) ----
-    {sec:"Sponsor details", when:notSelf},
-    {k:'s1_first', t:'text', q:["Sponsor's first name?"], ph:"First name", when:notSelf, v:nm},
-    {k:'s1_last', t:'text', q:["Sponsor's surname?"], ph:"Surname", when:notSelf, v:nm},
-    {k:'s1_relation', t:'choice', q:["Relationship to the student?"], when:notSelf, o:[{l:"Parent",v:"Parent"},{l:"Guardian",v:"Guardian"},{l:"Spouse / Partner",v:"Spouse/Partner"},{l:"Sibling",v:"Sibling"},{l:"Other family",v:"Other family"},{l:"Other",v:"Other"}]},
-    {k:'s1_id_type', t:'choice', q:["Sponsor's identification type?"], when:notSelf, o:ID_TYPE},
-    {k:'s1_id', t:'text', q:["Sponsor's ID / passport number?"], ph:"SA ID is 13 digits", opt:true, when:notSelf, v:idsoft},
-    {k:'s1_phone', t:'tel', q:["Sponsor's mobile number?"], ph:"e.g. 082 123 4567", when:notSelf, v:ph},
-    {k:'s1_email', t:'email', q:["Sponsor's email address?"], ph:"sponsor@example.com", opt:true, when:notSelf, v:em},
-    {k:'s1_gender', t:'choice', q:["Sponsor's gender?"], opt:true, when:notSelf, o:GENDER},
-    {k:'s1_ethnicity', t:'choice', q:["Sponsor's population group? (for reporting)"], opt:true, when:notSelf, o:ETHNIC.map(function(r){return {l:r,v:r};})},
-    {k:'s1_province', t:'choice', q:["Sponsor's province of residence?"], opt:true, when:notSelf, o:PROV.map(function(p){return {l:p,v:p};})},
-
-    // ---- Second income / additional sponsor ----
-    {sec:"Second income"},
-    {k:'sponsor_two_yes_no', t:'choice', q:["Is there a second income in the household, or another sponsor whose income we can consider as part of the application?"], o:[{l:"No, only one income",v:"No"},{l:"Yes, there is a second income",v:"Yes"}]},
-    {k:'s2_first', t:'text', q:["Second sponsor's first name?"], ph:"First name", when:j, v:nm},
-    {k:'s2_last', t:'text', q:["Second sponsor's surname?"], ph:"Surname", when:j, v:nm},
-    {k:'s2_relation_to_s1', t:'choice', q:["Relationship to the first sponsor?"], when:j, o:[{l:"Spouse / Partner",v:"Spouse/Partner"},{l:"Parent",v:"Parent"},{l:"Sibling",v:"Sibling"},{l:"Other",v:"Other"}]},
-    {k:'s2_id', t:'text', q:["Second sponsor's SA ID number?"], ph:"13 digits", opt:true, when:j, v:idsoft},
-    {k:'s2_phone', t:'tel', q:["Second sponsor's mobile?"], ph:"e.g. 082 123 4567", when:j, v:ph},
-    {k:'s2_email', t:'email', q:["Second sponsor's email?"], ph:"sponsor2@example.com", opt:true, when:j, v:em},
-    {k:'s2_employment', t:'choice', q:["Second sponsor's employment status?"], opt:true, when:j, o:EMP.map(function(e){return {l:e,v:e};})},
-    {k:'s2_gross', t:'num', q:["Second sponsor's gross monthly income?"], pfx:"R", when:j},
-    {k:'s2_net', t:'num', q:["Second sponsor's net monthly income?"], pfx:"R", opt:true, when:j},
-
-    // ---- Documents (deferred in v2) + credit/POPIA consent (kept in addition to WhatsApp consent) ----
-    {t:'info', q:["Almost done! We'll request your supporting documents — ID, proof of income, bank statements, and your acceptance letter / fee statement — securely once your application is in."], o:[{l:"Got it →",v:"ok"}]},
-    {k:'consent', t:'consent', q:["Last step — we need your consent to process your information and run the necessary credit and affordability checks."]},
-    {t:'review', q:["Here's a summary — ready to submit?"]},
-    {t:'done', q:[]}
-  ];
 
   // validators
   function req(v){return v && v.trim().length>=2?null:"This one's required.";}
   function nm(v){return v && v.trim().length>=2?null:"Please enter at least 2 characters.";}
   function em(v){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)?null:"That doesn't look like a valid email.";}
   function ph(v){return v.replace(/\D/g,'').length>=9?null:"Please enter a valid mobile number.";}
-  // ID is optional and may be a passport, so accept 13-digit SA IDs or passports (>=6 chars).
-  function idsoft(v){var s=v.replace(/\s/g,''); if(!s) return null; return (/^\d{13}$/.test(s)||s.length>=6)?null:"Enter a 13-digit SA ID or a valid passport number (or skip).";}
+  function reqnum(v){return (v!==''&&!isNaN(Number(v))&&Number(v)>=0)?null:"Please enter an amount.";}
+  function idsoft(v){var s=v.replace(/\s/g,''); if(!s) return null; return (/^\d{13}$/.test(s)||s.length>=6)?null:"Enter a 13-digit SA ID or a valid passport number.";}
+
+  // Flow. Types: intro|info|choice|text|consent|form|review|done
+  var FLOW=[
+    {t:'intro', q:["Hi! I'm Wandi 👋 I'll guide you through your Manati funding application. It takes about 5 minutes."], o:[{l:"Let's begin →",v:"start"}]},
+    {k:'wa_consent', t:'info', q:[WA_CONSENT], o:[{l:"Yes, I agree and consent",v:"Yes"}]},
+    {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
+    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
+    {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian or spouse applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
+    {k:'employed_studying', t:'choice', when:isStudent, q:["Are you currently employed, and will you remain employed while studying?"], o:yn},
+
+    // Funding (tuition only) + course duration
+    {t:'form', title:"Funding needed", q:["Great — let's get the funding details."], fields:[
+      {k:'tuition', label:"Tuition fee to be funded (per year)", type:'num', pfx:"R", v:reqnum},
+      {k:'course_duration', label:"Total course duration", type:'select', options:DUR}
+    ], done:"✓ Funding details captured"},
+
+    // ---- Sponsor path: full sponsor details, then sponsor income, then optional 2nd sponsor ----
+    {t:'form', when:notSelf, title:"Sponsor details", q:["Now the sponsor's details."], fields:[
+      {k:'s1_first', label:"First name", type:'text', v:nm},
+      {k:'s1_last', label:"Surname", type:'text', v:nm},
+      {k:'s1_relation', label:"Relationship to the student", type:'select', options:RELS},
+      {k:'s1_id_type', label:"Identification type", type:'select', options:ID_TYPE},
+      {k:'s1_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
+      {k:'s1_phone', label:"Mobile number", type:'tel', v:ph},
+      {k:'s1_email', label:"Email address (optional)", type:'email', opt:true, v:em},
+      {k:'s1_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
+      {k:'s1_ethnicity', label:"Population group, for reporting (optional)", type:'select', opt:true, options:ETHNIC},
+      {k:'s1_province', label:"Province of residence (optional)", type:'select', opt:true, options:PROV}
+    ], done:"✓ Sponsor details captured"},
+    {t:'form', when:notSelf, title:"Sponsor income & banking", fields:[
+      {k:'emp_status', label:"Employment status", type:'select', options:EMP},
+      {k:'gross', label:"Gross monthly income", type:'num', pfx:"R", v:reqnum},
+      {k:'net', label:"Net (take-home) monthly income", type:'num', pfx:"R", v:reqnum},
+      {k:'addl_value', label:"Additional income per month (optional)", type:'num', pfx:"R", opt:true},
+      {k:'bank', label:"Bank", type:'select', options:BANKS}
+    ], done:"✓ Income captured"},
+    {k:'sponsor_two_yes_no', t:'choice', when:notSelf, q:["Is there a second income in the household, or another sponsor whose income we can consider?"], o:[{l:"No, only one income",v:"No"},{l:"Yes, add a second sponsor",v:"Yes"}]},
+    {t:'form', when:j, title:"Second sponsor", fields:[
+      {k:'s2_first', label:"First name", type:'text', v:nm},
+      {k:'s2_last', label:"Surname", type:'text', v:nm},
+      {k:'s2_relation_to_s1', label:"Relationship to the first sponsor", type:'select', options:RELS2},
+      {k:'s2_id', label:"SA ID number (optional)", type:'text', opt:true, v:idsoft},
+      {k:'s2_phone', label:"Mobile number", type:'tel', v:ph},
+      {k:'s2_email', label:"Email (optional)", type:'email', opt:true, v:em},
+      {k:'s2_employment', label:"Employment status (optional)", type:'select', opt:true, options:EMP},
+      {k:'s2_gross', label:"Gross monthly income", type:'num', pfx:"R", v:reqnum},
+      {k:'s2_net', label:"Net monthly income (optional)", type:'num', pfx:"R", opt:true}
+    ], done:"✓ Second sponsor captured"},
+
+    // ---- Student details (always) ----
+    {t:'form', title:"Student details", q:["And now the student's details."], fields:[
+      {k:'student_first', label:"First name", type:'text', v:nm},
+      {k:'student_last', label:"Surname", type:'text', v:nm},
+      {k:'student_id_type', label:"Identification type", type:'select', options:ID_TYPE},
+      {k:'student_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
+      {k:'student_phone', label:"Mobile number", type:'tel', v:ph},
+      {k:'student_email', label:"Email address", type:'email', v:em},
+      {k:'student_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
+      {k:'student_ethnicity', label:"Population group, for reporting (optional)", type:'select', opt:true, options:ETHNIC},
+      {k:'student_province', label:"Province of residence (optional)", type:'select', opt:true, options:PROV}
+    ], done:"✓ Student details captured"},
+
+    // ---- Self-funded student: the student is the earner ----
+    {t:'form', when:selfFunded, title:"Your income & banking", fields:[
+      {k:'emp_status', label:"Employment status", type:'select', options:EMP},
+      {k:'gross', label:"Gross monthly income", type:'num', pfx:"R", v:reqnum},
+      {k:'net', label:"Net (take-home) monthly income", type:'num', pfx:"R", v:reqnum},
+      {k:'addl_value', label:"Additional income per month (optional)", type:'num', pfx:"R", opt:true},
+      {k:'bank', label:"Bank", type:'select', options:BANKS}
+    ], done:"✓ Income captured"},
+
+    {t:'info', q:["Almost done! We'll request your supporting documents — ID, proof of income, bank statements, and your acceptance letter / fee statement — securely once your application is in."], o:[{l:"Got it →",v:"ok"}]},
+    {k:'consent', t:'consent', q:["Last step — we need your consent to process your information and run the necessary credit and affordability checks."]},
+    {t:'review', q:["Here's a summary — ready to submit?"]},
+    {t:'done', q:[]}
+  ];
 
   var i=-1;
   function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">W</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function prog(){bar.style.width=Math.round((i/(FLOW.length-1))*100)+'%';}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+  function optsHTML(options){return options.map(function(o){var l=(o&&o.l!==undefined)?o.l:o; var v=(o&&o.v!==undefined)?o.v:o; return '<option value="'+esc(v)+'">'+esc(l)+'</option>';}).join('');}
 
   function buildData(){
     var d={}, num=function(v){return (v===undefined||v===null||v==='')?null:Number(v);};
@@ -223,26 +249,23 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     d['x_student_or_sponsor']=S.who||'Student';
     d['x_crm.lead-x_consent_credit_check']='Yes';
     d['x_student-x_credit_check']='Yes';
-
-    // NEW fields (payload keys UNCONFIRMED — see header note; echoed in test mode).
     set('x_whatsapp_consent', S.wa_consent);
     set('x_current_student_loan', S.existing_customer==='Yes' ? 'Yes' : 'No');
 
     // Student identity + demographics
     set('x_student-x_name',S.student_first); set('x_student-x_surname',S.student_last);
     set('x_student-x_id_number',S.student_id); set('x_student-phone',S.student_phone); set('x_student-email',S.student_email);
-    set('x_student-identification_type', S.student_id_type);     // NEW (unconfirmed)
-    set('x_student-alt_phone', S.student_alt_phone);             // NEW (unconfirmed)
-    set('x_student-gender', S.student_gender);                   // NEW (unconfirmed)
-    set('x_student-x_race', S.student_ethnicity);                // NEW (unconfirmed)
-    set('x_student-x_state_id', S.student_province);             // NEW (unconfirmed)
+    set('x_student-identification_type', S.student_id_type);
+    set('x_student-gender', S.student_gender);
+    set('x_student-x_race', S.student_ethnicity);
+    set('x_student-x_state_id', S.student_province);
 
     // Studies
-    set('x_crm.lead-x_educational_institution_id',S.institution); // NOTE: Landbot writes ei_id; confirm key
+    set('x_crm.lead-x_educational_institution_id',S.institution); // confirm key (Landbot writes ei_id)
     set('x_student_course_duration',S.course_duration);
     set('x_crm.lead-x_self_funded', self ? 'Yes' : 'No');
 
-    // Primary income earner → sponsor.one slot (student if self-funded, else the sponsor)
+    // Primary income earner → sponsor.one slot
     if(self){
       set('x_sponsor.one-name',S.student_first); set('X_sponsor.one-surname',S.student_last);
       set('x_sponsor.one-id_number',S.student_id); set('x_sponsor.one-phone',S.student_phone); set('x_sponsor.one-email',S.student_email);
@@ -265,7 +288,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       set('x_crm.lead-x_sponsor_one_additional_income_value',num(S.addl_value));
     }
 
-    set('x_sponsor_two_yes_no',S.sponsor_two_yes_no);
+    set('x_sponsor_two_yes_no', notSelf() ? (S.sponsor_two_yes_no||'No') : 'No');
     if(j()){
       set('x_sponsor.two-x_name',S.s2_first); set('x_sponsor.two-x_surname',S.s2_last);
       set('x_sponsor.two-x_id_number',S.s2_id); set('x_sponsor_two_relation_to_sponsor_one',S.s2_relation_to_s1);
@@ -276,8 +299,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       if(S.s2_id) d['x_sponsor_two_id_number_available_yes_no']='Yes';
     }
 
-    set('x_crm.lead-x_loan_amount',num(S.loan_amount)); set('x_loan_amount_tuition_fee',num(S.loan_tuition));
-    set('x_loan_amount_equipment',num(S.loan_equipment)); set('x_loan_amount_accomodation',num(S.loan_accommodation));
+    // Tuition only
+    set('x_crm.lead-x_loan_amount',num(S.tuition)); set('x_loan_amount_tuition_fee',num(S.tuition));
     d['x_documents_uploaded_yes_no']='No';
     return d;
   }
@@ -293,9 +316,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       try{
         if(_tsId===null){
           _tsId=window.turnstile.render('#ab-ts',{sitekey:_tsKey,size:'invisible',callback:function(tok){finish(tok);},'error-callback':function(){finish('');}});
-        } else {
-          window.turnstile.reset(_tsId);
-        }
+        } else { window.turnstile.reset(_tsId); }
         window.turnstile.execute(_tsId);
       }catch(e){ finish(''); }
       setTimeout(function(){ finish(''); }, 5000);
@@ -309,11 +330,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:tsToken})});
       var out=await res.json().catch(function(){return {};});
       if(res.ok && out.ok){
-        addBot("🎉 Thank you! Your application has been submitted. A Manati consultant will be in touch shortly, and we'll request your supporting documents securely. ");
-        dock.innerHTML='<div class="ab-hint">Submitted successfully.</div>';
+        finished=true;
+        addBot("🎉 Thank you! Your application has been submitted. A Manati consultant will be in touch shortly, and we'll request your supporting documents securely.");
+        dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-doneb" style="flex:1">Close</button></div>';
+        document.getElementById('ab-doneb').onclick=closeWidget;
       } else {
         addBot("Something went wrong submitting your application. Please try again, or email applications@manati.co.za.");
-        dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-retry" style="flex:1">Try again</button></div><div class="ab-err">'+((out&&out.error)||('Error '+res.status))+'</div>';
+        dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-retry" style="flex:1">Try again</button></div><div class="ab-err">'+esc((out&&out.error)||('Error '+res.status))+'</div>';
         document.getElementById('ab-retry').onclick=submitApp;
       }
     }catch(e){
@@ -327,13 +350,43 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     dock.innerHTML=''; var t=step.t;
     if(t==='intro'||t==='choice'||t==='info'){
       var w=document.createElement('div'); w.className='ab-choices';
-      step.o.forEach(function(o){var b=document.createElement('button');b.className='ab-choice';b.textContent=o.l;b.onclick=function(){if(step.k)S[step.k]=o.v;if(t==='choice')addMe(o.l);advance();};w.appendChild(b);});
+      step.o.forEach(function(o){var b=document.createElement('button');b.className='ab-choice';b.type='button';b.textContent=o.l;b.onclick=function(){if(step.k)S[step.k]=o.v;if(t==='choice')addMe(o.l);advance();};w.appendChild(b);});
       dock.appendChild(w);
-      if(step.opt) addSkip();
+      return;
+    }
+    if(t==='form'){
+      var html='<div class="ab-form">';
+      if(step.title) html+='<div class="ab-form-t">'+esc(step.title)+'</div>';
+      step.fields.forEach(function(f){
+        html+='<label class="ab-fl">'+esc(f.label)+(f.opt?'':' *')+'</label>';
+        if(f.type==='select'){
+          html+='<select class="ab-fin" data-k="'+f.k+'"><option value="">Select…</option>'+optsHTML(f.options)+'</select>';
+        } else if(f.list){
+          html+='<input class="ab-fin" data-k="'+f.k+'" list="'+f.list+'" autocomplete="off" placeholder="'+esc(f.ph||'')+'">';
+        } else {
+          var itype=f.type==='num'?'number':f.type;
+          var pre=f.pfx?'<span class="ab-pfx">'+esc(f.pfx)+'</span>':'';
+          html+='<div class="ab-fip '+(f.pfx?'has':'')+'">'+pre+'<input class="ab-fin" data-k="'+f.k+'" type="'+itype+'" placeholder="'+esc(f.ph||'')+'"></div>';
+        }
+      });
+      html+='<div class="ab-err" id="ab-err"></div><button class="ab-send" id="ab-go" type="button" style="width:100%;margin-top:12px">Continue</button></div>';
+      dock.innerHTML=html;
+      document.getElementById('ab-go').onclick=function(){
+        var ok=true, err='';
+        step.fields.forEach(function(f){
+          var el=dock.querySelector('[data-k="'+f.k+'"]'); var val=(el.value||'').trim();
+          el.classList.remove('bad');
+          if(!val && !f.opt){ ok=false; err=err||"Please complete all required fields."; el.classList.add('bad'); return; }
+          if(val && f.v){ var e=f.v(val); if(e){ ok=false; err=err||e; el.classList.add('bad'); } }
+        });
+        if(!ok){ document.getElementById('ab-err').textContent=err; return; }
+        step.fields.forEach(function(f){ var el=dock.querySelector('[data-k="'+f.k+'"]'); var val=(el.value||'').trim(); if(val) S[f.k]=val; });
+        addMe(step.done||"✓ Captured"); advance();
+      };
       return;
     }
     if(t==='consent'){
-      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb"> I confirm my details are true, I\'m authorised to share them, and I consent to Manati processing my information and running credit and affordability checks, in line with the <a href="/privacy/" target="_blank" style="color:var(--teal-d);font-weight:600">Privacy Notice</a>.</label><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">I agree &amp; continue</button></div><div class="ab-err" id="ab-err"></div>';
+      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb"> I confirm my details are true, I\'m authorised to share them, and I consent to Manati processing my information and running credit and affordability checks, in line with the <a href="/privacy/" target="_blank" style="color:var(--teal-d);font-weight:600">Privacy Notice</a>.</label><div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">I agree &amp; continue</button></div><div class="ab-err" id="ab-err"></div>';
       document.getElementById('ab-go').onclick=function(){if(!document.getElementById('ab-cb').checked){document.getElementById('ab-err').textContent="Please tick the box to continue.";return;}S.consent='Yes';addMe('I agree ✓');advance();};
       return;
     }
@@ -342,38 +395,45 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       var rows=[['Applicant',applicant],['Existing customer',S.existing_customer||'No'],['Student',(S.student_first||'')+' '+(S.student_last||'')],['Institution',S.institution],['Course duration',S.course_duration]];
       if(notSelf()) rows.push(['Sponsor',(S.s1_first||'')+' '+(S.s1_last||'')]);
       rows.push(['Gross income/mo',S.gross?'R'+Number(S.gross).toLocaleString('en-ZA'):'—']);
-      rows.push(['Second income',S.sponsor_two_yes_no||'No']);
-      rows.push(['Funding needed',S.loan_amount?'R'+Number(S.loan_amount).toLocaleString('en-ZA'):'—']);
-      dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+r[0]+'</span><span class="v">'+(r[1]||'—')+'</span></div>';}).join('')+'</div><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">Submit application</button></div>';
+      if(notSelf()) rows.push(['Second income',S.sponsor_two_yes_no||'No']);
+      rows.push(['Tuition needed',S.tuition?'R'+Number(S.tuition).toLocaleString('en-ZA'):'—']);
+      dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1]||'—')+'</span></div>';}).join('')+'</div><div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">Submit application</button></div>';
       document.getElementById('ab-go').onclick=function(){addMe('Submit ✓');submitApp();};
       return;
     }
     if(t==='done'){return;}
-    // text/email/tel/num
-    var pfx=step.pfx?'<span class="pfx">'+step.pfx+'</span>':'';
-    var itype=(t==='num')?'number':t;
+    // single text/email/tel input
+    var pfx=step.pfx?'<span class="pfx">'+esc(step.pfx)+'</span>':'';
     var listAttr=step.list?(' list="'+step.list+'" autocomplete="off"'):'';
-    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+itype+'"'+listAttr+' placeholder="'+(step.ph||'')+'"></div><button class="ab-send" id="ab-go">Send</button></div><div class="ab-err" id="ab-err"></div>';
+    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+(step.t==='num'?'number':step.t)+'"'+listAttr+' placeholder="'+esc(step.ph||'')+'"></div><button class="ab-send" id="ab-go" type="button">Send</button></div><div class="ab-err" id="ab-err"></div>';
     var inp=document.getElementById('ab-inp'); inp.focus();
-    function go(){var v=inp.value; if(!v && step.opt){skip();return;} if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} S[step.k]=(v||'').trim(); addMe(step.pfx?(step.pfx+Number(v).toLocaleString('en-ZA')):v.trim()); advance();}
+    function go(){var v=inp.value; if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} S[step.k]=(v||'').trim(); addMe(v.trim()); advance();}
     document.getElementById('ab-go').onclick=go;
     inp.addEventListener('keydown',function(e){if(e.key==='Enter')go();});
-    if(step.opt) addSkip();
   }
-  function addSkip(){var s=document.createElement('div');s.style.textAlign='center';s.innerHTML='<button class="ab-skip" id="ab-skip">Skip</button>';dock.appendChild(s);document.getElementById('ab-skip').onclick=skip;}
-  function skip(){advance();}
 
   function runStep(){
     prog(); var step=FLOW[i];
     var msgs=(step.q||[]).map(function(m){return typeof m==='function'?m():m;});
-    dock.innerHTML=''; var k=0;
-    (function next(){ if(k>=msgs.length){render(step);return;} addBot(msgs[k]); k++; setTimeout(next,300); })();
+    var k=0;
+    (function next(){ if(k>=msgs.length){render(step);return;} addBot(msgs[k]); k++; setTimeout(next,280); })();
   }
   function advance(){
     do { i++; } while(i<FLOW.length && (FLOW[i].sec || (FLOW[i].when && !FLOW[i].when())));
     if(i>=FLOW.length) return;
     runStep();
   }
-  advance();
+
+  function openWidget(){ overlay.hidden=false; document.body.style.overflow='hidden'; if(!started){ started=true; advance(); } }
+  function closeWidget(){ overlay.hidden=true; document.body.style.overflow=''; }
+
+  document.getElementById('ab-launch').onclick=openWidget;
+  var heroBtn=document.getElementById('ab-open-hero'); if(heroBtn) heroBtn.onclick=openWidget;
+  document.getElementById('ab-close').onclick=closeWidget;
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) closeWidget(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && !overlay.hidden) closeWidget(); });
+
+  // Auto-open on this dedicated preview page.
+  openWidget();
 })();
 </script>
