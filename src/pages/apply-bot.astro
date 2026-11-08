@@ -4,13 +4,19 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import INSTITUTIONS from '../data/institutions.json';
 const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
-// In-house application bot — Phase 2 (full applicant field set, v1).
-// Documents are "collect-later" in v1 (we request them in a secure follow-up),
-// so no file uploads here. Posts to /api/apply (Netlify proxy → TaskFlow).
-// Runs on a separate /apply-bot route alongside the live Landbot page until cut-over.
-// NOTE: option VALUES for some selection fields (gender, race, employment, bank,
-// marital, relation, province) are best-guess / from the captured sample and
-// should be confirmed against the Landbot flow + TaskFlow before go-live.
+// In-house application bot — Phase 2 (v2, aligned to the live Wandi Landbot flow).
+// Order + question set now mirror the Landbot: WhatsApp consent → existing-customer →
+// institution → student/sponsor → employed-while-studying → employment status →
+// income (gross/net/additional) → bank → loan → course duration → applicant details
+// (identity + ID type + demographics, collected late) → second income → documents (deferred)
+// → credit/POPIA consent → review. Documents are "collect-later" in v2 (no uploads here).
+// Posts to /api/apply (Netlify proxy → TaskFlow). Runs on /apply-bot alongside the live
+// Landbot until cut-over.
+// NOTE (confirm before go-live): option VALUES for selection fields and the TaskFlow
+// payload keys for NEW fields (existing-customer, ID type, student demographics) and the
+// institution → ei_id mapping are best-guess and must be confirmed against the Landbot
+// webhook config. Test mode (TASKFLOW_TEST_MODE=1) echoes the exact payload so these can
+// be verified without touching TaskFlow.
 ---
 <Base title="Apply — Manati (new bot, preview)" description="Manati online application — new in-house bot (preview).">
   <Header />
@@ -59,7 +65,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   .ab-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
   .ab-row{display:flex;gap:8px;align-items:flex-end}
   .ab-row.me{justify-content:flex-end}
-  .ab-bub{max-width:82%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5}
+  .ab-bub{max-width:82%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-line}
   .ab-row.bot .ab-bub{background:#f3f1ea;color:#322f29;border-bottom-left-radius:5px}
   .ab-row.me .ab-bub{background:var(--navy);color:#fff;border-bottom-right-radius:5px}
   .ab-pic{width:28px;height:28px;border-radius:50%;background:var(--gold);flex:none;display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy);font-size:13px}
@@ -74,7 +80,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   .ab-send:hover{background:var(--teal-d)}
   .ab-skip{background:transparent;color:var(--muted);border:0;font-family:'Varela Round';cursor:pointer;padding:0 10px;font-size:13px}
   .ab-skip:hover{color:var(--navy)}
-  .ab-choices{display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto}
+  .ab-choices{display:flex;flex-direction:column;gap:8px;max-height:260px;overflow-y:auto}
   .ab-choice{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;font-weight:600;color:var(--navy);cursor:pointer}
   .ab-choice:hover{border-color:var(--gold);background:var(--bg-soft)}
   .ab-consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.5}
@@ -93,86 +99,103 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   var S={};
 
   var PROV=["Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape"];
-  var BANKS=["ABSA","Capitec","First National Bank","Nedbank","Standard Bank","TymeBank","African Bank","Other"];
-  var EMP=["Permanent","Contract","Self-employed","Pensioner","Commission","Unemployed"];
+  var BANKS=["ABSA","Capitec","First National Bank (FNB)","Nedbank","Standard Bank","Other"];
+  // Employment statuses aligned to the live Landbot (8 options).
+  var EMP=["Permanent","Government Employee","Fixed-term","Temporary","Independent Consultant","Pensioner","Self-employed","Unemployed"];
+  var ETHNIC=["Black","Coloured","Indian","White","Other"];
+  var DUR=["6 months","12 months","18 months","24 months","30 months","36 months","48 months"];
+  var ID_TYPE=[{l:"South African ID",v:"id_number"},{l:"Passport",v:"passport"}];
+  var GENDER=[{l:"Female",v:"f"},{l:"Male",v:"m"},{l:"Prefer not to say",v:""}];
   var yn=[{l:"Yes",v:"Yes"},{l:"No",v:"No"}];
 
-  // Flow definition. t: intro|choice|text|email|tel|num|consent|info|review|done
+  var WA_CONSENT="WhatsApp communication consent\n\nBy providing your mobile number and proceeding with this application, you consent to receive communications from Manati Alternate Student Funding via WhatsApp. These may include application updates, loan activation and payment confirmations, reminders, statements, collections and arrears messages, and customer support.\n\nStandard data charges may apply. You can withdraw consent at any time by replying STOP, or by contacting us. Withdrawal will not affect communications Manati must send in terms of the loan agreement, the law, or the administration of your account.";
+
+  // helpers for branching
+  function isStudent(){return S.who==='Student';}
+  function selfFunded(){return S.who==='Student' && S.employed_studying==='Yes';}
+  function notSelf(){return !selfFunded();}
+  function j(){return S.sponsor_two_yes_no==='Yes';}
+  function who(){return selfFunded()?"your":"the sponsor's";}
+
+  // Flow definition. t: intro|longconsent|choice|text|email|tel|num|consent|info|review|done
   var FLOW=[
     {t:'intro', q:["Hi! I'm Wandi 👋 I'll guide you through your Manati funding application. It takes about 10 minutes, and you can apply with a sponsor's income to strengthen your application."], o:[{l:"Let's begin →",v:"start"}]},
-    {k:'who', t:'choice', q:["First — who's completing this application?"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
 
-    {sec:"About the student"},
+    // 1. WhatsApp communications consent (matches Landbot — shown up front)
+    {k:'wa_consent', t:'info', q:[WA_CONSENT], o:[{l:"Yes, I agree and consent",v:"Yes"}]},
+
+    // 2. Existing Manati customer?
+    {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
+
+    // 3. Educational institution (strict list, asked early like the Landbot)
+    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
+
+    // 4. Student or sponsor?
+    {k:'who', t:'choice', q:["Are you the student, or a student's sponsor? (A sponsor is a parent, guardian or spouse who supports the application with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
+
+    // 5. Employed while studying? (student path) — decides self-fund vs sponsor
+    {k:'employed_studying', t:'choice', q:["Are you currently employed, and will you remain employed while studying?"], when:isStudent, o:yn},
+
+    // ---- Income (the student's if self-funded, otherwise the sponsor's) ----
+    {sec:"Income"},
+    {k:'emp_status', t:'choice', q:[function(){return "What is "+who()+" employment status?";}], o:EMP.map(function(e){return {l:e,v:e};})},
+    {k:'gross', t:'num', q:[function(){return "What is "+who()+" gross monthly income?";}], pfx:"R", v:req},
+    {k:'net', t:'num', q:["Net (take-home) monthly income?"], pfx:"R", v:req},
+    {k:'addl_value', t:'num', q:["Any additional income per month? (e.g. commission, maintenance, rental — enter 0 if none)"], pfx:"R", opt:true},
+
+    // ---- Banking ----
+    {k:'bank', t:'choice', q:[function(){return "Where does "+who()+" hold their personal bank account?";}], o:BANKS.map(function(b){return {l:b,v:b};})},
+
+    // ---- Loan amount ----
+    {sec:"The funding you need"},
+    {k:'loan_tuition', t:'num', q:["What is the tuition fee to be funded (per year)?"], pfx:"R", v:req},
+    {k:'loan_accommodation', t:'num', q:["How much for accommodation? (enter 0 if none)"], pfx:"R", opt:true},
+    {k:'loan_equipment', t:'num', q:["How much for equipment, e.g. laptop or books? (enter 0 if none)"], pfx:"R", opt:true},
+    {k:'loan_amount', t:'num', q:["Total funding needed (per year)?"], pfx:"R", v:req},
+
+    // ---- Course duration ----
+    {k:'course_duration', t:'choice', q:["Kindly select the total course duration."], o:DUR.map(function(x){return {l:x,v:x};})},
+
+    // ---- Applicant's details (identity + demographics, collected late like the Landbot) ----
+    {sec:"Student details"},
     {k:'student_first', t:'text', q:["Student's first name?"], ph:"e.g. Thandi", v:nm},
     {k:'student_last', t:'text', q:["Student's surname?"], ph:"e.g. Mokoena", v:nm},
-    {k:'student_id', t:'text', q:["Student's South African ID number?"], ph:"13 digits", opt:true, v:idv},
+    {k:'student_id_type', t:'choice', q:["Student's identification type?"], o:ID_TYPE},
+    {k:'student_id', t:'text', q:["Student's ID / passport number?"], ph:"SA ID is 13 digits", opt:true, v:idsoft},
     {k:'student_phone', t:'tel', q:["A mobile number for the student?"], ph:"e.g. 082 123 4567", v:ph},
-    {k:'student_email', t:'email', q:["Student's email address?"], ph:"you@example.com", opt:true, v:em},
+    {k:'student_alt_phone', t:'tel', q:["An alternative contact number? (optional)"], ph:"optional", opt:true, v:ph},
+    {k:'student_email', t:'email', q:["Student's email address?"], ph:"you@example.com", v:em},
+    {k:'student_gender', t:'choice', q:["Student's gender?"], opt:true, o:GENDER},
+    {k:'student_ethnicity', t:'choice', q:["Student's population group? (for reporting)"], opt:true, o:ETHNIC.map(function(r){return {l:r,v:r};})},
+    {k:'student_province', t:'choice', q:["Student's province of residence?"], opt:true, o:PROV.map(function(p){return {l:p,v:p};})},
 
-    {sec:"Studies"},
-    {k:'institution', t:'text', q:["Which university or college?"], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
-    {k:'campus', t:'text', q:["Which campus? (if applicable)"], ph:"e.g. Bellville", opt:true},
-    {k:'qualification', t:'text', q:["What qualification / course?"], ph:"e.g. BCom Accounting", v:req},
-    {k:'year_of_study', t:'choice', q:["Year of study?"], opt:true, o:[{l:"1st year",v:"1"},{l:"2nd year",v:"2"},{l:"3rd year",v:"3"},{l:"4th year",v:"4"},{l:"Postgraduate",v:"Postgrad"}]},
-    {k:'course_duration', t:'text', q:["How many years is the course in total?"], ph:"e.g. 3", opt:true},
-    {k:'registered', t:'choice', q:["Are you already registered for the course?"], opt:true, o:yn},
-    {k:'self_funded', t:'choice', q:["Will you fund the studies yourself, or is a parent/sponsor supporting the application?"], o:[{l:"I'm funding it myself",v:"Yes"},{l:"A parent/sponsor is supporting",v:"No"}]},
+    // ---- Sponsor details (only when NOT self-funded) ----
+    {sec:"Sponsor details", when:notSelf},
+    {k:'s1_first', t:'text', q:["Sponsor's first name?"], ph:"First name", when:notSelf, v:nm},
+    {k:'s1_last', t:'text', q:["Sponsor's surname?"], ph:"Surname", when:notSelf, v:nm},
+    {k:'s1_relation', t:'choice', q:["Relationship to the student?"], when:notSelf, o:[{l:"Parent",v:"Parent"},{l:"Guardian",v:"Guardian"},{l:"Spouse / Partner",v:"Spouse/Partner"},{l:"Sibling",v:"Sibling"},{l:"Other family",v:"Other family"},{l:"Other",v:"Other"}]},
+    {k:'s1_id_type', t:'choice', q:["Sponsor's identification type?"], when:notSelf, o:ID_TYPE},
+    {k:'s1_id', t:'text', q:["Sponsor's ID / passport number?"], ph:"SA ID is 13 digits", opt:true, when:notSelf, v:idsoft},
+    {k:'s1_phone', t:'tel', q:["Sponsor's mobile number?"], ph:"e.g. 082 123 4567", when:notSelf, v:ph},
+    {k:'s1_email', t:'email', q:["Sponsor's email address?"], ph:"sponsor@example.com", opt:true, when:notSelf, v:em},
+    {k:'s1_gender', t:'choice', q:["Sponsor's gender?"], opt:true, when:notSelf, o:GENDER},
+    {k:'s1_ethnicity', t:'choice', q:["Sponsor's population group? (for reporting)"], opt:true, when:notSelf, o:ETHNIC.map(function(r){return {l:r,v:r};})},
+    {k:'s1_province', t:'choice', q:["Sponsor's province of residence?"], opt:true, when:notSelf, o:PROV.map(function(p){return {l:p,v:p};})},
 
-    // ---- Sponsor one identity (only if NOT self-funded) ----
-    {sec:"Sponsor details", when:function(){return S.self_funded==='No';}},
-    {k:'s1_first', t:'text', q:["Sponsor's first name?"], ph:"First name", when:function(){return S.self_funded==='No';}, v:nm},
-    {k:'s1_last', t:'text', q:["Sponsor's surname?"], ph:"Surname", when:function(){return S.self_funded==='No';}, v:nm},
-    {k:'s1_relation', t:'choice', q:["Relationship to the student?"], when:function(){return S.self_funded==='No';}, o:[{l:"Parent",v:"Parent"},{l:"Guardian",v:"Guardian"},{l:"Spouse / Partner",v:"Spouse/Partner"},{l:"Sibling",v:"Sibling"},{l:"Other family",v:"Other family"},{l:"Other",v:"Other"}]},
-    {k:'s1_id', t:'text', q:["Sponsor's SA ID number?"], ph:"13 digits", opt:true, when:function(){return S.self_funded==='No';}, v:idv},
-    {k:'s1_phone', t:'tel', q:["Sponsor's mobile number?"], ph:"e.g. 082 123 4567", when:function(){return S.self_funded==='No';}, v:ph},
-    {k:'s1_email', t:'email', q:["Sponsor's email address?"], ph:"sponsor@example.com", opt:true, when:function(){return S.self_funded==='No';}, v:em},
-    {k:'s1_province', t:'choice', q:["Sponsor's province?"], opt:true, when:function(){return S.self_funded==='No';}, o:PROV.map(function(p){return {l:p,v:p};})},
-    {k:'s1_gender', t:'choice', q:["Sponsor's gender?"], opt:true, when:function(){return S.self_funded==='No';}, o:[{l:"Female",v:"f"},{l:"Male",v:"m"},{l:"Prefer not to say",v:""}]},
-    {k:'s1_race', t:'choice', q:["Sponsor's population group? (for reporting)"], opt:true, when:function(){return S.self_funded==='No';}, o:["Black","Coloured","Indian","White","Other"].map(function(r){return {l:r,v:r};})},
-    {k:'s1_marital', t:'choice', q:["Sponsor's marital status?"], opt:true, when:function(){return S.self_funded==='No';}, o:["Single","Married","Divorced","Widowed"].map(function(m){return {l:m,v:m};})},
-
-    // ---- Income (sponsor one OR self) ----
-    {sec:"Income & affordability"},
-    {k:'s1_employment', t:'choice', q:[function(){return "What is "+who()+" employment status?";}], opt:true, o:EMP.map(function(e){return {l:e,v:e};})},
-    {k:'s1_gross', t:'num', q:[function(){return "What is "+who()+" gross monthly income?";}], pfx:"R", v:req},
-    {k:'s1_net', t:'num', q:["Net (take-home) monthly income?"], pfx:"R", opt:true},
-    {k:'s1_bank', t:'choice', q:["Which bank?"], opt:true, o:BANKS.map(function(b){return {l:b,v:b};})},
-    {k:'s1_addl_income', t:'choice', q:["Any additional income (e.g. rental, second job)?"], o:yn},
-    {k:'s1_addl_value', t:'num', q:["How much additional income per month?"], pfx:"R", when:function(){return S.s1_addl_income==='Yes';}},
-    {k:'s1_addl_source', t:'text', q:["Source of the additional income?"], ph:"e.g. rental property", when:function(){return S.s1_addl_income==='Yes';}},
-
-    {sec:"Monthly expenses (optional — helps affordability)"},
-    {k:'s1_bond_rent', t:'num', q:["Bond or rent per month?"], pfx:"R", opt:true},
-    {k:'s1_vehicle', t:'num', q:["Vehicle finance instalment?"], pfx:"R", opt:true},
-    {k:'s1_other_loans', t:'num', q:["Other loan / credit repayments?"], pfx:"R", opt:true},
-    {k:'s1_insurance', t:'num', q:["Insurance / policies per month?"], pfx:"R", opt:true},
-    {k:'s1_groceries', t:'num', q:["Groceries per month?"], pfx:"R", opt:true},
-    {k:'s1_travel', t:'num', q:["Travel / transport per month?"], pfx:"R", opt:true},
-    {k:'s1_phone_data', t:'num', q:["Phone & data per month?"], pfx:"R", opt:true},
-    {k:'s1_other_exp', t:'num', q:["Any other monthly expenses?"], pfx:"R", opt:true},
-
-    // ---- Joint application / sponsor two ----
-    {sec:"Second sponsor"},
-    {k:'sponsor_two_yes_no', t:'choice', q:["Would you like to add a second sponsor (joint application)? This can strengthen your application."], o:[{l:"No, just one sponsor",v:"No"},{l:"Yes, add a second sponsor",v:"Yes"}]},
+    // ---- Second income / additional sponsor ----
+    {sec:"Second income"},
+    {k:'sponsor_two_yes_no', t:'choice', q:["Is there a second income in the household, or another sponsor whose income we can consider as part of the application?"], o:[{l:"No, only one income",v:"No"},{l:"Yes, there is a second income",v:"Yes"}]},
     {k:'s2_first', t:'text', q:["Second sponsor's first name?"], ph:"First name", when:j, v:nm},
     {k:'s2_last', t:'text', q:["Second sponsor's surname?"], ph:"Surname", when:j, v:nm},
     {k:'s2_relation_to_s1', t:'choice', q:["Relationship to the first sponsor?"], when:j, o:[{l:"Spouse / Partner",v:"Spouse/Partner"},{l:"Parent",v:"Parent"},{l:"Sibling",v:"Sibling"},{l:"Other",v:"Other"}]},
-    {k:'s2_id', t:'text', q:["Second sponsor's SA ID number?"], ph:"13 digits", opt:true, when:j, v:idv},
+    {k:'s2_id', t:'text', q:["Second sponsor's SA ID number?"], ph:"13 digits", opt:true, when:j, v:idsoft},
     {k:'s2_phone', t:'tel', q:["Second sponsor's mobile?"], ph:"e.g. 082 123 4567", when:j, v:ph},
     {k:'s2_email', t:'email', q:["Second sponsor's email?"], ph:"sponsor2@example.com", opt:true, when:j, v:em},
     {k:'s2_employment', t:'choice', q:["Second sponsor's employment status?"], opt:true, when:j, o:EMP.map(function(e){return {l:e,v:e};})},
     {k:'s2_gross', t:'num', q:["Second sponsor's gross monthly income?"], pfx:"R", when:j},
     {k:'s2_net', t:'num', q:["Second sponsor's net monthly income?"], pfx:"R", opt:true, when:j},
-    {k:'s2_monthly_exp', t:'num', q:["Second sponsor's total monthly expenses?"], pfx:"R", opt:true, when:j},
 
-    // ---- Loan ----
-    {sec:"The funding you need"},
-    {k:'loan_amount', t:'num', q:["Roughly how much funding do you need in total (per year)?"], pfx:"R", v:req},
-    {k:'loan_tuition', t:'num', q:["Of that, how much is tuition?"], pfx:"R", opt:true},
-    {k:'loan_accommodation', t:'num', q:["How much for accommodation?"], pfx:"R", opt:true},
-    {k:'loan_equipment', t:'num', q:["How much for equipment (laptop, books)?"], pfx:"R", opt:true},
-    {k:'loan_term', t:'num', q:["Over how many months would you like to repay?"], opt:true, ph:"e.g. 24"},
-
+    // ---- Documents (deferred in v2) + credit/POPIA consent (kept in addition to WhatsApp consent) ----
     {t:'info', q:["Almost done! We'll request your supporting documents — ID, proof of income, bank statements, and your acceptance letter / fee statement — securely once your application is in."], o:[{l:"Got it →",v:"ok"}]},
     {k:'consent', t:'consent', q:["Last step — we need your consent to process your information and run the necessary credit and affordability checks."]},
     {t:'review', q:["Here's a summary — ready to submit?"]},
@@ -184,64 +207,77 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   function nm(v){return v && v.trim().length>=2?null:"Please enter at least 2 characters.";}
   function em(v){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)?null:"That doesn't look like a valid email.";}
   function ph(v){return v.replace(/\D/g,'').length>=9?null:"Please enter a valid mobile number.";}
-  function idv(v){return /^\d{13}$/.test(v.replace(/\s/g,''))?null:"A SA ID is 13 digits (or skip).";}
-  function j(){return S.sponsor_two_yes_no==='Yes';}
-  function who(){return S.self_funded==='Yes'?"your":"the sponsor's";}
+  // ID is optional and may be a passport, so accept 13-digit SA IDs or passports (>=6 chars).
+  function idsoft(v){var s=v.replace(/\s/g,''); if(!s) return null; return (/^\d{13}$/.test(s)||s.length>=6)?null:"Enter a 13-digit SA ID or a valid passport number (or skip).";}
 
   var i=-1;
   function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">W</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function prog(){bar.style.width=Math.round((i/(FLOW.length-1))*100)+'%';}
-  function label(step,val){ if(step.o){var f=step.o.filter(function(o){return o.v===val;})[0]; if(f)return f.l;} return val; }
 
   function buildData(){
     var d={}, num=function(v){return (v===undefined||v===null||v==='')?null:Number(v);};
     var set=function(k,v){ if(v!==undefined && v!==null && v!=='') d[k]=v; };
-    var self=S.self_funded==='Yes';
+    var self=selfFunded();
+
     d['x_student_or_sponsor']=S.who||'Student';
     d['x_crm.lead-x_consent_credit_check']='Yes';
     d['x_student-x_credit_check']='Yes';
+
+    // NEW fields (payload keys UNCONFIRMED — see header note; echoed in test mode).
+    set('x_whatsapp_consent', S.wa_consent);
+    set('x_current_student_loan', S.existing_customer==='Yes' ? 'Yes' : 'No');
+
+    // Student identity + demographics
     set('x_student-x_name',S.student_first); set('x_student-x_surname',S.student_last);
     set('x_student-x_id_number',S.student_id); set('x_student-phone',S.student_phone); set('x_student-email',S.student_email);
-    set('x_crm.lead-x_educational_institution_id',S.institution); set('x_crm.lead-x_name_of_campus',S.campus);
-    set('x_crm.lead-x_qualification',S.qualification); set('x_student_year_of_study',S.year_of_study);
-    set('x_student_course_duration',S.course_duration); set('x_student_registered_yes_no',S.registered);
-    set('x_crm.lead-x_self_funded',S.self_funded);
+    set('x_student-identification_type', S.student_id_type);     // NEW (unconfirmed)
+    set('x_student-alt_phone', S.student_alt_phone);             // NEW (unconfirmed)
+    set('x_student-gender', S.student_gender);                   // NEW (unconfirmed)
+    set('x_student-x_race', S.student_ethnicity);                // NEW (unconfirmed)
+    set('x_student-x_state_id', S.student_province);             // NEW (unconfirmed)
+
+    // Studies
+    set('x_crm.lead-x_educational_institution_id',S.institution); // NOTE: Landbot writes ei_id; confirm key
+    set('x_student_course_duration',S.course_duration);
+    set('x_crm.lead-x_self_funded', self ? 'Yes' : 'No');
+
+    // Primary income earner → sponsor.one slot (student if self-funded, else the sponsor)
     if(self){
       set('x_sponsor.one-name',S.student_first); set('X_sponsor.one-surname',S.student_last);
       set('x_sponsor.one-id_number',S.student_id); set('x_sponsor.one-phone',S.student_phone); set('x_sponsor.one-email',S.student_email);
       set('x_crm.lead-x_relation_to_student','Self'); d['x_sponsor.one-x_credit_check']='Yes';
+      set('x_sponsor.one-gender',S.student_gender); set('x_sponsor.one-x_race',S.student_ethnicity);
+      set('x_sponsor.one-x_state_id',S.student_province);
     } else {
       set('x_sponsor.one-name',S.s1_first); set('X_sponsor.one-surname',S.s1_last);
       set('x_sponsor.one-id_number',S.s1_id); set('x_sponsor.one-phone',S.s1_phone); set('x_sponsor.one-email',S.s1_email);
       set('x_crm.lead-x_relation_to_student',S.s1_relation);
-      set('x_sponsor.one-gender',S.s1_gender); set('x_sponsor.one-x_race',S.s1_race);
-      set('x_sponsor_one_marital_status',S.s1_marital); set('x_sponsor.one-x_state_id',S.s1_province);
+      set('x_sponsor.one-gender',S.s1_gender); set('x_sponsor.one-x_race',S.s1_ethnicity);
+      set('x_sponsor.one-x_state_id',S.s1_province);
       d['x_sponsor.one-x_credit_check']='Yes';
     }
-    set('x_crm.lead-x_employment_status',S.s1_employment); set('x_sponsor_one_bank',S.s1_bank);
-    set('x_crm.lead-x_gross_salary',num(S.s1_gross)); set('x_crm.lead-x_nett_salary',num(S.s1_net));
-    set('x_crm.lead-x_sponsor_one_additional_income',S.s1_addl_income);
-    set('x_crm.lead-x_sponsor_one_additional_income_value',num(S.s1_addl_value));
-    set('x_crm.lead-x_sponsor_one_additional_income_source',S.s1_addl_source);
-    set('x_sponsor_one_bond_or_rent',num(S.s1_bond_rent)); set('x_sponsor_one_vehicle_finance_instalment',num(S.s1_vehicle));
-    set('x_sponsor_one_other_loans_instalment',num(S.s1_other_loans)); set('x_sponsor_one_travel_expense',num(S.s1_travel));
-    set('x_sponsor_one_telepone_and_data',num(S.s1_phone_data)); set('x_sponsor_one_groceries',num(S.s1_groceries));
-    set('x_sponsor_one_insurance_instalment',num(S.s1_insurance)); set('x_sponsor_one_other_expenses',num(S.s1_other_exp));
+
+    set('x_crm.lead-x_employment_status',S.emp_status); set('x_sponsor_one_bank',S.bank);
+    set('x_crm.lead-x_gross_salary',num(S.gross)); set('x_crm.lead-x_nett_salary',num(S.net));
+    if(S.addl_value && Number(S.addl_value)>0){
+      set('x_crm.lead-x_sponsor_one_additional_income','Yes');
+      set('x_crm.lead-x_sponsor_one_additional_income_value',num(S.addl_value));
+    }
+
     set('x_sponsor_two_yes_no',S.sponsor_two_yes_no);
-    if(S.sponsor_two_yes_no==='Yes'){
+    if(j()){
       set('x_sponsor.two-x_name',S.s2_first); set('x_sponsor.two-x_surname',S.s2_last);
       set('x_sponsor.two-x_id_number',S.s2_id); set('x_sponsor_two_relation_to_sponsor_one',S.s2_relation_to_s1);
       set('x_sponsor.two-phone',S.s2_phone); set('x_sponsor.two-email',S.s2_email);
       set('x_sponsor_two_employment_status',S.s2_employment);
       set('x_crm.lead-x_sponsor_two_gross_income',num(S.s2_gross)); set('x_crm.lead-x_sponsor_two_net_income',num(S.s2_net));
-      set('x_sponsor_two_monthly_expenses',num(S.s2_monthly_exp));
       d['x_sponsor.two-x_credit_check']='Yes';
       if(S.s2_id) d['x_sponsor_two_id_number_available_yes_no']='Yes';
     }
+
     set('x_crm.lead-x_loan_amount',num(S.loan_amount)); set('x_loan_amount_tuition_fee',num(S.loan_tuition));
     set('x_loan_amount_equipment',num(S.loan_equipment)); set('x_loan_amount_accomodation',num(S.loan_accommodation));
-    set('x_loan_term_manati',num(S.loan_term));
     d['x_documents_uploaded_yes_no']='No';
     return d;
   }
@@ -302,10 +338,11 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       return;
     }
     if(t==='review'){
-      var rows=[['Applicant',S.who],['Student',(S.student_first||'')+' '+(S.student_last||'')],['Institution',S.institution],['Course',S.qualification],['Self-funded',S.self_funded]];
-      if(S.self_funded==='No') rows.push(['Sponsor',(S.s1_first||'')+' '+(S.s1_last||'')]);
-      rows.push(['Gross income/mo',S.s1_gross?'R'+Number(S.s1_gross).toLocaleString('en-ZA'):'—']);
-      rows.push(['Second sponsor',S.sponsor_two_yes_no||'No']);
+      var applicant=selfFunded()?'Student (self-funded)':(isStudent()?'Student + sponsor':'Sponsor');
+      var rows=[['Applicant',applicant],['Existing customer',S.existing_customer||'No'],['Student',(S.student_first||'')+' '+(S.student_last||'')],['Institution',S.institution],['Course duration',S.course_duration]];
+      if(notSelf()) rows.push(['Sponsor',(S.s1_first||'')+' '+(S.s1_last||'')]);
+      rows.push(['Gross income/mo',S.gross?'R'+Number(S.gross).toLocaleString('en-ZA'):'—']);
+      rows.push(['Second income',S.sponsor_two_yes_no||'No']);
       rows.push(['Funding needed',S.loan_amount?'R'+Number(S.loan_amount).toLocaleString('en-ZA'):'—']);
       dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+r[0]+'</span><span class="v">'+(r[1]||'—')+'</span></div>';}).join('')+'</div><div class="ab-field"><button class="ab-send" id="ab-go" style="flex:1">Submit application</button></div>';
       document.getElementById('ab-go').onclick=function(){addMe('Submit ✓');submitApp();};
@@ -335,7 +372,6 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   function advance(){
     do { i++; } while(i<FLOW.length && (FLOW[i].sec || (FLOW[i].when && !FLOW[i].when())));
     if(i>=FLOW.length) return;
-    // announce a new section heading as a bot line
     runStep();
   }
   advance();

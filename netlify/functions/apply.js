@@ -119,6 +119,16 @@ const TEMPLATE = {
   "x_crm.lead-x_qualification": null,
   "x_student_year_of_study": null,
   "x_student_course_duration": null,
+  // --- NEW keys sent by apply-bot v2 (aligned to Landbot). Names UNCONFIRMED against the
+  // TaskFlow bot_webhook schema — confirm before go-live. Kept here so buildPayload does not
+  // drop them; harmless if the webhook ignores unknown keys. ---
+  "x_whatsapp_consent": null,
+  "x_current_student_loan": null,
+  "x_student-identification_type": null,
+  "x_student-alt_phone": null,
+  "x_student-gender": null,
+  "x_student-x_race": null,
+  "x_student-x_state_id": null,
   "x_source": null,
   "x_tag_one": null,
   "x_tag_two": null,
