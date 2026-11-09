@@ -123,6 +123,10 @@ const TEMPLATE = {
   // TaskFlow bot_webhook schema — confirm before go-live. Kept here so buildPayload does not
   // drop them; harmless if the webhook ignores unknown keys. ---
   "x_whatsapp_consent": null,
+  "x_contact_channel": null,
+  "x_consent_given_by": null,
+  "x_consent_timestamp": null,
+  "x_consent_version": null,
   "x_current_student_loan": null,
   "x_student-identification_type": null,
   "x_student-alt_phone": null,

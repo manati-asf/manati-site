@@ -115,6 +115,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   .ab-review div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed var(--line)}
   .ab-review div:last-child{border:0}
   .ab-review .k{color:var(--muted)}.ab-review .v{font-weight:600;text-align:right;color:var(--navy)}
+  .ab-notice-p{font-size:13.5px;line-height:1.5;color:#322f29;margin:0 0 10px}
+  .ab-notice-p a{color:var(--teal-d);font-weight:600}
+  .ab-ghost{background:transparent;color:var(--navy);border:1.5px solid var(--line);border-radius:12px;padding:0 16px;font-family:'Varela Round';cursor:pointer;min-height:46px}
+  .ab-ghost:hover{border-color:var(--gold)}
   .ab-tsbox{margin:12px 0 4px;min-height:65px}
   .ab-err{color:#c0392b;font-size:12px;margin-top:8px}
   .ab-hint{font-size:11.5px;color:#a59f90;text-align:center;margin-top:8px}
@@ -145,7 +149,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   var ADDL_SRC=["Commission","Incentive","Rental","Overtime","Pension","Child maintenance","Investment interest","Other"];
   var yn=[{l:"Yes",v:"Yes"},{l:"No",v:"No"}];
 
-  var SPONSOR_INTRO="Who is a sponsor?\n\nYour sponsor is the person who takes out the loan to fund the studies. The loan is in their name and they are responsible for the monthly instalments, so they must be employed or earn a reliable income. A sponsor is usually a parent, guardian or family member.\n\nBecause the loan is assessed on the sponsor's income and credit profile, Manati will contact them to get their consent and supporting documents before the application can be finalised.";
+  var CONSENT_VERSION="2026-11-10";
+  var WA_NOTICE_HTML='<div class="ab-form-t">Before we begin</div><p class="ab-notice-p">Manati Alternate Student Funding (NCRCP8052) will use the information you give us to assess your study loan application. We only share it with the parties we need to process your application, as set out in our <a href="/privacy/" target="_blank">Privacy Notice</a>. We will also ask for gender and population group, which we use only for reporting to the National Credit Regulator.</p><p class="ab-notice-p"><strong>How may we contact you about your application?</strong><br>We would like to send you updates and document requests on WhatsApp. You can reply STOP at any time to stop WhatsApp messages.</p>';
+
+  var SPONSOR_INTRO="Who is a sponsor?\n\nYour sponsor is the person who takes out the loan to fund the studies. The loan is in their name and they are responsible for the monthly instalments, so they must be employed or earn a reliable income. A sponsor is usually a parent, guardian, spouse or family member.\n\nBecause the loan is assessed on the sponsor's income and credit profile, Manati will contact them to get their consent and supporting documents before the application can be finalised.";
 
   function isStudent(){return S.who==='Student';}
   function selfFunded(){return S.who==='Student' && S.employed_studying==='Yes';}
@@ -164,9 +171,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   // Flow. Types: intro|info|choice|text|consent|form|review|done
   var FLOW=[
     {t:'intro', q:["Hi! I'm Nati 👋 I'll guide you through your Manati funding application. It takes about 5 minutes."], o:[{l:"Let's begin →",v:"start"}]},
+    {k:'wa_channel', t:'wachoice', html:WA_NOTICE_HTML, o:[{l:"Yes, you may contact me on WhatsApp",v:"WhatsApp"},{l:"No, please use SMS or email",v:"SMS/email"}]},
     {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
     {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
-    {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian or spouse applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
+    {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian, spouse or family member applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
     {k:'employed_studying', t:'choice', when:isStudent, q:["Are you currently employed, and will you remain employed while studying?"], o:yn},
 
     // Funding (tuition only) + course duration
@@ -182,13 +190,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'s1_last', label:"Surname", type:'text', v:nm},
       {k:'s1_relation', label:"Relationship to the student", type:'select', options:RELS},
       {k:'s1_id_type', label:"Identification type", type:'select', options:ID_TYPE},
-      {k:'s1_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
+      {k:'s1_id', label:"ID / passport number", type:'text', v:idsoft},
       {k:'s1_phone', label:"Mobile number", type:'tel', v:ph},
       {k:'s1_phone2', label:"Confirm mobile number", type:'tel', v:ph},
       {k:'s1_email', label:"Email address", type:'email', v:em},
       {k:'s1_email2', label:"Confirm email address", type:'email', v:em},
       {k:'s1_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
-      {k:'s1_ethnicity', label:"Population group (for reporting)", type:'select', options:ETHNIC},
+      {k:'s1_ethnicity', label:"Population group (optional)", type:'select', opt:true, options:ETHNIC},
       {k:'s1_province', label:"Province of residence", type:'select', options:PROV}
     ], match:[['s1_phone','s1_phone2',"The mobile numbers don't match."],['s1_email','s1_email2',"The email addresses don't match."]], done:"✓ Sponsor details captured"},
     {t:'form', when:notSelf, title:"Sponsor income & banking", fields:[
@@ -217,13 +225,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'student_first', label:"First name", type:'text', v:nm},
       {k:'student_last', label:"Surname", type:'text', v:nm},
       {k:'student_id_type', label:"Identification type", type:'select', options:ID_TYPE},
-      {k:'student_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
+      {k:'student_id', label:"ID / passport number", type:'text', v:idsoft},
       {k:'student_phone', label:"Mobile number", type:'tel', v:ph},
       {k:'student_phone2', label:"Confirm mobile number", type:'tel', v:ph},
       {k:'student_email', label:"Email address", type:'email', v:em},
       {k:'student_email2', label:"Confirm email address", type:'email', v:em},
-      {k:'student_gender', label:"Gender (for reporting)", type:'select', options:GENDER},
-      {k:'student_ethnicity', label:"Population group (for reporting)", type:'select', options:ETHNIC},
+      {k:'student_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
+      {k:'student_ethnicity', label:"Population group (optional)", type:'select', opt:true, options:ETHNIC},
       {k:'student_province', label:"Province of residence", type:'select', options:PROV}
     ], match:[['student_phone','student_phone2',"The mobile numbers don't match."],['student_email','student_email2',"The email addresses don't match."]], done:"✓ Student details captured"},
 
@@ -238,12 +246,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     ], done:"✓ Income captured"},
 
     {t:'info', q:[function(){return "Almost done! We'll request "+(notSelf()?"the sponsor's and student's":"your")+" supporting documents — ID, proof of income, bank statements, and the acceptance letter / fee statement — securely once your application is in.";}], o:[{l:"Got it →",v:"ok"}]},
-    {k:'consent', t:'consent', q:["Last step — please read and accept our terms to continue."]},
-    {t:'review', q:["Here's a summary — ready to submit?"]},
+    {t:'review', q:["Please review your details. You can make changes before you submit."]},
+    {k:'consent', t:'consent', q:["Last step — your declaration and consent."]},
     {t:'done', q:[]}
   ];
 
   var i=-1;
+  var EDIT_FROM=0; for(var _z=0;_z<FLOW.length;_z++){ if(FLOW[_z].k==='institution'){ EDIT_FROM=_z; break; } }
   function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">N</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function prog(){bar.style.width=Math.round((i/(FLOW.length-1))*100)+'%';}
@@ -256,8 +265,17 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     var self=selfFunded();
 
     d['x_student_or_sponsor']=S.who||'Student';
-    d['x_crm.lead-x_consent_credit_check']='Yes'; // the person completing the form has consented
-    set('x_whatsapp_consent', S.consent);
+    // Loan-holder consent: "Yes" only when the loan holder completed the form themselves, else "Outstanding".
+    // Loan holder = the student when self-funded, otherwise the sponsor.
+    var loanHolderPresent = self || (S.who==='Sponsor');
+    d['x_crm.lead-x_consent_credit_check'] = loanHolderPresent ? 'Yes' : 'Outstanding';
+    // WhatsApp is an active choice (Screen 1), recorded as the applicant's chosen channel.
+    set('x_whatsapp_consent', S.wa_channel==='WhatsApp' ? 'Yes' : 'No');
+    set('x_contact_channel', S.wa_channel==='WhatsApp' ? 'WhatsApp' : 'SMS/email');
+    // Record the declaration/consent itself.
+    set('x_consent_given_by', S.who);
+    set('x_consent_timestamp', S.consent_ts);
+    set('x_consent_version', CONSENT_VERSION);
     var consentNotes=[]; // flag parties who were NOT present to consent (never assume consent)
     set('x_current_student_loan', S.existing_customer==='Yes' ? 'Yes' : 'No');
 
@@ -290,12 +308,12 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       set('x_sponsor.one-gender',gmap(S.s1_gender)); set('x_sponsor.one-x_race',S.s1_ethnicity);
       set('x_sponsor.one-x_state_id',S.s1_province);
       if(S.who==='Sponsor'){
-        // The sponsor completed the form and is present → they consent; the student was not present
-        d['x_sponsor.one-x_credit_check']='Yes'; d['x_student-x_credit_check']='No';
+        // The sponsor (loan holder) completed the form and is present → they consent; the student was not present
+        d['x_sponsor.one-x_credit_check']='Yes'; d['x_student-x_credit_check']='Outstanding';
         consentNotes.push('Sponsor completed the application; the student was not present to give consent.');
       } else {
-        // The student applied on the sponsor's behalf → sponsor was NOT present, so do not assume sponsor consent
-        d['x_student-x_credit_check']='Yes'; d['x_sponsor.one-x_credit_check']='No';
+        // The student applied on the sponsor's behalf → sponsor (loan holder) was NOT present; do not assume their consent
+        d['x_student-x_credit_check']='Yes'; d['x_sponsor.one-x_credit_check']='Outstanding';
         consentNotes.push("Student applied on the sponsor's behalf. Obtain the sponsor's own consent directly before running any sponsor credit check.");
       }
     }
@@ -316,7 +334,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       set('x_sponsor_two_employment_status',S.s2_employment);
       set('x_crm.lead-x_sponsor_two_gross_income',num(S.s2_gross)); set('x_crm.lead-x_sponsor_two_net_income',num(S.s2_net));
       // Second sponsor is not present during the application → do not assume their consent
-      d['x_sponsor.two-x_credit_check']='No';
+      d['x_sponsor.two-x_credit_check']='Outstanding';
       consentNotes.push("Obtain the second sponsor's own consent directly before running any credit check.");
       if(S.s2_id) d['x_sponsor_two_id_number_available_yes_no']='Yes';
     }
@@ -386,6 +404,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       dock.appendChild(w);
       return;
     }
+    if(t==='wachoice'){
+      var wrap=document.createElement('div'); wrap.innerHTML=(step.html||'')+'<div class="ab-choices" id="ab-wc"></div>';
+      dock.appendChild(wrap);
+      var wc=wrap.querySelector('#ab-wc');
+      step.o.forEach(function(o){var b=document.createElement('button');b.className='ab-choice';b.type='button';b.textContent=o.l;b.onclick=function(){S[step.k]=o.v;addMe(o.l);advance();};wc.appendChild(b);});
+      return;
+    }
     if(t==='form'){
       var html='<div class="ab-form">';
       if(step.title) html+='<div class="ab-form-t">'+esc(step.title)+'</div>';
@@ -403,6 +428,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       });
       html+='<div class="ab-err" id="ab-err"></div><button class="ab-send" id="ab-go" type="button" style="width:100%;margin-top:12px">Continue</button></div>';
       dock.innerHTML=html;
+      // pre-fill from saved answers (so "Make changes" keeps prior values; confirm fields mirror their base)
+      step.fields.forEach(function(f){ var el=dock.querySelector('[data-k="'+f.k+'"]'); if(!el) return; if(S[f.k]!==undefined) el.value=S[f.k]; else if(/2$/.test(f.k) && S[f.k.slice(0,-1)]!==undefined) el.value=S[f.k.slice(0,-1)]; });
       document.getElementById('ab-go').onclick=function(){
         var ok=true, err='';
         step.fields.forEach(function(f){
@@ -424,21 +451,28 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       };
       return;
     }
-    if(t==='consent'){
-      var ctext='I confirm that the information I have provided is true and complete. I consent to Manati Alternate Student Funding ("Manati") collecting, processing, storing and sharing my personal information to assess, approve and administer my loan application. This includes conducting credit, affordability, identity, fraud and bank account verification checks and sharing information with registered credit bureaus; obtaining and verifying information from my bank, employer, educational institution, the Department of Home Affairs and other relevant third parties; and contacting me by phone, SMS, email or WhatsApp about my application. Manati will process my information in line with the Protection of Personal Information Act (POPIA). I may withdraw my consent at any time, but this may prevent Manati from processing my application. See our <a href="/terms/" target="_blank" style="color:var(--teal-d);font-weight:600">Terms</a> and <a href="/privacy/" target="_blank" style="color:var(--teal-d);font-weight:600">Privacy Notice</a>.';
-      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb"> <span>'+ctext+'</span></label><div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">I agree &amp; continue</button></div><div class="ab-err" id="ab-err"></div>';
-      document.getElementById('ab-go').onclick=function(){if(!document.getElementById('ab-cb').checked){document.getElementById('ab-err').textContent="Please tick the box to continue.";return;}S.consent='Yes';addMe('I agree ✓');advance();};
-      return;
-    }
     if(t==='review'){
       var applicant=selfFunded()?'Student (self-funded)':(isStudent()?'Student + sponsor':'Sponsor');
-      var rows=[['Applicant',applicant],['Existing customer',S.existing_customer||'No'],['Student',(S.student_first||'')+' '+(S.student_last||'')],['Institution',S.institution],['Course duration',S.course_duration]];
+      var rows=[['Applicant',applicant],['Existing customer',S.existing_customer||'No'],['Contact channel',S.wa_channel==='WhatsApp'?'WhatsApp':'SMS / email'],['Student',(S.student_first||'')+' '+(S.student_last||'')],['Institution',S.institution],['Course duration',S.course_duration]];
       if(notSelf()) rows.push(['Sponsor',(S.s1_first||'')+' '+(S.s1_last||'')]);
       rows.push(['Gross income/mo',S.gross?'R'+Number(S.gross).toLocaleString('en-ZA'):'—']);
       if(notSelf()) rows.push(['Second income',S.sponsor_two_yes_no||'No']);
       rows.push(['Tuition needed',S.tuition?'R'+Number(S.tuition).toLocaleString('en-ZA'):'—']);
-      dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1]||'—')+'</span></div>';}).join('')+'</div>'+(_tsKey?'<div id="ab-ts-box" class="ab-tsbox"></div>':'')+'<div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">Submit application</button></div><div class="ab-err" id="ab-err"></div>';
-      document.getElementById('ab-go').onclick=function(){submitApp();};
+      dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1]||'—')+'</span></div>';}).join('')+'</div><div class="ab-field"><button class="ab-ghost" id="ab-edit" type="button">Make changes</button><button class="ab-send" id="ab-go" type="button" style="flex:1">Looks good, continue</button></div>';
+      document.getElementById('ab-go').onclick=function(){ advance(); };
+      document.getElementById('ab-edit').onclick=function(){ addMe('Make changes'); i=EDIT_FROM-1; advance(); };
+      return;
+    }
+    if(t==='consent'){
+      var t1='I confirm that the information I have provided, including any information about a sponsor, is true and complete to the best of my knowledge. I understand that false information may lead to my application being declined.';
+      var t2='I consent to Manati Alternate Student Funding processing my personal information to assess and administer my loan application, and sharing it for this purpose with: Experian (a registered credit bureau), to check my credit record and affordability and to verify my bank account; CODIX, to support Manati\'s credit decision; the Department of Home Affairs, to verify my identity; and my educational institution, to confirm my registration, fees and payments. If my loan is approved, Manati will report the account to registered credit bureaus. I may withdraw my consent at any time, but this may prevent Manati from processing my application. Read our <a href="/terms/" target="_blank">Terms</a> and <a href="/privacy/" target="_blank">Privacy Notice</a>.';
+      var spNote = notSelf() ? '<p class="ab-notice-p" style="margin-top:2px"><em>This consent covers your own information only. Manati will contact your sponsor for their own consent before checking their credit record.</em></p>' : '';
+      dock.innerHTML='<label class="ab-consent"><input type="checkbox" id="ab-cb1"> <span>'+t1+'</span></label><label class="ab-consent"><input type="checkbox" id="ab-cb2"> <span>'+t2+'</span></label>'+spNote+(_tsKey?'<div id="ab-ts-box" class="ab-tsbox"></div>':'')+'<div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">I agree &amp; submit</button></div><div class="ab-err" id="ab-err"></div>';
+      document.getElementById('ab-go').onclick=function(){
+        if(!document.getElementById('ab-cb1').checked || !document.getElementById('ab-cb2').checked){ document.getElementById('ab-err').textContent="Please tick both boxes to continue."; return; }
+        S.consent='Yes'; S.consent_ts=new Date().toISOString();
+        submitApp();
+      };
       if(_tsKey) mountTurnstile();
       return;
     }
@@ -447,7 +481,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     var pfx=step.pfx?'<span class="pfx">'+esc(step.pfx)+'</span>':'';
     var listAttr=step.list?(' list="'+step.list+'" autocomplete="off"'):'';
     dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+(step.t==='num'?'number':step.t)+'"'+listAttr+' placeholder="'+esc(step.ph||'')+'"></div><button class="ab-send" id="ab-go" type="button">Send</button></div><div class="ab-err" id="ab-err"></div>';
-    var inp=document.getElementById('ab-inp'); inp.focus();
+    var inp=document.getElementById('ab-inp'); if(S[step.k]!==undefined) inp.value=S[step.k]; inp.focus();
     function go(){var v=inp.value; if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} S[step.k]=(v||'').trim(); addMe(v.trim()); advance();}
     document.getElementById('ab-go').onclick=go;
     inp.addEventListener('keydown',function(e){if(e.key==='Enter')go();});
