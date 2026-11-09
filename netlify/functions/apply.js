@@ -239,7 +239,14 @@ export default async (req) => {
   if (!hasContact) {
     return json(422, { ok: false, error: "Missing applicant contact details" });
   }
-  if (data["x_crm.lead-x_consent_credit_check"] !== "Yes") {
+  // The applicant's own declaration + consent (the two tick-boxes on the final
+  // screen) is what we require here. The client only sets x_consent_timestamp once
+  // both boxes are ticked, so its presence proves the applicant consented.
+  // NOTE: do NOT require x_crm.lead-x_consent_credit_check === "Yes". That field is
+  // the LOAN HOLDER's credit-check consent, which is legitimately "Outstanding" when
+  // a student applies on behalf of a sponsor who must still give their own consent
+  // (sponsor routes). Requiring "Yes" here wrongly blocked those applications.
+  if (!data["x_consent_timestamp"]) {
     return json(422, { ok: false, error: "Consent is required" });
   }
 
