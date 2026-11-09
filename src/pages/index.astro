@@ -4,6 +4,7 @@ import { getCollection } from 'astro:content';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import INSTITUTIONS from '../data/institutions.json';
+import { APPLY_HREF } from '../applyConfig.js';
 const posts = (await getCollection('insights')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
@@ -19,7 +20,7 @@ const thumbs = ['', 'alt', 'alt2'];
       <h1>Unlocking student loans to grow a <span class="accent">smart future</span>.</h1>
       <p class="lede">Manati provides greater access, achievement and affordability in tertiary education — low-interest study loans for the many capable students who can&apos;t secure traditional funding.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary js-apply" data-apply-loc="home-hero" href="/how-to-apply/#apply-form">Apply for funding →</a>
+        <a class="btn btn-primary js-apply" data-apply-loc="home-hero" href={APPLY_HREF}>Apply for funding →</a>
         <a class="btn btn-ghost" href="#how">How it works</a>
       </div>
       <div class="hero-stats">
@@ -49,7 +50,7 @@ const thumbs = ['', 'alt', 'alt2'];
         <input type="range" id="course" min="1" max="5" step="1" value="2" aria-label="Course duration" />
       </div>
       <div class="calc-total"><span>Est. monthly repayment<br /><small style="color:#b9b3a6;font-weight:400">over an estimated <span id="termShow">24</span>-month term</small></span><span class="big" id="monthly">R 2 897</span></div>
-      <a class="btn btn-primary js-apply" data-apply-loc="home-calc" href="/how-to-apply/#apply-form" style="width:100%;justify-content:center;margin-top:20px">Start your application</a>
+      <a class="btn btn-primary js-apply" data-apply-loc="home-calc" href={APPLY_HREF} style="width:100%;justify-content:center;margin-top:20px">Start your application</a>
       <p class="calc-term-note" style="font-size:13px;color:var(--muted);margin:12px 0 0;line-height:1.5">Your loan term depends on your institution and course. Your consultant will confirm your exact term and repayment once we assess your application.</p>
       <div class="note"><strong>Tip: apply with joint household income to improve your chances of approval.</strong> This estimate is for guidance only and is not a quote or an offer of credit. It assumes an illustrative rate of 14.5% p.a.; your actual rate, fees and repayment are confirmed on individual assessment and approval, in line with the National Credit Act.</div>
     </div>
@@ -222,7 +223,7 @@ const thumbs = ['', 'alt', 'alt2'];
     <div class="cta">
       <h2>Ready to fund your future?</h2>
       <p>The entire application is online — no time off work, no queues.</p>
-      <a class="btn js-apply" data-apply-loc="home-cta" style="background:var(--gold);color:#231f20" href="/how-to-apply/#apply-form">Apply now →</a>
+      <a class="btn js-apply" data-apply-loc="home-cta" style="background:var(--gold);color:#231f20" href={APPLY_HREF}>Apply now →</a>
     </div>
   </div>
 </section>

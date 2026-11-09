@@ -1,4 +1,5 @@
 ---
+import { APPLY_HREF } from '../applyConfig.js';
 const path = Astro.url.pathname;
 const isActive = (href: string) =>
   href === '/' ? path === '/' : path.startsWith(href);
@@ -14,7 +15,7 @@ const isActive = (href: string) =>
       <a href="/contact/" aria-current={isActive('/contact') ? 'page' : undefined}>Contact</a>
     </nav>
     <div class="nav-cta">
-      <a class="btn btn-dark js-apply" data-apply-loc="header" href="/how-to-apply/#apply-form">Apply now</a>
+      <a class="btn btn-dark js-apply" data-apply-loc="header" href={APPLY_HREF}>Apply now</a>
     </div>
     <button class="menu-btn" id="mn-menu" aria-label="Menu" aria-expanded="false">☰</button>
   </div>

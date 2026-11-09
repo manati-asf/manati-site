@@ -15,14 +15,14 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 // (existing-customer, ID type, demographics) and institution → ei_id mapping are best-guess;
 // test mode (TASKFLOW_TEST_MODE=1) echoes the exact payload so these can be verified.
 ---
-<Base title="Apply — Manati (new bot, preview)" description="Manati online application — new in-house bot (preview).">
+<Base title="Apply for funding — Manati" description="Apply for a Manati study loan online. Nati, our application assistant, will guide you through a few quick questions — it takes about 5 minutes.">
   <Header />
   {TS_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
   <div id="ab-ts" data-sitekey={TS_SITE_KEY} style="display:none"></div>
 
   <section class="page-hero">
     <div class="wrap">
-      <span class="eyebrow">Apply · preview</span>
+      <span class="eyebrow">Apply now</span>
       <h1>Apply for funding</h1>
       <p>Our new in-house application — Nati will guide you through a few quick questions. It takes about 5 minutes.</p>
       <p style="margin-top:18px"><button id="ab-open-hero" class="btn btn-primary" type="button">Start your application →</button></p>
@@ -508,7 +508,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   overlay.addEventListener('click',function(e){ if(e.target===overlay) closeWidget(); });
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && !overlay.hidden) closeWidget(); });
 
-  // Auto-open on this dedicated preview page.
+  // Auto-open on this dedicated apply page.
   openWidget();
 })();
 </script>

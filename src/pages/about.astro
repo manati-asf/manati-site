@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { APPLY_HREF } from '../applyConfig.js';
 ---
 <Base title="About us — Manati" description="Manati Alternate Student Funding provides innovative, individually-assessed study loans for South African students who can't secure traditional funding.">
   <Header />
@@ -74,7 +75,7 @@ import Footer from '../components/Footer.astro';
       <div class="cta">
         <h2>Ready to invest in your future?</h2>
         <p>The entire application is online — no time off work, no queues.</p>
-        <a class="btn js-apply" data-apply-loc="about-cta" style="background:var(--gold);color:#231f20" href="/how-to-apply/#apply-form">How to apply →</a>
+        <a class="btn js-apply" data-apply-loc="about-cta" style="background:var(--gold);color:#231f20" href={APPLY_HREF}>How to apply →</a>
       </div>
     </div>
   </section>

@@ -1,4 +1,5 @@
 ---
+import { APPLY_HREF } from '../applyConfig.js';
 ---
 <footer>
   <div class="wrap">
@@ -17,7 +18,7 @@
       </div>
       <div>
         <h5>Apply</h5>
-        <a class="js-apply" data-apply-loc="footer" href="/how-to-apply/#apply-form">Apply for funding</a>
+        <a class="js-apply" data-apply-loc="footer" href={APPLY_HREF}>Apply for funding</a>
         <a href="/#apply">Loan calculator</a>
         <a href="/faq/">FAQ</a>
         <a href="/contact/">Existing loan holders</a>
