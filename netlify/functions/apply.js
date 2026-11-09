@@ -176,6 +176,8 @@ function buildPayload(data) {
   // Server-set fields (don't trust the client for these)
   out["x_application_outcome"] = out["x_application_outcome"] || "New Application";
   out["x_source"] = out["x_source"] || "manati.co.za web bot";
+  // Attribution tag so applications from Nati are identifiable in TaskFlow (like "From Student Hero").
+  out["x_tag_one"] = "From Manati Bot";
   out["x_credit_check_timestamp"] = new Date().toISOString().slice(0, 10);
   return out;
 }
