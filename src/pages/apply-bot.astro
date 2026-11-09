@@ -132,13 +132,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   var chat=document.getElementById('ab-chat'), dock=document.getElementById('ab-dock'), bar=document.getElementById('ab-bar');
   var S={}, started=false, finished=false;
 
-  var PROV=["Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape"];
+  var PROV=["Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape","Outside South Africa"];
   var BANKS=["ABSA","Capitec","First National Bank (FNB)","Nedbank","Standard Bank","Other"];
   var EMP=["Permanent","Government Employee","Fixed-term","Temporary","Independent Consultant","Pensioner","Self-employed","Unemployed"];
   var ETHNIC=["Black","Coloured","Indian","White","Other"];
   var DUR=["6 months","12 months","18 months","24 months","30 months","36 months","48 months"];
-  var ID_TYPE=[{l:"South African ID",v:"id_number"},{l:"Passport",v:"passport"}];
-  var GENDER=[{l:"Female",v:"f"},{l:"Male",v:"m"},{l:"Prefer not to say",v:"na"}];
+  var ID_TYPE=[{l:"South African ID",v:"id_number"},{l:"Passport",v:"passport"},{l:"Other – SA residency permit / visa",v:"residency"}];
+  var GENDER=[{l:"Female",v:"f"},{l:"Male",v:"m"}];
   function gmap(v){return (v==='f'||v==='m')?v:undefined;}
   var RELS=["Parent","Guardian","Spouse / Partner","Sibling","Other family","Other"];
   var RELS2=["Spouse / Partner","Parent","Sibling","Other"];
@@ -184,11 +184,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'s1_id_type', label:"Identification type", type:'select', options:ID_TYPE},
       {k:'s1_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
       {k:'s1_phone', label:"Mobile number", type:'tel', v:ph},
+      {k:'s1_phone2', label:"Confirm mobile number", type:'tel', v:ph},
       {k:'s1_email', label:"Email address", type:'email', v:em},
+      {k:'s1_email2', label:"Confirm email address", type:'email', v:em},
       {k:'s1_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
       {k:'s1_ethnicity', label:"Population group (for reporting)", type:'select', options:ETHNIC},
       {k:'s1_province', label:"Province of residence", type:'select', options:PROV}
-    ], done:"✓ Sponsor details captured"},
+    ], match:[['s1_phone','s1_phone2',"The mobile numbers don't match."],['s1_email','s1_email2',"The email addresses don't match."]], done:"✓ Sponsor details captured"},
     {t:'form', when:notSelf, title:"Sponsor income & banking", fields:[
       {k:'emp_status', label:"Employment status", type:'select', options:EMP},
       {k:'gross', label:"Gross monthly income", type:'num', pfx:"R", v:reqnum},
@@ -217,11 +219,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'student_id_type', label:"Identification type", type:'select', options:ID_TYPE},
       {k:'student_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
       {k:'student_phone', label:"Mobile number", type:'tel', v:ph},
+      {k:'student_phone2', label:"Confirm mobile number", type:'tel', v:ph},
       {k:'student_email', label:"Email address", type:'email', v:em},
+      {k:'student_email2', label:"Confirm email address", type:'email', v:em},
       {k:'student_gender', label:"Gender (for reporting)", type:'select', options:GENDER},
       {k:'student_ethnicity', label:"Population group (for reporting)", type:'select', options:ETHNIC},
       {k:'student_province', label:"Province of residence", type:'select', options:PROV}
-    ], done:"✓ Student details captured"},
+    ], match:[['student_phone','student_phone2',"The mobile numbers don't match."],['student_email','student_email2',"The email addresses don't match."]], done:"✓ Student details captured"},
 
     // ---- Self-funded student: the student is the earner ----
     {t:'form', when:selfFunded, title:"Your income & banking", fields:[
@@ -252,9 +256,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     var self=selfFunded();
 
     d['x_student_or_sponsor']=S.who||'Student';
-    d['x_crm.lead-x_consent_credit_check']='Yes';
-    d['x_student-x_credit_check']='Yes';
+    d['x_crm.lead-x_consent_credit_check']='Yes'; // the person completing the form has consented
     set('x_whatsapp_consent', S.consent);
+    var consentNotes=[]; // flag parties who were NOT present to consent (never assume consent)
     set('x_current_student_loan', S.existing_customer==='Yes' ? 'Yes' : 'No');
 
     // Student identity + demographics
@@ -274,7 +278,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     if(self){
       set('x_sponsor.one-name',S.student_first); set('X_sponsor.one-surname',S.student_last);
       set('x_sponsor.one-id_number',S.student_id); set('x_sponsor.one-phone',S.student_phone); set('x_sponsor.one-email',S.student_email);
-      set('x_crm.lead-x_relation_to_student','Self'); d['x_sponsor.one-x_credit_check']='Yes';
+      set('x_crm.lead-x_relation_to_student','Self');
+      // Self-funded: the student is present and is the income earner → they consent for themselves
+      d['x_student-x_credit_check']='Yes'; d['x_sponsor.one-x_credit_check']='Yes';
       set('x_sponsor.one-gender',gmap(S.student_gender)); set('x_sponsor.one-x_race',S.student_ethnicity);
       set('x_sponsor.one-x_state_id',S.student_province);
     } else {
@@ -283,7 +289,15 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       set('x_crm.lead-x_relation_to_student',S.s1_relation);
       set('x_sponsor.one-gender',gmap(S.s1_gender)); set('x_sponsor.one-x_race',S.s1_ethnicity);
       set('x_sponsor.one-x_state_id',S.s1_province);
-      d['x_sponsor.one-x_credit_check']='Yes';
+      if(S.who==='Sponsor'){
+        // The sponsor completed the form and is present → they consent; the student was not present
+        d['x_sponsor.one-x_credit_check']='Yes'; d['x_student-x_credit_check']='No';
+        consentNotes.push('Sponsor completed the application; the student was not present to give consent.');
+      } else {
+        // The student applied on the sponsor's behalf → sponsor was NOT present, so do not assume sponsor consent
+        d['x_student-x_credit_check']='Yes'; d['x_sponsor.one-x_credit_check']='No';
+        consentNotes.push("Student applied on the sponsor's behalf. Obtain the sponsor's own consent directly before running any sponsor credit check.");
+      }
     }
 
     set('x_crm.lead-x_employment_status',S.emp_status); set('x_sponsor_one_bank',S.bank);
@@ -301,13 +315,16 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       set('x_sponsor.two-phone',S.s2_phone); set('x_sponsor.two-email',S.s2_email);
       set('x_sponsor_two_employment_status',S.s2_employment);
       set('x_crm.lead-x_sponsor_two_gross_income',num(S.s2_gross)); set('x_crm.lead-x_sponsor_two_net_income',num(S.s2_net));
-      d['x_sponsor.two-x_credit_check']='Yes';
+      // Second sponsor is not present during the application → do not assume their consent
+      d['x_sponsor.two-x_credit_check']='No';
+      consentNotes.push("Obtain the second sponsor's own consent directly before running any credit check.");
       if(S.s2_id) d['x_sponsor_two_id_number_available_yes_no']='Yes';
     }
 
     // Tuition only
     set('x_crm.lead-x_loan_amount',num(S.tuition)); set('x_loan_amount_tuition_fee',num(S.tuition));
     d['x_documents_uploaded_yes_no']='No';
+    if(consentNotes.length) set('x_special_instruction', consentNotes.join(' '));
     return d;
   }
 
@@ -394,6 +411,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           if(!val && !f.opt){ ok=false; err=err||"Please complete all required fields."; el.classList.add('bad'); return; }
           if(val && f.v){ var e=f.v(val); if(e){ ok=false; err=err||e; el.classList.add('bad'); } }
         });
+        if(ok && step.match){
+          step.match.forEach(function(m){
+            var a=(dock.querySelector('[data-k="'+m[0]+'"]').value||'').trim();
+            var b=(dock.querySelector('[data-k="'+m[1]+'"]').value||'').trim();
+            if(a!==b){ ok=false; err=err||m[2]||"Entries do not match."; dock.querySelector('[data-k="'+m[1]+'"]').classList.add('bad'); }
+          });
+        }
         if(!ok){ document.getElementById('ab-err').textContent=err; return; }
         step.fields.forEach(function(f){ var el=dock.querySelector('[data-k="'+f.k+'"]'); var val=(el.value||'').trim(); if(val) S[f.k]=val; });
         addMe(step.done||"✓ Captured"); advance();
