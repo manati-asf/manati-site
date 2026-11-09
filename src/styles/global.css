@@ -49,6 +49,7 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdro
 .ticker-track{display:flex;align-items:center;gap:60px;width:max-content;animation:scroll 40s linear infinite}
 .ticker:hover .ticker-track{animation-play-state:paused}
 .ticker-track img{height:52px;width:auto;max-width:170px;object-fit:contain;transition:transform .25s}
+.ticker-track img.wide{max-width:260px}
 .ticker-track img:hover{transform:scale(1.06)}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
