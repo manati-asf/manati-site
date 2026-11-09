@@ -115,6 +115,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   .ab-review div{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed var(--line)}
   .ab-review div:last-child{border:0}
   .ab-review .k{color:var(--muted)}.ab-review .v{font-weight:600;text-align:right;color:var(--navy)}
+  .ab-tsbox{margin:12px 0 4px;min-height:65px}
   .ab-err{color:#c0392b;font-size:12px;margin-top:8px}
   .ab-hint{font-size:11.5px;color:#a59f90;text-align:center;margin-top:8px}
 
@@ -183,7 +184,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'s1_id_type', label:"Identification type", type:'select', options:ID_TYPE},
       {k:'s1_id', label:"ID / passport number", type:'text', opt:true, v:idsoft},
       {k:'s1_phone', label:"Mobile number", type:'tel', v:ph},
-      {k:'s1_email', label:"Email address (optional)", type:'email', opt:true, v:em},
+      {k:'s1_email', label:"Email address", type:'email', v:em},
       {k:'s1_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
       {k:'s1_ethnicity', label:"Population group (for reporting)", type:'select', options:ETHNIC},
       {k:'s1_province', label:"Province of residence", type:'select', options:PROV}
@@ -312,27 +313,32 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
   var _tsEl=document.getElementById('ab-ts');
   var _tsKey=_tsEl?(_tsEl.getAttribute('data-sitekey')||''):'';
-  var _tsId=null;
-  function getTsToken(){
-    return new Promise(function(resolve){
-      if(!_tsKey || !window.turnstile){ return resolve(''); }
-      var settled=false;
-      function finish(t){ if(!settled){ settled=true; resolve(t||''); } }
-      try{
-        if(_tsId===null){
-          _tsId=window.turnstile.render('#ab-ts',{sitekey:_tsKey,size:'invisible',callback:function(tok){finish(tok);},'error-callback':function(){finish('');}});
-        } else { window.turnstile.reset(_tsId); }
-        window.turnstile.execute(_tsId);
-      }catch(e){ finish(''); }
-      setTimeout(function(){ finish(''); }, 5000);
-    });
+  var _tsToken='', _tsWidgetId=null;
+
+  // Render a VISIBLE Turnstile widget into the review step so the challenge can
+  // appear (an invisible widget in a hidden container fails on mobile).
+  function mountTurnstile(){
+    if(!_tsKey) return;
+    if(!document.getElementById('ab-ts-box')) return;
+    if(!window.turnstile){ setTimeout(mountTurnstile,300); return; }
+    _tsToken='';
+    try{
+      if(_tsWidgetId!==null){ try{ window.turnstile.remove(_tsWidgetId); }catch(e){} _tsWidgetId=null; }
+      _tsWidgetId=window.turnstile.render('#ab-ts-box',{
+        sitekey:_tsKey,
+        callback:function(tok){ _tsToken=tok||''; var e=document.getElementById('ab-err'); if(e) e.textContent=''; },
+        'expired-callback':function(){ _tsToken=''; },
+        'error-callback':function(){ _tsToken=''; }
+      });
+    }catch(e){}
   }
 
   async function submitApp(){
+    if(_tsKey && !_tsToken){ var ee=document.getElementById('ab-err'); if(ee) ee.textContent="Please complete the verification check above."; return; }
+    addMe('Submit ✓');
     dock.innerHTML='<div class="ab-hint">Submitting your application…</div>';
     try{
-      var tsToken=await getTsToken();
-      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:tsToken})});
+      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:_tsToken})});
       var out=await res.json().catch(function(){return {};});
       if(res.ok && out.ok){
         finished=true;
@@ -344,13 +350,14 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         document.getElementById('ab-doneb').onclick=closeWidget;
       } else {
         addBot("Something went wrong submitting your application. Please try again, or email applications@manati.co.za.");
-        dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-retry" style="flex:1">Try again</button></div><div class="ab-err">'+esc((out&&out.error)||('Error '+res.status))+'</div>';
-        document.getElementById('ab-retry').onclick=submitApp;
+        _tsToken='';
+        render(FLOW[i]); // re-render the review with a fresh verification check
+        var e2=document.getElementById('ab-err'); if(e2) e2.textContent=(out&&out.error)||('Error '+res.status);
       }
     }catch(e){
       addBot("We couldn't reach our servers just now. Please try again in a moment.");
-      dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-retry" style="flex:1">Try again</button></div>';
-      document.getElementById('ab-retry').onclick=submitApp;
+      _tsToken='';
+      render(FLOW[i]);
     }
   }
 
@@ -406,8 +413,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       rows.push(['Gross income/mo',S.gross?'R'+Number(S.gross).toLocaleString('en-ZA'):'—']);
       if(notSelf()) rows.push(['Second income',S.sponsor_two_yes_no||'No']);
       rows.push(['Tuition needed',S.tuition?'R'+Number(S.tuition).toLocaleString('en-ZA'):'—']);
-      dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1]||'—')+'</span></div>';}).join('')+'</div><div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">Submit application</button></div>';
-      document.getElementById('ab-go').onclick=function(){addMe('Submit ✓');submitApp();};
+      dock.innerHTML='<div class="ab-review">'+rows.map(function(r){return '<div><span class="k">'+esc(r[0])+'</span><span class="v">'+esc(r[1]||'—')+'</span></div>';}).join('')+'</div>'+(_tsKey?'<div id="ab-ts-box" class="ab-tsbox"></div>':'')+'<div class="ab-field"><button class="ab-send" id="ab-go" type="button" style="flex:1">Submit application</button></div><div class="ab-err" id="ab-err"></div>';
+      document.getElementById('ab-go').onclick=function(){submitApp();};
+      if(_tsKey) mountTurnstile();
       return;
     }
     if(t==='done'){return;}
