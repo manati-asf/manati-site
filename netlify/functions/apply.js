@@ -160,6 +160,38 @@ const json = (status, obj) => new Response(JSON.stringify(obj), {
   headers: { "Content-Type": "application/json" }
 });
 
+// --- Lightweight per-IP rate limit (secondary guard behind Turnstile) ---
+// Caps how often one IP can submit. This is best-effort: serverless instances
+// don't share memory, so it's not a hard global limit, but it stops a single
+// source from hammering the endpoint and loading TaskFlow. Turnstile remains
+// the primary bot defence. Generous enough that a real applicant retrying will
+// not hit it (5 submissions per IP per 10 minutes).
+const RL_WINDOW_MS = 10 * 60 * 1000;
+const RL_MAX = 5;
+const rlHits = new Map(); // ip -> [timestamps within window]
+
+function clientIpOf(req) {
+  return (
+    req.headers.get("x-nf-client-connection-ip") ||
+    (req.headers.get("x-forwarded-for") || "").split(",")[0].trim()
+  );
+}
+
+function rateLimited(ip) {
+  if (!ip) return false; // no IP to key on: don't block (Turnstile still applies)
+  const now = Date.now();
+  const recent = (rlHits.get(ip) || []).filter((t) => now - t < RL_WINDOW_MS);
+  recent.push(now);
+  rlHits.set(ip, recent);
+  // Bound memory on warm instances: drop IPs whose window has fully elapsed.
+  if (rlHits.size > 5000) {
+    for (const [k, v] of rlHits) {
+      if (!v.length || now - v[v.length - 1] > RL_WINDOW_MS) rlHits.delete(k);
+    }
+  }
+  return recent.length > RL_MAX;
+}
+
 function buildPayload(data) {
   // Start from a deep copy of the template so every key is present with the
   // exact name/casing, then overlay only the keys the client actually sent.
@@ -185,6 +217,11 @@ function buildPayload(data) {
 export default async (req) => {
   if (req.method !== "POST") {
     return json(405, { ok: false, error: "Method not allowed" });
+  }
+
+  // Shed abusive volume from a single source before doing any real work.
+  if (rateLimited(clientIpOf(req))) {
+    return json(429, { ok: false, error: "Too many attempts. Please wait a few minutes and try again." });
   }
 
   let body;
