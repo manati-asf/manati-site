@@ -63,15 +63,6 @@
   "shortCourseNote": null
  },
  {
-  "name": "Aerospace Training Academy of South Africa",
-  "rule": "multiple",
-  "multiplier": 1.5,
-  "cap": 48,
-  "fixedMonths": null,
-  "variesByQualification": false,
-  "shortCourseNote": null
- },
- {
   "name": "Aerospace Training Academy of South Africa (ATASA)",
   "rule": "multiple",
   "multiplier": 1.5,
@@ -100,15 +91,6 @@
  },
  {
   "name": "African Aviv",
-  "rule": "multiple",
-  "multiplier": 2,
-  "cap": 48,
-  "fixedMonths": null,
-  "variesByQualification": false,
-  "shortCourseNote": null
- },
- {
-  "name": "African Aviv Property Institute",
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
@@ -268,24 +250,6 @@
   "fixedMonths": null,
   "variesByQualification": false,
   "shortCourseNote": null
- },
- {
-  "name": "DaVinci Business School",
-  "rule": "multiple",
-  "multiplier": 2,
-  "cap": 48,
-  "fixedMonths": null,
-  "variesByQualification": true,
-  "shortCourseNote": null
- },
- {
-  "name": "Davinci Institute",
-  "rule": "multiple",
-  "multiplier": 2,
-  "cap": 48,
-  "fixedMonths": null,
-  "variesByQualification": true,
-  "shortCourseNote": "Short courses may not be covered"
  },
  {
   "name": "Design Academy of Fashion (DAF)",
@@ -451,15 +415,6 @@
  },
  {
   "name": "International Hotel School",
-  "rule": "multiple",
-  "multiplier": 2,
-  "cap": 48,
-  "fixedMonths": null,
-  "variesByQualification": false,
-  "shortCourseNote": null
- },
- {
-  "name": "International Hotel School *",
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
@@ -679,15 +634,6 @@
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
-  "fixedMonths": null,
-  "variesByQualification": false,
-  "shortCourseNote": null
- },
- {
-  "name": "SA Perfumery and Cosmetics Training Institute (SAPACTI)",
-  "rule": "multiple",
-  "multiplier": 2,
-  "cap": 18,
   "fixedMonths": null,
   "variesByQualification": false,
   "shortCourseNote": null
@@ -977,6 +923,60 @@
   "multiplier": 2,
   "cap": 36,
   "fixedMonths": 12,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "The Legacy of Daniel",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "SA Maritime School & Transport College",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Boundless Academy",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Green Leaf Academy",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Boston City Campus",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
+  "variesByQualification": false,
+  "shortCourseNote": null
+ },
+ {
+  "name": "Concord Hospitality Academy",
+  "rule": "multiple",
+  "multiplier": 1,
+  "cap": 48,
+  "fixedMonths": null,
   "variesByQualification": false,
   "shortCourseNote": null
  }
