@@ -139,7 +139,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   var PROV=["Eastern Cape","Free State","Gauteng","KwaZulu-Natal","Limpopo","Mpumalanga","North West","Northern Cape","Western Cape","Outside South Africa"];
   var BANKS=["ABSA","Capitec","First National Bank (FNB)","Nedbank","Standard Bank","Other"];
   var EMP=["Permanent","Government Employee","Fixed-term","Temporary","Independent Consultant","Pensioner","Self-employed","Unemployed"];
-  var ETHNIC=["Black","Coloured","Indian","White","Other"];
+  var ETHNIC=["Black","Coloured","Indian","White","Other","Prefer not to say"];
   var DUR=["6 months","12 months","18 months","24 months","30 months","36 months","48 months"];
   var ID_TYPE=[{l:"South African ID",v:"id_number"},{l:"Passport",v:"passport"},{l:"Other – SA residency permit / visa",v:"residency"}];
   var GENDER=[{l:"Female",v:"f"},{l:"Male",v:"m"}];
@@ -150,7 +150,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   var yn=[{l:"Yes",v:"Yes"},{l:"No",v:"No"}];
 
   var CONSENT_VERSION="2026-11-10";
-  var WA_NOTICE_HTML='<div class="ab-form-t">Before we begin</div><p class="ab-notice-p">Manati Alternate Student Funding (NCRCP8052) will use the information you give us to assess your study loan application. We only share it with the parties we need to process your application, as set out in our <a href="/privacy/" target="_blank">Privacy Notice</a>. We will also ask for gender and population group, which we use only for reporting to the National Credit Regulator.</p><p class="ab-notice-p"><strong>How may we contact you about your application?</strong><br>We would like to send you updates and document requests on WhatsApp. You can reply STOP at any time to stop WhatsApp messages.</p>';
+  var WA_NOTICE_HTML='<div class="ab-form-t">Before we begin</div><p class="ab-notice-p">Manati Alternate Student Funding (NCRCP8052) will use the information you give us to assess your study loan application. We only share it with the parties we need to process your application, as set out in our <a href="/privacy/" target="_blank">Privacy Notice</a>. We will also ask for your population group, which we use only for reporting to the National Credit Regulator, and your gender, which we use with your ID or passport number to verify your identity and obtain your credit report.</p><p class="ab-notice-p"><strong>How may we contact you about your application?</strong><br>We would like to send you updates and document requests on WhatsApp. You can reply STOP at any time to stop WhatsApp messages.</p>';
 
   var SPONSOR_INTRO="Who is a sponsor?\n\nYour sponsor is the person who takes out the loan to fund the studies. The loan is in their name and they are responsible for the monthly instalments, so they must be employed or earn a reliable income. A sponsor is usually a parent, guardian, spouse or family member.\n\nBecause the loan is assessed on the sponsor's income and credit profile, Manati will contact them to get their consent and supporting documents before the application can be finalised.";
 
@@ -167,6 +167,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   function ph(v){return v.replace(/\D/g,'').length>=9?null:"Please enter a valid mobile number.";}
   function reqnum(v){return (v!==''&&!isNaN(Number(v))&&Number(v)>=0)?null:"Please enter an amount.";}
   function idsoft(v){var s=v.replace(/\s/g,''); if(!s) return null; return (/^\d{13}$/.test(s)||s.length>=6)?null:"Enter a 13-digit SA ID or a valid passport number.";}
+  // Population group "Prefer not to say" is a valid choice but is not sent to TaskFlow as a race value.
+  function race(v){return (v && v!=='Prefer not to say')?v:undefined;}
 
   // Flow. Types: intro|info|choice|text|consent|form|review|done
   var FLOW=[
@@ -195,8 +197,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'s1_phone2', label:"Confirm mobile number", type:'tel', v:ph},
       {k:'s1_email', label:"Email address", type:'email', v:em},
       {k:'s1_email2', label:"Confirm email address", type:'email', v:em},
-      {k:'s1_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
-      {k:'s1_ethnicity', label:"Population group (optional)", type:'select', opt:true, options:ETHNIC},
+      {k:'s1_gender', label:"Gender", type:'select', options:GENDER},
+      {k:'s1_ethnicity', label:"Population group", type:'select', options:ETHNIC},
       {k:'s1_province', label:"Province of residence", type:'select', options:PROV}
     ], match:[['s1_phone','s1_phone2',"The mobile numbers don't match."],['s1_email','s1_email2',"The email addresses don't match."]], done:"✓ Sponsor details captured"},
     {t:'form', when:notSelf, title:"Sponsor income & banking", fields:[
@@ -230,8 +232,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'student_phone2', label:"Confirm mobile number", type:'tel', v:ph},
       {k:'student_email', label:"Email address", type:'email', v:em},
       {k:'student_email2', label:"Confirm email address", type:'email', v:em},
-      {k:'student_gender', label:"Gender (optional)", type:'select', opt:true, options:GENDER},
-      {k:'student_ethnicity', label:"Population group (optional)", type:'select', opt:true, options:ETHNIC},
+      {k:'student_gender', label:function(){return selfFunded()?"Gender":"Gender (optional)";}, type:'select', opt:function(){return !selfFunded();}, options:GENDER},
+      {k:'student_ethnicity', label:function(){return selfFunded()?"Population group":"Population group (optional)";}, type:'select', opt:function(){return !selfFunded();}, options:ETHNIC},
       {k:'student_province', label:"Province of residence", type:'select', options:PROV}
     ], match:[['student_phone','student_phone2',"The mobile numbers don't match."],['student_email','student_email2',"The email addresses don't match."]], done:"✓ Student details captured"},
 
@@ -284,7 +286,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     set('x_student-x_id_number',S.student_id); set('x_student-phone',S.student_phone); set('x_student-email',S.student_email);
     set('x_student-identification_type', S.student_id_type);
     set('x_student-gender', gmap(S.student_gender));
-    set('x_student-x_race', S.student_ethnicity);
+    set('x_student-x_race', race(S.student_ethnicity));
     set('x_student-x_state_id', S.student_province);
 
     // Studies
@@ -299,13 +301,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       set('x_crm.lead-x_relation_to_student','Self');
       // Self-funded: the student is present and is the income earner → they consent for themselves
       d['x_student-x_credit_check']='Yes'; d['x_sponsor.one-x_credit_check']='Yes';
-      set('x_sponsor.one-gender',gmap(S.student_gender)); set('x_sponsor.one-x_race',S.student_ethnicity);
+      set('x_sponsor.one-gender',gmap(S.student_gender)); set('x_sponsor.one-x_race',race(S.student_ethnicity));
       set('x_sponsor.one-x_state_id',S.student_province);
     } else {
       set('x_sponsor.one-name',S.s1_first); set('X_sponsor.one-surname',S.s1_last);
       set('x_sponsor.one-id_number',S.s1_id); set('x_sponsor.one-phone',S.s1_phone); set('x_sponsor.one-email',S.s1_email);
       set('x_crm.lead-x_relation_to_student',S.s1_relation);
-      set('x_sponsor.one-gender',gmap(S.s1_gender)); set('x_sponsor.one-x_race',S.s1_ethnicity);
+      set('x_sponsor.one-gender',gmap(S.s1_gender)); set('x_sponsor.one-x_race',race(S.s1_ethnicity));
       set('x_sponsor.one-x_state_id',S.s1_province);
       if(S.who==='Sponsor'){
         // The sponsor (loan holder) completed the form and is present → they consent; the student was not present
@@ -415,7 +417,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       var html='<div class="ab-form">';
       if(step.title) html+='<div class="ab-form-t">'+esc(step.title)+'</div>';
       step.fields.forEach(function(f){
-        html+='<label class="ab-fl">'+esc(f.label)+(f.opt?'':' *')+'</label>';
+        var fOpt=(typeof f.opt==='function')?f.opt():f.opt;
+        var fLabel=(typeof f.label==='function')?f.label():f.label;
+        html+='<label class="ab-fl">'+esc(fLabel)+(fOpt?'':' *')+'</label>';
         if(f.type==='select'){
           html+='<select class="ab-fin" data-k="'+f.k+'"><option value="">Select…</option>'+optsHTML(f.options)+'</select>';
         } else if(f.list){
@@ -435,7 +439,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         step.fields.forEach(function(f){
           var el=dock.querySelector('[data-k="'+f.k+'"]'); var val=(el.value||'').trim();
           el.classList.remove('bad');
-          if(!val && !f.opt){ ok=false; err=err||"Please complete all required fields."; el.classList.add('bad'); return; }
+          if(!val && !((typeof f.opt==='function')?f.opt():f.opt)){ ok=false; err=err||"Please complete all required fields."; el.classList.add('bad'); return; }
           if(val && f.v){ var e=f.v(val); if(e){ ok=false; err=err||e; el.classList.add('bad'); } }
         });
         if(ok && step.match){
