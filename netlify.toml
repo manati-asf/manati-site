@@ -35,6 +35,12 @@
   to = "/.netlify/functions/otp-verify"
   status = 200
 
+# Existing-customer lookup (after verification)
+[[redirects]]
+  from = "/api/lookup"
+  to = "/.netlify/functions/lookup"
+  status = 200
+
 # --- SEO: 301 redirects from the old WordPress URLs to the new structure ---
 # Preserves search ranking and inbound links. Targets are trailing-slash to
 # match the built pages and avoid an extra redirect hop.

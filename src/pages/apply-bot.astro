@@ -409,6 +409,34 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     try{ var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)}); var o=await r.json().catch(function(){return {};}); o._status=r.status; return o; }
     catch(e){ return {ok:false,error:"We couldn't reach our servers just now. Please try again in a moment."}; }
   }
+  // Existing customers: after verification, pre-fill what we already hold in TaskFlow.
+  // Only fills empty answers; never overwrites what the applicant typed or the verified number.
+  function prefillSet(k,v,opts){
+    if(v===undefined||v===null||v==='') return;
+    if(S._lock && S._lock[k]) return;
+    if(S[k]!==undefined && S[k]!=='') return;
+    if(opts){ var m=null; var lv=String(v).toLowerCase(); opts.forEach(function(o){ var l=(o&&o.l!==undefined)?o.l:o; if(!m && (String(l).toLowerCase()===lv || String(l).toLowerCase().indexOf(lv.split(/[ _\/]/)[0])===0)) m=(o&&o.v!==undefined)?o.v:o; }); if(m===null) return; v=m; }
+    S[k]=v;
+    if(/_(phone|email)$/.test(k)) S[k+'2']=v;
+  }
+  async function afterVerify(){
+    if(S.existing_customer!=='Yes'){ advance(); return; }
+    dock.innerHTML='<div class="ab-hint">Looking up your previous application…</div>';
+    var out=await postJSON('/api/lookup',{verifiedToken:S.vtok,role:S.who});
+    if(out.ok && out.found && out.details){
+      var d=out.details, sp=d.sponsor, st=d.student||{};
+      if(sp){ prefillSet('s1_first',sp.first); prefillSet('s1_last',sp.last); prefillSet('s1_email',sp.email&&sp.email.toLowerCase()); prefillSet('s1_province',sp.province,PROV); prefillSet('s1_relation',sp.relation,RELS); }
+      prefillSet('student_first',st.first); prefillSet('student_last',st.last);
+      if(st.phone) prefillSet('student_phone',localPhone(st.phone));
+      prefillSet('student_email',st.email&&st.email.toLowerCase()); prefillSet('student_province',st.province,PROV);
+      S.prefilled=true;
+      addBot("Welcome back! I've filled in the details we already have from your previous application. Please check each one and update anything that has changed.");
+    } else if(out.ok && (out.reason==='ambiguous' || !out.reason)){
+      addBot("Thanks. I couldn't find your previous application with these details, so please fill them in as we go. Our team will link it to your existing account.");
+    } // lookup unavailable (error / not configured): say nothing and carry on
+    advance();
+  }
+
   function renderOtp(step){
     var O=S._otp||(S._otp={ch:'sms',phase:'enter'});
     var err='<div class="ab-err" id="ab-err"></div>';
@@ -446,7 +474,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         if(O.ch==='sms'){ var k=sp?'s1_phone':'student_phone'; S[k]=S[k+'2']=localPhone(O.raw); S._lock[k]=S._lock[k+'2']=true; }
         else { var ke=sp?'s1_email':'student_email'; S[ke]=S[ke+'2']=O.raw.trim().toLowerCase(); S._lock[ke]=S._lock[ke+'2']=true; }
         S._otp=null;
-        addMe('✓ '+(O.ch==='sms'?'Mobile number':'Email address')+' verified'); advance();
+        addMe('✓ '+(O.ch==='sms'?'Mobile number':'Email address')+' verified');
+        afterVerify();
       } else {
         b.disabled=false; b.textContent='Verify';
         document.getElementById('ab-err').textContent=out.error||"That code isn't right. Please try again.";
