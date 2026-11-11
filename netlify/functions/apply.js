@@ -317,8 +317,13 @@ export default async (req) => {
   }
 
   const payload = buildPayload(data);
-  if (verifiedNote) {
-    payload["x_special_instruction"] = payload["x_special_instruction"] ? verifiedNote + " " + payload["x_special_instruction"] : verifiedNote;
+  // The TaskFlow webhook does not (yet) map the existing-customer flag onto the
+  // lead's "Currently have a student loan?" box, so also say it in the note.
+  const existingNote = data["x_crm.lead-x_current_student_loan"] === "Yes"
+    ? "Applicant says they are an EXISTING Manati customer." : null;
+  const lead = [existingNote, verifiedNote].filter(Boolean).join(" ");
+  if (lead) {
+    payload["x_special_instruction"] = payload["x_special_instruction"] ? lead + " " + payload["x_special_instruction"] : lead;
   }
 
   // Test mode: don't forward, just echo back what would be sent.
