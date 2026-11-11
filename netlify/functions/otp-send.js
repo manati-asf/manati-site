@@ -25,12 +25,12 @@ async function sendSms(to, code) {
 async function sendEmail(to, code) {
   const key = process.env.BREVO_API_KEY;
   if (!key) return false;
-  const from = process.env.OTP_EMAIL_FROM || "noreply@manati.co.za";
+  const from = process.env.OTP_EMAIL_FROM || "noreply@mail.manati.co.za";
   const r = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Accept": "application/json", "api-key": key },
     body: JSON.stringify({
-      sender: { name: "Manati Alternate Student Funding", email: from },
+      sender: { name: "Manati Student Funding", email: from },
       to: [{ email: to }],
       subject: `Your Manati verification code: ${code}`,
       textContent: `Your Manati verification code is ${code}.\n\nIt expires in 10 minutes. Do not share this code with anyone. If you did not request it, you can ignore this email.\n\nManati Alternate Student Funding (NCRCP8052)`,

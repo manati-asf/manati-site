@@ -9,7 +9,7 @@
 //   CLICKATELL_OTP_API_KEY  Clickatell One API key ("Nati website (verification codes)")
 //   OTP_SIGNING_SECRET      optional; if absent a key is derived from the Clickatell key
 //   BREVO_API_KEY           optional; enables the email backup
-//   OTP_EMAIL_FROM          optional; sender address for email codes (default noreply@manati.co.za)
+//   OTP_EMAIL_FROM          optional; sender address for email codes (default noreply@mail.manati.co.za)
 import crypto from "node:crypto";
 
 export const CODE_TTL_MS = 10 * 60 * 1000;      // a code is valid for 10 minutes
