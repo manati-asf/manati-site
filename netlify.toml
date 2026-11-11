@@ -24,6 +24,17 @@
   to = "/.netlify/functions/apply"
   status = 200
 
+# Verification codes for Nati (SMS first, email backup)
+[[redirects]]
+  from = "/api/otp-send"
+  to = "/.netlify/functions/otp-send"
+  status = 200
+
+[[redirects]]
+  from = "/api/otp-verify"
+  to = "/.netlify/functions/otp-verify"
+  status = 200
+
 # --- SEO: 301 redirects from the old WordPress URLs to the new structure ---
 # Preserves search ranking and inbound links. Targets are trailing-slash to
 # match the built pages and avoid an extra redirect hop.
