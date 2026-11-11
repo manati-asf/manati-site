@@ -127,7 +127,9 @@ const TEMPLATE = {
   "x_consent_given_by": null,
   "x_consent_timestamp": null,
   "x_consent_version": null,
-  "x_current_student_loan": null,
+  // Existing-customer flag. Uses the x_crm.lead-<field> convention (like x_self_funded) so the
+  // bot_webhook writes it to the crm.lead boolean x_current_student_loan ("Yes"/"No").
+  "x_crm.lead-x_current_student_loan": null,
   "x_student-identification_type": null,
   "x_student-alt_phone": null,
   "x_student-gender": null,

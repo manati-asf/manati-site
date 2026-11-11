@@ -279,7 +279,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     set('x_consent_timestamp', S.consent_ts);
     set('x_consent_version', CONSENT_VERSION);
     var consentNotes=[]; // flag parties who were NOT present to consent (never assume consent)
-    set('x_current_student_loan', S.existing_customer==='Yes' ? 'Yes' : 'No');
+    set('x_crm.lead-x_current_student_loan', S.existing_customer==='Yes' ? 'Yes' : 'No');
 
     // Student identity + demographics
     set('x_student-x_name',S.student_first); set('x_student-x_surname',S.student_last);
