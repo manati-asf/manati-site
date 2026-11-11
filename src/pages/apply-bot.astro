@@ -182,7 +182,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
     {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian, spouse or family member applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
     {k:'employed_studying', t:'choice', when:isStudent, q:["Are you currently employed, and will you remain employed while studying?"], o:yn},
-    {k:'otp', t:'otp', when:needOtp, q:[function(){return "To keep your application secure, we'll send a 6-digit code by SMS to "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" mobile number.";}]},
+    {k:'otp', t:'otp', when:needOtp, q:[function(){return "One quick security step: we'll SMS a 6-digit code to "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" mobile number.\n\nThis protects you. It makes sure only you can apply using your number, so no one else can apply in your name.";}]},
 
     // Funding (tuition only) + course duration
     {t:'form', title:"Funding needed", q:["Great — let's get the funding details."], fields:[
