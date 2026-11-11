@@ -431,9 +431,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       prefillSet('student_email',st.email&&st.email.toLowerCase()); prefillSet('student_province',st.province,PROV);
       S.prefilled=true;
       addBot("Welcome back! I've filled in the details we already have from your previous application. Please check each one and update anything that has changed.");
-    } else {
+    } else if(out.ok && (out.reason==='ambiguous' || !out.reason)){
       addBot("Thanks. I couldn't find your previous application with these details, so please fill them in as we go. Our team will link it to your existing account.");
-    }
+    } // lookup unavailable (error / not configured): say nothing and carry on
     advance();
   }
 
