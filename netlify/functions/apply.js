@@ -9,6 +9,8 @@
 //   TASKFLOW_WEBHOOK_URL = https://manati.taskflow.co.za/webhook/json/bot_webhook/<token>
 // (Optional) TASKFLOW_TEST_MODE = "1" to log instead of forwarding while testing.
 
+import { checkVerified, normalisePhone, normaliseEmail } from "../lib/otp.js";
+
 // Canonical payload template — every key TaskFlow expects, defaulting to null.
 // Keys and casing must match exactly (note the capital-X on two of them).
 const TEMPLATE = {
@@ -289,12 +291,35 @@ export default async (req) => {
     return json(422, { ok: false, error: "Consent is required" });
   }
 
+  // Verification code check (see netlify/lib/otp.js). The verified number/email
+  // must belong to the applicant: the sponsor when a sponsor applies, otherwise
+  // the student. Enforced only when OTP_REQUIRED=1, so this can ship before the
+  // bot step is switched on; when a valid token is present we always note it.
+  let verifiedNote = null;
+  const vt = checkVerified(body && body.verifiedToken);
+  if (vt) {
+    const isSponsor = data["x_student_or_sponsor"] === "Sponsor";
+    const phone = isSponsor ? data["x_sponsor.one-phone"] : data["x_student-phone"];
+    const email = isSponsor ? data["x_sponsor.one-email"] : data["x_student-email"];
+    const matches = vt.ch === "sms" ? normalisePhone(phone) === vt.to : normaliseEmail(email) === vt.to;
+    if (matches) {
+      const what = vt.ch === "sms" ? "mobile number 0" + vt.to.slice(2) + " verified by SMS code" : "email address " + vt.to + " verified by email code";
+      verifiedNote = "Applicant's " + what + " (" + new Date(vt.at).toISOString().replace("T", " ").slice(0, 16) + " UTC).";
+    }
+  }
+  if (process.env.OTP_REQUIRED === "1" && !verifiedNote) {
+    return json(403, { ok: false, error: "Please verify your mobile number (or email) before submitting." });
+  }
+
   const url = process.env.TASKFLOW_WEBHOOK_URL;
   if (!url) {
     return json(500, { ok: false, error: "Webhook URL not configured" });
   }
 
   const payload = buildPayload(data);
+  if (verifiedNote) {
+    payload["x_special_instruction"] = payload["x_special_instruction"] ? verifiedNote + " " + payload["x_special_instruction"] : verifiedNote;
+  }
 
   // Test mode: don't forward, just echo back what would be sent.
   if (process.env.TASKFLOW_TEST_MODE === "1") {
