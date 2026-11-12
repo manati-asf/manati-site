@@ -182,6 +182,22 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     var best=null; for(var b=0;b<INST.length;b++){ var nk=instKey(INST[b].n); if(nk.length>=5 && k.indexOf(nk)===0 && (!best || nk.length>instKey(best.n).length)) best=INST[b]; }
     return best?{n:best.n, tf:best.tf}:null;
   }
+  // "Did you mean...?" suggestions for mistyped names (typos, missing words, abbreviations)
+  function lev(a,b){ if(a===b) return 0; var m=a.length,n=b.length; if(!m||!n) return m||n; var prev=[],cur=[],i,j; for(j=0;j<=n;j++) prev[j]=j; for(i=1;i<=m;i++){ cur=[i]; for(j=1;j<=n;j++){ cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1)); } prev=cur; } return prev[n]; }
+  function words(v){ return String(v||'').toLowerCase().split(/[^a-z0-9]+/).filter(function(w){ return w.length>=3 && ['the','and','for','college','institute','school','academy','university','of'].indexOf(w)<0; }); }
+  function suggestInst(v){
+    var k=instKey(v), wv=words(v); if(k.length<3) return [];
+    var pool=INST.map(function(x){return x.n;}); Object.keys(INST_ALIASES).forEach(function(a){ if(pool.indexOf(INST_ALIASES[a][0])<0) pool.push(INST_ALIASES[a][0]); });
+    var scored=pool.map(function(n){
+      var nk=instKey(n), wn=words(n), sc=0;
+      if(nk.indexOf(k)>=0 || k.indexOf(nk)>=0) sc+=3;                       // one contains the other
+      wv.forEach(function(w){ wn.forEach(function(x){ if(x===w) sc+=2; else if(x.length>=4 && w.length>=4 && lev(x,w)<=Math.max(1,Math.floor(x.length/5))) sc+=2; }); }); // shared / misspelt words
+      var d=99; for(var L=Math.max(1,k.length-1); L<=Math.min(nk.length,k.length+2); L++){ d=Math.min(d, lev(k, nk.slice(0,L))); } if(d<=Math.max(1,Math.floor(k.length/4))) sc+=2; // close spelling of the start
+      return {n:n, sc:sc};
+    }).filter(function(x){return x.sc>=2;}).sort(function(a,b){return b.sc-a.sc;});
+    return scored.slice(0,3).map(function(x){return x.n;});
+  }
+
   function instCheck(v){ return resolveInst(v)?null:"Please pick the institution from the list as you type. If it isn't there, tap \"My institution isn't listed\" below."; }
   function instSet(v){ var r=resolveInst(v); S.institution=r.n; S.institution_tf=r.tf; S.institution_unlisted=false; return r.n; }
   function instUnlisted(v){ S.institution=(String(v||'').trim())||'Not listed'; S.institution_tf=null; S.institution_unlisted=true; return S.institution; }
@@ -210,11 +226,11 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     {t:'intro', q:["Hi! I'm Nati 👋 I'll guide you through your Manati funding application. It takes about 5 minutes."], o:[{l:"Let's begin →",v:"start"}]},
     {k:'wa_channel', t:'wachoice', html:WA_NOTICE_HTML, o:[{l:"Yes, you may contact me on WhatsApp",v:"WhatsApp"},{l:"No, please use SMS or email",v:"SMS/email"}]},
     {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
-    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:instCheck, set:instSet, alt:{l:"My institution isn't listed", f:instUnlisted}},
+    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:instCheck, set:instSet, suggest:suggestInst, alt:{l:"My institution isn't listed", f:instUnlisted}},
     {t:'info', when:isUnlisted, q:[function(){return "Thanks. Manati funds students at selected partner institutions, and "+S.institution+" isn't on our list at the moment, so we may not be able to fund this course.\n\nYou're welcome to carry on with your application, and a consultant will let you know whether we can help.";}], o:[{l:"Carry on →",v:"ok"}]},
     {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian, spouse or family member applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
     {k:'employed_studying', t:'choice', when:isStudent, q:["Are you currently employed, and will you remain employed while studying?"], o:yn},
-    {k:'otp', t:'otp', when:needOtp, q:[function(){return "One quick security step: we'll SMS a 6-digit code to "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" mobile number.\n\nThis protects you. It makes sure only you can apply using your number, so no one else can apply in your name.";}]},
+    {k:'otp', t:'otp', when:needOtp, q:[function(){return "One quick security step: please share "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" name, mobile number and email address, and we'll send a 6-digit code to confirm it's you.\n\nThis protects you. It makes sure only you can apply using your details, so no one else can apply in your name.";}]},
 
     // Funding (tuition only) + course duration
     {t:'form', title:"Funding needed", q:["Great — let's get the funding details."], fields:[
@@ -474,21 +490,34 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     var O=S._otp||(S._otp={ch:'sms',phase:'enter'});
     var err='<div class="ab-err" id="ab-err"></div>';
     if(O.phase==='enter'){
-      var sms=O.ch==='sms';
-      dock.innerHTML='<label class="ab-fl">'+(sms?'Mobile number (South Africa)':'Email address')+'</label>'+
-        '<div class="ab-field"><div class="ab-ip"><input id="ab-otp-to" type="'+(sms?'tel':'email')+'" inputmode="'+(sms?'tel':'email')+'" autocomplete="'+(sms?'tel':'email')+'" placeholder="'+(sms?'e.g. 082 123 4567':'name@example.com')+'"></div><button class="ab-send" id="ab-otp-send" type="button">Send code</button></div>'+err+
-        '<div class="ab-hint"><button class="ab-linkbtn" id="ab-otp-alt" type="button">'+(sms?"No South African mobile number? Use email instead":"Use my mobile number instead")+'</button></div>';
-      var to=document.getElementById('ab-otp-to'); if(O.raw && O.rawCh===O.ch) to.value=O.raw; to.focus();
+      dock.innerHTML='<div style="display:flex;gap:8px"><div style="flex:1"><label class="ab-fl">First name</label><div class="ab-ip"><input id="ab-otp-fn" class="ab-fin" type="text" autocomplete="given-name"></div></div><div style="flex:1"><label class="ab-fl">Surname</label><div class="ab-ip"><input id="ab-otp-ln" class="ab-fin" type="text" autocomplete="family-name"></div></div></div>'+
+        '<label class="ab-fl" style="margin-top:10px">Mobile number (South Africa)</label><div class="ab-ip"><input id="ab-otp-mob" class="ab-fin" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 082 123 4567"></div>'+
+        '<label class="ab-fl" style="margin-top:10px">Email address</label><div class="ab-ip"><input id="ab-otp-em" class="ab-fin" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>'+
+        '<label class="ab-fl" style="margin-top:10px">Send my code by</label><div class="ab-choices" id="ab-otp-ch" style="flex-direction:row"><button class="ab-choice" type="button" data-ch="sms" style="flex:1">SMS</button><button class="ab-choice" type="button" data-ch="email" style="flex:1">Email</button></div>'+
+        '<p class="ab-notice-p" style="font-size:12px;margin:10px 0 0">We\'ll use these details to send your code and, if you don\'t finish, to remind you about your application. See our <a href="/privacy/" target="_blank">Privacy Notice</a>.</p>'+
+        '<button class="ab-send" id="ab-otp-send" type="button" style="width:100%;margin-top:12px">Send code</button>'+err;
+      var mob=document.getElementById('ab-otp-mob'), em=document.getElementById('ab-otp-em'), fn=document.getElementById('ab-otp-fn'), ln=document.getElementById('ab-otp-ln');
+      if(O.mob) mob.value=O.mob; if(O.em) em.value=O.em; if(O.fn) fn.value=O.fn; if(O.ln) ln.value=O.ln; fn.focus();
+      function paint(){ [].forEach.call(document.querySelectorAll('#ab-otp-ch .ab-choice'),function(b){ var on=b.getAttribute('data-ch')===O.ch; b.style.borderColor=on?'var(--gold)':''; b.style.background=on?'var(--bg-soft)':''; b.textContent=(b.getAttribute('data-ch')==='sms'?'SMS':'Email')+(on?' ✓':''); }); }
+      [].forEach.call(document.querySelectorAll('#ab-otp-ch .ab-choice'),function(b){ b.onclick=function(){ O.ch=b.getAttribute('data-ch'); paint(); }; }); paint();
       async function send(){
-        var v=(to.value||'').trim(); if(!v){document.getElementById('ab-err').textContent=sms?"Please enter your mobile number.":"Please enter your email address."; return;}
+        var m=(mob.value||'').trim(), e=(em.value||'').trim(), f=(fn.value||'').trim(), l=(ln.value||'').trim(), er=document.getElementById('ab-err'); er.textContent='';
+        [mob,em,fn,ln].forEach(function(x){x.classList.remove('bad');});
+        if(f.length<2){ fn.classList.add('bad'); er.textContent="Please enter your first name."; return; }
+        if(l.length<2){ ln.classList.add('bad'); er.textContent="Please enter your surname."; return; }
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){ em.classList.add('bad'); er.textContent="Please enter a valid email address."; return; }
+        var sa=/^(0|27|\+27)?[6-8]\d{8}$/.test(m.replace(/[\s-]/g,''));
+        if(O.ch==='sms' && !sa){ mob.classList.add('bad'); er.textContent="For an SMS code we need a South African mobile number. You can choose Email instead."; return; }
+        if(m && m.replace(/\D/g,'').length<9){ mob.classList.add('bad'); er.textContent="Please enter a valid mobile number."; return; }
+        if(!m){ mob.classList.add('bad'); er.textContent="Please enter your mobile number."; return; }
         var b=document.getElementById('ab-otp-send'); b.disabled=true; b.textContent='Sending…';
-        var out=await postJSON('/api/otp-send',{channel:O.ch,to:v,company:''});
-        if(out.ok && out.challenge){ O.raw=v; O.rawCh=O.ch; O.challenge=out.challenge; O.sentTo=out.sentTo; O.sentAt=Date.now(); O.phase='code'; addMe(sms?localPhone(v):v); addBot("I've sent a 6-digit code to "+out.sentTo+". Please enter it below. It expires in 10 minutes."); renderOtp(step); }
-        else { b.disabled=false; b.textContent='Send code'; document.getElementById('ab-err').textContent=out.error||"Something went wrong. Please try again."; }
+        var to=O.ch==='sms'?m:e;
+        var out=await postJSON('/api/otp-send',{channel:O.ch,to:to,company:''});
+        if(out.ok && out.challenge){ O.mob=m; O.em=e; O.fn=f; O.ln=l; O.raw=to; O.rawCh=O.ch; O.challenge=out.challenge; O.sentTo=out.sentTo; O.sentAt=Date.now(); O.phase='code'; addMe(f+' '+l+' · '+(sa?localPhone(m):m)+' · '+e); addBot("I've sent a 6-digit code "+(O.ch==='sms'?'by SMS':'by email')+" to "+out.sentTo+". Please enter it below. It expires in 10 minutes."); renderOtp(step); }
+        else { b.disabled=false; b.textContent='Send code'; er.textContent=out.error||"Something went wrong. Please try again."; }
       }
       document.getElementById('ab-otp-send').onclick=send;
-      to.addEventListener('keydown',function(e){if(e.key==='Enter')send();});
-      document.getElementById('ab-otp-alt').onclick=function(){ O.ch=sms?'email':'sms'; renderOtp(step); };
+      em.addEventListener('keydown',function(ev){if(ev.key==='Enter')send();});
       return;
     }
     // phase: code
@@ -504,8 +533,11 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         S.vtok=out.verified; S.vwho=S.who; S.vch=O.ch;
         var sp=(S.who==='Sponsor');
         S._lock={};
-        if(O.ch==='sms'){ var k=sp?'s1_phone':'student_phone'; S[k]=S[k+'2']=localPhone(O.raw); S._lock[k]=S._lock[k+'2']=true; }
-        else { var ke=sp?'s1_email':'student_email'; S[ke]=S[ke+'2']=O.raw.trim().toLowerCase(); S._lock[ke]=S._lock[ke+'2']=true; }
+        var kp=sp?'s1_phone':'student_phone', ke=sp?'s1_email':'student_email';
+        S[kp]=S[kp+'2']=localPhone(O.mob); S[ke]=S[ke+'2']=String(O.em||'').trim().toLowerCase();
+        if(sp){ if(!S.s1_first) S.s1_first=O.fn; if(!S.s1_last) S.s1_last=O.ln; } else { if(!S.student_first) S.student_first=O.fn; if(!S.student_last) S.student_last=O.ln; }
+        if(O.ch==='sms'){ S._lock[kp]=S._lock[kp+'2']=true; } else { S._lock[ke]=S._lock[ke+'2']=true; }
+        postJSON('/api/started',{verifiedToken:S.vtok,data:{who:S.who,first:O.fn,last:O.ln,institution:S.institution_tf||S.institution,unlisted:!!S.institution_unlisted,existing:S.existing_customer,wa:S.wa_channel,phone:O.mob,email:O.em}});
         S._otp=null;
         addMe('✓ '+(O.ch==='sms'?'Mobile number':'Email address')+' verified');
         afterVerify();
@@ -611,9 +643,14 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     // single text/email/tel input
     var pfx=step.pfx?'<span class="pfx">'+esc(step.pfx)+'</span>':'';
     var listAttr=step.list?(' list="'+step.list+'" autocomplete="off"'):'';
-    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+(step.t==='num'?'number':step.t)+'"'+listAttr+' placeholder="'+esc(step.ph||'')+'"></div><button class="ab-send" id="ab-go" type="button">Send</button></div><div class="ab-err" id="ab-err"></div>'+(step.alt?'<div class="ab-hint"><button class="ab-linkbtn" id="ab-alt" type="button">'+esc(step.alt.l)+'</button></div>':'');
+    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+(step.t==='num'?'number':step.t)+'"'+listAttr+' placeholder="'+esc(step.ph||'')+'"></div><button class="ab-send" id="ab-go" type="button">Send</button></div><div class="ab-err" id="ab-err"></div><div class="ab-choices" id="ab-sug" style="margin-top:8px"></div>'+(step.alt?'<div class="ab-hint"><button class="ab-linkbtn" id="ab-alt" type="button">'+esc(step.alt.l)+'</button></div>':'');
     var inp=document.getElementById('ab-inp'); if(S[step.k]!==undefined) inp.value=S[step.k]; inp.focus();
-    function go(){var v=inp.value; if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} var shown=step.set?step.set(v):(S[step.k]=(v||'').trim()); addMe(shown); advance();}
+    function pick(n){ var shown=step.set?step.set(n):(S[step.k]=n); addMe(shown); advance(); }
+    function go(){var v=inp.value; var sg=document.getElementById('ab-sug'); sg.innerHTML=''; if(step.v){var e=step.v(v||''); if(e){
+        var opts=step.suggest?step.suggest(v):[];
+        if(opts.length){ document.getElementById('ab-err').textContent="We couldn't find \""+v.trim()+"\" exactly. Did you mean:"; opts.forEach(function(n){ var b=document.createElement('button'); b.className='ab-choice'; b.type='button'; b.textContent=n; b.onclick=function(){pick(n);}; sg.appendChild(b); }); }
+        else document.getElementById('ab-err').textContent=e;
+        return;}} var shown=step.set?step.set(v):(S[step.k]=(v||'').trim()); addMe(shown); advance();}
     if(step.alt){ document.getElementById('ab-alt').onclick=function(){ var v=(inp.value||'').trim(); if(!v){document.getElementById('ab-err').textContent="Please type the name of your institution first.";return;} addMe(step.alt.f(v)); advance(); }; }
     document.getElementById('ab-go').onclick=go;
     inp.addEventListener('keydown',function(e){if(e.key==='Enter')go();});

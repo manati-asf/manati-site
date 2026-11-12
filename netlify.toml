@@ -41,6 +41,12 @@
   to = "/.netlify/functions/lookup"
   status = 200
 
+# Verified-but-unfinished applicants (for "Nati drop-off" follow-up)
+[[redirects]]
+  from = "/api/started"
+  to = "/.netlify/functions/started"
+  status = 200
+
 # --- SEO: 301 redirects from the old WordPress URLs to the new structure ---
 # Preserves search ranking and inbound links. Targets are trailing-slash to
 # match the built pages and avoid an extra redirect hop.
