@@ -230,7 +230,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     {t:'info', when:isUnlisted, q:[function(){return "Thanks. Manati funds students at selected partner institutions, and "+S.institution+" isn't on our list at the moment, so we may not be able to fund this course.\n\nYou're welcome to carry on with your application, and a consultant will let you know whether we can help.";}], o:[{l:"Carry on →",v:"ok"}]},
     {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian, spouse or family member applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
     {k:'employed_studying', t:'choice', when:isStudent, q:["Are you currently employed, and will you remain employed while studying?"], o:yn},
-    {k:'otp', t:'otp', when:needOtp, q:[function(){return "One quick security step: we'll SMS a 6-digit code to "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" mobile number.\n\nThis protects you. It makes sure only you can apply using your number, so no one else can apply in your name.";}]},
+    {k:'otp', t:'otp', when:needOtp, q:[function(){return "One quick security step: please share "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" mobile number and email address, and we'll send a 6-digit code to confirm it's you.\n\nThis protects you. It makes sure only you can apply using your details, so no one else can apply in your name.";}]},
 
     // Funding (tuition only) + course duration
     {t:'form', title:"Funding needed", q:["Great — let's get the funding details."], fields:[
@@ -490,21 +490,31 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     var O=S._otp||(S._otp={ch:'sms',phase:'enter'});
     var err='<div class="ab-err" id="ab-err"></div>';
     if(O.phase==='enter'){
-      var sms=O.ch==='sms';
-      dock.innerHTML='<label class="ab-fl">'+(sms?'Mobile number (South Africa)':'Email address')+'</label>'+
-        '<div class="ab-field"><div class="ab-ip"><input id="ab-otp-to" type="'+(sms?'tel':'email')+'" inputmode="'+(sms?'tel':'email')+'" autocomplete="'+(sms?'tel':'email')+'" placeholder="'+(sms?'e.g. 082 123 4567':'name@example.com')+'"></div><button class="ab-send" id="ab-otp-send" type="button">Send code</button></div>'+err+
-        '<div class="ab-hint"><button class="ab-linkbtn" id="ab-otp-alt" type="button">'+(sms?"No South African mobile number? Use email instead":"Use my mobile number instead")+'</button></div>';
-      var to=document.getElementById('ab-otp-to'); if(O.raw && O.rawCh===O.ch) to.value=O.raw; to.focus();
+      dock.innerHTML='<label class="ab-fl">Mobile number (South Africa)</label><div class="ab-ip"><input id="ab-otp-mob" class="ab-fin" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 082 123 4567"></div>'+
+        '<label class="ab-fl" style="margin-top:10px">Email address</label><div class="ab-ip"><input id="ab-otp-em" class="ab-fin" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com"></div>'+
+        '<label class="ab-fl" style="margin-top:10px">Send my code by</label><div class="ab-choices" id="ab-otp-ch" style="flex-direction:row"><button class="ab-choice" type="button" data-ch="sms" style="flex:1">SMS</button><button class="ab-choice" type="button" data-ch="email" style="flex:1">Email</button></div>'+
+        '<p class="ab-notice-p" style="font-size:12px;margin:10px 0 0">We\'ll use these details to send your code and, if you don\'t finish, to remind you about your application. See our <a href="/privacy/" target="_blank">Privacy Notice</a>.</p>'+
+        '<button class="ab-send" id="ab-otp-send" type="button" style="width:100%;margin-top:12px">Send code</button>'+err;
+      var mob=document.getElementById('ab-otp-mob'), em=document.getElementById('ab-otp-em');
+      if(O.mob) mob.value=O.mob; if(O.em) em.value=O.em; mob.focus();
+      function paint(){ [].forEach.call(document.querySelectorAll('#ab-otp-ch .ab-choice'),function(b){ var on=b.getAttribute('data-ch')===O.ch; b.style.borderColor=on?'var(--gold)':''; b.style.background=on?'var(--bg-soft)':''; b.textContent=(b.getAttribute('data-ch')==='sms'?'SMS':'Email')+(on?' ✓':''); }); }
+      [].forEach.call(document.querySelectorAll('#ab-otp-ch .ab-choice'),function(b){ b.onclick=function(){ O.ch=b.getAttribute('data-ch'); paint(); }; }); paint();
       async function send(){
-        var v=(to.value||'').trim(); if(!v){document.getElementById('ab-err').textContent=sms?"Please enter your mobile number.":"Please enter your email address."; return;}
+        var m=(mob.value||'').trim(), e=(em.value||'').trim(), er=document.getElementById('ab-err'); er.textContent='';
+        mob.classList.remove('bad'); em.classList.remove('bad');
+        if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){ em.classList.add('bad'); er.textContent="Please enter a valid email address."; return; }
+        var sa=/^(0|27|\+27)?[6-8]\d{8}$/.test(m.replace(/[\s-]/g,''));
+        if(O.ch==='sms' && !sa){ mob.classList.add('bad'); er.textContent="For an SMS code we need a South African mobile number. You can choose Email instead."; return; }
+        if(m && m.replace(/\D/g,'').length<9){ mob.classList.add('bad'); er.textContent="Please enter a valid mobile number."; return; }
+        if(!m){ mob.classList.add('bad'); er.textContent="Please enter your mobile number."; return; }
         var b=document.getElementById('ab-otp-send'); b.disabled=true; b.textContent='Sending…';
-        var out=await postJSON('/api/otp-send',{channel:O.ch,to:v,company:''});
-        if(out.ok && out.challenge){ O.raw=v; O.rawCh=O.ch; O.challenge=out.challenge; O.sentTo=out.sentTo; O.sentAt=Date.now(); O.phase='code'; addMe(sms?localPhone(v):v); addBot("I've sent a 6-digit code to "+out.sentTo+". Please enter it below. It expires in 10 minutes."); renderOtp(step); }
-        else { b.disabled=false; b.textContent='Send code'; document.getElementById('ab-err').textContent=out.error||"Something went wrong. Please try again."; }
+        var to=O.ch==='sms'?m:e;
+        var out=await postJSON('/api/otp-send',{channel:O.ch,to:to,company:''});
+        if(out.ok && out.challenge){ O.mob=m; O.em=e; O.raw=to; O.rawCh=O.ch; O.challenge=out.challenge; O.sentTo=out.sentTo; O.sentAt=Date.now(); O.phase='code'; addMe((sa?localPhone(m):m)+' · '+e); addBot("I've sent a 6-digit code "+(O.ch==='sms'?'by SMS':'by email')+" to "+out.sentTo+". Please enter it below. It expires in 10 minutes."); renderOtp(step); }
+        else { b.disabled=false; b.textContent='Send code'; er.textContent=out.error||"Something went wrong. Please try again."; }
       }
       document.getElementById('ab-otp-send').onclick=send;
-      to.addEventListener('keydown',function(e){if(e.key==='Enter')send();});
-      document.getElementById('ab-otp-alt').onclick=function(){ O.ch=sms?'email':'sms'; renderOtp(step); };
+      em.addEventListener('keydown',function(ev){if(ev.key==='Enter')send();});
       return;
     }
     // phase: code
@@ -520,8 +530,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         S.vtok=out.verified; S.vwho=S.who; S.vch=O.ch;
         var sp=(S.who==='Sponsor');
         S._lock={};
-        if(O.ch==='sms'){ var k=sp?'s1_phone':'student_phone'; S[k]=S[k+'2']=localPhone(O.raw); S._lock[k]=S._lock[k+'2']=true; }
-        else { var ke=sp?'s1_email':'student_email'; S[ke]=S[ke+'2']=O.raw.trim().toLowerCase(); S._lock[ke]=S._lock[ke+'2']=true; }
+        var kp=sp?'s1_phone':'student_phone', ke=sp?'s1_email':'student_email';
+        S[kp]=S[kp+'2']=localPhone(O.mob); S[ke]=S[ke+'2']=String(O.em||'').trim().toLowerCase();
+        if(O.ch==='sms'){ S._lock[kp]=S._lock[kp+'2']=true; } else { S._lock[ke]=S._lock[ke+'2']=true; }
+        postJSON('/api/started',{verifiedToken:S.vtok,data:{who:S.who,institution:S.institution_tf||S.institution,unlisted:!!S.institution_unlisted,existing:S.existing_customer,wa:S.wa_channel,phone:O.mob,email:O.em}});
         S._otp=null;
         addMe('✓ '+(O.ch==='sms'?'Mobile number':'Email address')+' verified');
         afterVerify();

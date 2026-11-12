@@ -10,6 +10,7 @@
 // (Optional) TASKFLOW_TEST_MODE = "1" to log instead of forwarding while testing.
 
 import { checkVerified, normalisePhone, normaliseEmail } from "../lib/otp.js";
+import { forget } from "../lib/dropoff.js";
 
 // Canonical payload template — every key TaskFlow expects, defaulting to null.
 // Keys and casing must match exactly (note the capital-X on two of them).
@@ -196,7 +197,7 @@ function rateLimited(ip) {
   return recent.length > RL_MAX;
 }
 
-function buildPayload(data) {
+export function buildPayload(data) {
   // Start from a deep copy of the template so every key is present with the
   // exact name/casing, then overlay only the keys the client actually sent.
   const out = JSON.parse(JSON.stringify(TEMPLATE));
@@ -316,6 +317,8 @@ export default async (req) => {
     return json(500, { ok: false, error: "Webhook URL not configured" });
   }
 
+  // Outcome / drop-off tag are set server-side only (the drop-off sweep uses its own values).
+  delete data["x_application_outcome"]; delete data["x_tag_two"];
   const payload = buildPayload(data);
   // The TaskFlow webhook does not (yet) map the existing-customer flag onto the
   // lead's "Currently have a student loan?" box, so also say it in the note.
@@ -341,6 +344,7 @@ export default async (req) => {
     if (!resp.ok) {
       return json(502, { ok: false, error: "TaskFlow rejected the request", status: resp.status, detail: text.slice(0, 500) });
     }
+    if (vt) await forget(vt.ch, vt.to); // finished: not a drop-off
     return json(200, { ok: true, status: resp.status });
   } catch (err) {
     return json(502, { ok: false, error: "Could not reach TaskFlow", detail: String(err).slice(0, 200) });
