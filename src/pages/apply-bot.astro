@@ -55,6 +55,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     </div>
   </div>
 
+  <script type="application/json" id="ab-inst-data" set:html={JSON.stringify(INSTITUTIONS.map((i) => ({ n: i.name, tf: i.tf || i.name })))}></script>
   <datalist id="ab-inst-list">
     {INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
   </datalist>
@@ -156,6 +157,36 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
   var SPONSOR_INTRO="Who is a sponsor?\n\nYour sponsor is the person who takes out the loan to fund the studies. The loan is in their name and they are responsible for the monthly instalments, so they must be employed or earn a reliable income. A sponsor is usually a parent, guardian, spouse or family member.\n\nBecause the loan is assessed on the sponsor's income and credit profile, Manati will contact them to get their consent and supporting documents before the application can be finalised.";
 
+  // ---- Institution matching: only names TaskFlow recognises reach the lead ----
+  var INST=[]; try{ INST=JSON.parse(document.getElementById('ab-inst-data').textContent)||[]; }catch(e){}
+  function instKey(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
+  // Common ways applicants type institutions we fund -> [display name, exact TaskFlow name]
+  var INST_ALIASES={
+    'uct':['University of Cape Town (UCT)','University of Cape Town (UCT)'],
+    'universityofcapetown':['University of Cape Town (UCT)','University of Cape Town (UCT)'],
+    'milpark':['Milpark Education','Milpark Education (part of Stadio Holdings)'],
+    'milparkeducation':['Milpark Education','Milpark Education (part of Stadio Holdings)'],
+    'stadio':['Stadio','Stadio'],
+    'stadiocollege':['Stadio','Stadio'],
+    'stadiohighereducation':['Stadio','Stadio'],
+    'zaioinstituteoftechnology':['ZAIO','ZAIO'],
+    'hyperion':['HyperionDev','HyperionDev'],
+    'hillcross':['HillCross College','HC College'],
+    'lyceumcorrespondencecollege':['Lyceum College','Lyceum Correspondence College']
+  };
+  function resolveInst(v){
+    var k=instKey(v); if(!k) return null;
+    for(var a=0;a<INST.length;a++){ if(instKey(INST[a].n)===k) return {n:INST[a].n, tf:INST[a].tf}; }
+    if(INST_ALIASES[k]) return {n:INST_ALIASES[k][0], tf:INST_ALIASES[k][1]};
+    // campus or extra words after a known name, e.g. "Eduvos Midrand"
+    var best=null; for(var b=0;b<INST.length;b++){ var nk=instKey(INST[b].n); if(nk.length>=5 && k.indexOf(nk)===0 && (!best || nk.length>instKey(best.n).length)) best=INST[b]; }
+    return best?{n:best.n, tf:best.tf}:null;
+  }
+  function instCheck(v){ return resolveInst(v)?null:"Please pick the institution from the list as you type. If it isn't there, tap \"My institution isn't listed\" below."; }
+  function instSet(v){ var r=resolveInst(v); S.institution=r.n; S.institution_tf=r.tf; S.institution_unlisted=false; return r.n; }
+  function instUnlisted(v){ S.institution=(String(v||'').trim())||'Not listed'; S.institution_tf=null; S.institution_unlisted=true; return S.institution; }
+  function isUnlisted(){return S.institution_unlisted===true;}
+
   function isStudent(){return S.who==='Student';}
   function selfFunded(){return S.who==='Student' && S.employed_studying==='Yes';}
   function notSelf(){return !selfFunded();}
@@ -179,7 +210,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     {t:'intro', q:["Hi! I'm Nati 👋 I'll guide you through your Manati funding application. It takes about 5 minutes."], o:[{l:"Let's begin →",v:"start"}]},
     {k:'wa_channel', t:'wachoice', html:WA_NOTICE_HTML, o:[{l:"Yes, you may contact me on WhatsApp",v:"WhatsApp"},{l:"No, please use SMS or email",v:"SMS/email"}]},
     {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
-    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:req},
+    {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:instCheck, set:instSet, alt:{l:"My institution isn't listed", f:instUnlisted}},
+    {t:'info', when:isUnlisted, q:[function(){return "Thanks. Manati funds students at selected partner institutions, and "+S.institution+" isn't on our list at the moment, so we may not be able to fund this course.\n\nYou're welcome to carry on with your application, and a consultant will let you know whether we can help.";}], o:[{l:"Carry on →",v:"ok"}]},
     {k:'who', t:'choice', q:["Are you the student, or a sponsor supporting the student? (A sponsor is a parent, guardian, spouse or family member applying with their income.)"], o:[{l:"I'm the student",v:"Student"},{l:"I'm a parent / sponsor",v:"Sponsor"}]},
     {k:'employed_studying', t:'choice', when:isStudent, q:["Are you currently employed, and will you remain employed while studying?"], o:yn},
     {k:'otp', t:'otp', when:needOtp, q:[function(){return "One quick security step: we'll SMS a 6-digit code to "+(S.who==='Sponsor'?"your (the sponsor's)":"your")+" mobile number.\n\nThis protects you. It makes sure only you can apply using your number, so no one else can apply in your name.";}]},
@@ -295,7 +327,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     set('x_student-x_state_id', S.student_province);
 
     // Studies
-    set('x_crm.lead-x_educational_institution_id',S.institution); // confirm key (Landbot writes ei_id)
+    set('x_crm.lead-x_educational_institution_id',S.institution_tf||S.institution); // exact TaskFlow name so the EI links
+    if(S.institution_unlisted) set('x_crm.lead-x_name_of_campus', 'Not on Nati list: '+S.institution);
     set('x_student_course_duration',S.course_duration);
     set('x_crm.lead-x_self_funded', self ? 'Yes' : 'No');
 
@@ -578,9 +611,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     // single text/email/tel input
     var pfx=step.pfx?'<span class="pfx">'+esc(step.pfx)+'</span>':'';
     var listAttr=step.list?(' list="'+step.list+'" autocomplete="off"'):'';
-    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+(step.t==='num'?'number':step.t)+'"'+listAttr+' placeholder="'+esc(step.ph||'')+'"></div><button class="ab-send" id="ab-go" type="button">Send</button></div><div class="ab-err" id="ab-err"></div>';
+    dock.innerHTML='<div class="ab-field"><div class="ab-ip '+(step.pfx?'has-pfx':'')+'">'+pfx+'<input id="ab-inp" type="'+(step.t==='num'?'number':step.t)+'"'+listAttr+' placeholder="'+esc(step.ph||'')+'"></div><button class="ab-send" id="ab-go" type="button">Send</button></div><div class="ab-err" id="ab-err"></div>'+(step.alt?'<div class="ab-hint"><button class="ab-linkbtn" id="ab-alt" type="button">'+esc(step.alt.l)+'</button></div>':'');
     var inp=document.getElementById('ab-inp'); if(S[step.k]!==undefined) inp.value=S[step.k]; inp.focus();
-    function go(){var v=inp.value; if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} S[step.k]=(v||'').trim(); addMe(v.trim()); advance();}
+    function go(){var v=inp.value; if(step.v){var e=step.v(v||''); if(e){document.getElementById('ab-err').textContent=e;return;}} var shown=step.set?step.set(v):(S[step.k]=(v||'').trim()); addMe(shown); advance();}
+    if(step.alt){ document.getElementById('ab-alt').onclick=function(){ var v=(inp.value||'').trim(); if(!v){document.getElementById('ab-err').textContent="Please type the name of your institution first.";return;} addMe(step.alt.f(v)); advance(); }; }
     document.getElementById('ab-go').onclick=go;
     inp.addEventListener('keydown',function(e){if(e.key==='Enter')go();});
   }
