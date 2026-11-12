@@ -1,7 +1,7 @@
 // Scheduled Netlify Function: every 30 minutes, send verified applicants who
 // did not finish within 2 hours to TaskFlow as a "Nati drop-off" lead.
-// Switched off unless DROPOFF_ENABLED=1 (TaskFlow needs the "Nati drop-off"
-// stage and the webhook mapping for it first).
+// Switched off unless DROPOFF_ENABLED=1. Leads land in the TaskFlow stage
+// "Nati drop-off" (Applications team) via x_automatic_stage_update.
 import { store, DROPOFF_AFTER_MS, DROPOFF_MAX_AGE_MS } from "../lib/dropoff.js";
 import { buildPayload } from "./apply.js";
 
@@ -23,7 +23,7 @@ export default async () => {
     const local = rec.phone && /^27\d{9}$/.test(rec.phone) ? "0" + rec.phone.slice(2) : rec.phone;
     const data = {
       "x_student_or_sponsor": rec.who,
-      "x_application_outcome": "Nati drop-off",
+      "x_automatic_stage_update": "Nati drop-off", // TaskFlow stage (Applications team)
       "x_tag_two": "Nati drop-off",
       "x_crm.lead-x_educational_institution_id": rec.institution,
       "x_crm.lead-x_current_student_loan": rec.existing,
@@ -34,8 +34,10 @@ export default async () => {
         (rec.existing === "Yes" ? " Says they are an EXISTING Manati customer." : "") +
         (rec.unlisted ? " Institution not on Nati's list: " + rec.institution + "." : "")
     };
-    if (sp) { data["x_sponsor.one-phone"] = local; data["x_sponsor.one-email"] = rec.email; }
-    else { data["x_student-phone"] = local; data["x_student-email"] = rec.email; }
+    // TaskFlow needs a contact name, so the contact step asks for it.
+    if (sp) { data["x_sponsor.one-name"] = rec.first; data["X_sponsor.one-surname"] = rec.last; data["x_sponsor.one-phone"] = local; data["x_sponsor.one-email"] = rec.email; }
+    else { data["x_student-x_name"] = rec.first; data["x_student-x_surname"] = rec.last; data["x_student-phone"] = local; data["x_student-email"] = rec.email; }
+    if (!rec.first) { await s.delete(b.key); dropped++; continue; }
     if (rec.unlisted) { delete data["x_crm.lead-x_educational_institution_id"]; data["x_crm.lead-x_name_of_campus"] = "Not on Nati list: " + rec.institution; }
     const payload = buildPayload(data);
     try {

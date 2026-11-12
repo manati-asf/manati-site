@@ -18,6 +18,8 @@ const TEMPLATE = {
   "x_bot_id": null,
   "x_header": null,
   "x_stage": null,
+  // Moves a NEW lead into the TaskFlow stage with exactly this name (Applications team). Server-set only.
+  "x_automatic_stage_update": null,
   "x_application_outcome": null,
   "x_decline_reason": null,
   "x_applying_device": null,
@@ -318,7 +320,7 @@ export default async (req) => {
   }
 
   // Outcome / drop-off tag are set server-side only (the drop-off sweep uses its own values).
-  delete data["x_application_outcome"]; delete data["x_tag_two"];
+  delete data["x_application_outcome"]; delete data["x_tag_two"]; delete data["x_automatic_stage_update"];
   const payload = buildPayload(data);
   // The TaskFlow webhook does not (yet) map the existing-customer flag onto the
   // lead's "Currently have a student loan?" box, so also say it in the note.

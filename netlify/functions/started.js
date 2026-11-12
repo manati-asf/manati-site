@@ -17,6 +17,7 @@ export default async (req) => {
   const rec = {
     at: Date.now(), ch: vt.ch, to: vt.to,
     who: d.who === "Sponsor" ? "Sponsor" : "Student",
+    first: clip(d.first, 60), last: clip(d.last, 60),
     phone: normalisePhone(d.phone) || clip(d.phone, 20),
     email: normaliseEmail(d.email),
     institution: clip(d.institution, 120), unlisted: !!d.unlisted,
