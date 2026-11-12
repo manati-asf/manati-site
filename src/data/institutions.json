@@ -100,6 +100,7 @@
  },
  {
   "name": "Agricolleges International",
+  "tf": "AGRICOLLEGES International",
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
@@ -334,6 +335,7 @@
  },
  {
   "name": "HillCross College",
+  "tf": "HC College",
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
@@ -469,6 +471,7 @@
  },
  {
   "name": "Lyceum College",
+  "tf": "Lyceum Correspondence College",
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
@@ -631,6 +634,7 @@
  },
  {
   "name": "Rosebank international",
+  "tf": "Rosebank International",
   "rule": "multiple",
   "multiplier": 2,
   "cap": 48,
