@@ -29,14 +29,20 @@ export default async () => {
       "x_crm.lead-x_current_student_loan": rec.existing,
       "x_whatsapp_consent": rec.wa === "WhatsApp" ? "Yes" : "No",
       "x_contact_channel": rec.wa,
-      "x_special_instruction": "Nati drop-off: verified their " + (rec.ch === "sms" ? "mobile number" : "email address") +
+      "x_special_instruction": "Nati drop-off (" + (sp ? "sponsor" : "student") + "): verified their " + (rec.ch === "sms" ? "mobile number" : "email address") +
         " on " + new Date(rec.at).toISOString().replace("T", " ").slice(0, 16) + " UTC but did not finish the application." +
         (rec.existing === "Yes" ? " Says they are an EXISTING Manati customer." : "") +
         (rec.unlisted ? " Institution not on Nati's list: " + rec.institution + "." : "")
     };
     // TaskFlow needs a contact name, so the contact step asks for it.
     if (sp) { data["x_sponsor.one-name"] = rec.first; data["X_sponsor.one-surname"] = rec.last; data["x_sponsor.one-phone"] = local; data["x_sponsor.one-email"] = rec.email; }
-    else { data["x_student-x_name"] = rec.first; data["x_student-x_surname"] = rec.last; data["x_student-phone"] = local; data["x_student-email"] = rec.email; }
+    else {
+      data["x_student-x_name"] = rec.first; data["x_student-x_surname"] = rec.last; data["x_student-phone"] = local; data["x_student-email"] = rec.email;
+      // TaskFlow builds the lead's main contact from the sponsor fields and rejects the lead
+      // without them, so a student's drop-off also goes in as the main contact (as self-funded
+      // applications do). The note says it is the student.
+      data["x_sponsor.one-name"] = rec.first; data["X_sponsor.one-surname"] = rec.last; data["x_sponsor.one-phone"] = local; data["x_sponsor.one-email"] = rec.email;
+    }
     if (!rec.first) { await s.delete(b.key); dropped++; continue; }
     if (rec.unlisted) { delete data["x_crm.lead-x_educational_institution_id"]; data["x_crm.lead-x_name_of_campus"] = "Not on Nati list: " + rec.institution; }
     const payload = buildPayload(data);
