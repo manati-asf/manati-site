@@ -46,6 +46,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       <div class="ab-head">
         <div class="ab-av">N</div>
         <div class="ab-head-t"><div class="ab-logo">Nati</div><div class="ab-sub">Manati application assistant</div></div>
+        <button id="ab-back" class="ab-back" type="button" aria-label="Go back one step" hidden>&#8249; Back</button>
         <button id="ab-close" class="ab-close" type="button" aria-label="Close">&times;</button>
       </div>
       <div class="ab-prog"><i id="ab-bar"></i></div>
@@ -72,7 +73,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   /* Overlay + device */
   .ab-overlay{position:fixed;inset:0;z-index:9999;background:rgba(20,18,16,.55);display:flex;align-items:center;justify-content:center;padding:24px}
   .ab-overlay[hidden]{display:none}
-  .ab-device{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;width:440px;max-width:100%;height:660px;max-height:92vh;font-family:'Duru Sans',system-ui,sans-serif}
+  .ab-device{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;width:520px;max-width:100%;height:780px;max-height:94vh;font-family:'Duru Sans',system-ui,sans-serif}
   .ab-head{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:11px}
   .ab-av{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy)}
   .ab-head-t{flex:1;min-width:0}
@@ -80,6 +81,9 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   .ab-sub{font-size:12px;color:#cfc9bd}
   .ab-close{background:transparent;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 4px;opacity:.85}
   .ab-close:hover{opacity:1}
+  .ab-back{background:rgba(255,255,255,.12);border:0;color:#fff;font:inherit;font-size:13px;border-radius:999px;padding:6px 12px;cursor:pointer}
+  .ab-back:hover{background:rgba(255,255,255,.22)}
+  .ab-back[hidden]{display:none}
   .ab-prog{height:4px;background:#efece4}
   .ab-prog>i{display:block;height:100%;width:0;background:var(--gold);transition:width .4s}
   .ab-chat{flex:1;min-height:0;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
@@ -288,7 +292,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       {k:'student_gender', label:function(){return selfFunded()?"Gender":"Gender (optional)";}, type:'select', opt:function(){return !selfFunded();}, options:GENDER},
       {k:'student_ethnicity', label:function(){return selfFunded()?"Population group":"Population group (optional)";}, type:'select', opt:function(){return !selfFunded();}, options:ETHNIC},
       {k:'student_province', label:"Province of residence", type:'select', options:PROV}
-    ], match:[['student_phone','student_phone2',"The mobile numbers don't match."],['student_email','student_email2',"The email addresses don't match."]], done:"✓ Student details captured"},
+    ], match:[['student_phone','student_phone2',"The mobile numbers don't match."],['student_email','student_email2',"The email addresses don't match."]], warn:sharedContactWarn, done:"✓ Student details captured"},
 
     // ---- Self-funded student: the student is the earner ----
     {t:'form', when:selfFunded, title:"Your income & banking", fields:[
@@ -307,6 +311,29 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   ];
 
   var i=-1;
+  // Sponsor path: the student's contact details should be their own, not the sponsor's.
+  function digits(v){ var d=String(v||'').replace(/\D/g,''); return d.slice(-9); }
+  function sharedContactWarn(v){
+    if(!notSelf()) return null;
+    var p=v.student_phone && digits(v.student_phone)===digits(S.s1_phone);
+    var e=v.student_email && String(v.student_email).toLowerCase()===String(S.s1_email||'').toLowerCase();
+    if(!p && !e) return null;
+    return "The student's "+(p&&e?"mobile number and email address are":p?"mobile number is":"email address is")+" the same as the sponsor's. Please use the student's own details if they have them. If not, tap Continue again.";
+  }
+  // Back button: remembers where each step started in the chat so it can be undone.
+  var HIST=[], RUN=0, BUSY=false;
+  var backBtn=document.getElementById('ab-back');
+  function showBack(step){ backBtn.hidden = BUSY || HIST.length<2 || step.t==='done'; }
+  function goBack(){
+    if(BUSY || HIST.length<2) return;
+    HIST.pop();
+    var prev;
+    do { prev=HIST.pop(); } while(prev && HIST.length && FLOW[prev.i].when && !FLOW[prev.i].when());
+    if(!prev) return;
+    while(chat.childElementCount>prev.n) chat.removeChild(chat.lastChild);
+    i=prev.i; runStep();
+  }
+  backBtn.onclick=goBack;
   var EDIT_FROM=0; for(var _z=0;_z<FLOW.length;_z++){ if(FLOW[_z].k==='institution'){ EDIT_FROM=_z; break; } }
   function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">N</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
@@ -426,13 +453,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
   async function submitApp(){
     if(_tsKey && !_tsToken){ var ee=document.getElementById('ab-err'); if(ee) ee.textContent="Please complete the verification check above."; return; }
-    addMe('Submit ✓');
+    addMe('Submit ✓'); BUSY=true; backBtn.hidden=true;
     dock.innerHTML='<div class="ab-hint">Submitting your application…</div>';
     try{
       var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:_tsToken,verifiedToken:S.vtok||''})});
       var out=await res.json().catch(function(){return {};});
       if(res.ok && out.ok){
-        finished=true;
+        finished=true; HIST=[];
         addBot("🎉 Thank you! Your application has been submitted.\n\nWhat happens next: a Manati consultant will contact you shortly to request your supporting documents securely. The sooner we receive them, the sooner we can finalise your application, so please have them ready.");
         if(notSelf()){
           addBot("A quick heads-up: please let your sponsor know that Manati will contact them directly for their consent and supporting documents. We can only finalise the application once we have both, so letting them know now helps avoid delays.");
@@ -442,12 +469,13 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
       } else {
         addBot("Something went wrong submitting your application. Please try again, or email applications@manati.co.za.");
         _tsToken='';
+        BUSY=false; showBack(FLOW[i]);
         render(FLOW[i]); // re-render the review with a fresh verification check
         var e2=document.getElementById('ab-err'); if(e2) e2.textContent=(out&&out.error)||('Error '+res.status);
       }
     }catch(e){
       addBot("We couldn't reach our servers just now. Please try again in a moment.");
-      _tsToken='';
+      _tsToken=''; BUSY=false; showBack(FLOW[i]);
       render(FLOW[i]);
     }
   }
@@ -608,6 +636,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
           });
         }
         if(!ok){ document.getElementById('ab-err').textContent=err; return; }
+        if(step.warn){ var vals={}; step.fields.forEach(function(f){ vals[f.k]=(dock.querySelector('[data-k="'+f.k+'"]').value||'').trim(); }); var w=step.warn(vals); if(w && dock.getAttribute('data-warned')!==w){ dock.setAttribute('data-warned',w); document.getElementById('ab-err').textContent=w; return; } }
         step.fields.forEach(function(f){ var el=dock.querySelector('[data-k="'+f.k+'"]'); var val=(el.value||'').trim(); if(val) S[f.k]=val; });
         addMe(step.done||"✓ Captured"); advance();
       };
@@ -657,10 +686,11 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   }
 
   function runStep(){
-    prog(); var step=FLOW[i];
+    prog(); var step=FLOW[i]; var run=++RUN;
+    HIST.push({i:i, n:chat.childElementCount}); dock.innerHTML=''; showBack(step);
     var msgs=(step.q||[]).map(function(m){return typeof m==='function'?m():m;});
     var k=0;
-    (function next(){ if(k>=msgs.length){render(step);return;} addBot(msgs[k]); k++; setTimeout(next,280); })();
+    (function next(){ if(run!==RUN) return; if(k>=msgs.length){render(step);return;} addBot(msgs[k]); k++; setTimeout(next,280); })();
   }
   function advance(){
     do { i++; } while(i<FLOW.length && (FLOW[i].sec || (FLOW[i].when && !FLOW[i].when())));

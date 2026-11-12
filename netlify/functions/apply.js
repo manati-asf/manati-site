@@ -326,7 +326,23 @@ export default async (req) => {
   // lead's "Currently have a student loan?" box, so also say it in the note.
   const existingNote = data["x_crm.lead-x_current_student_loan"] === "Yes"
     ? "Applicant says they are an EXISTING Manati customer." : null;
-  const lead = [existingNote, verifiedNote].filter(Boolean).join(" ");
+  // Sponsor applications: flag when the student's contact details are the sponsor's own
+  // (the student may be applying in the sponsor's name). Self-funded students are skipped,
+  // because there the "sponsor" fields hold the student's own details.
+  let sharedNote = null;
+  {
+    if (data["x_crm.lead-x_self_funded"] !== "Yes") {
+      const d9 = (v) => String(v || "").replace(/\D/g, "").slice(-9);
+      const samePhone = d9(data["x_sponsor.one-phone"]) && d9(data["x_sponsor.one-phone"]) === d9(data["x_student-phone"]);
+      const sameEmail = normaliseEmail(data["x_sponsor.one-email"]) && normaliseEmail(data["x_sponsor.one-email"]) === normaliseEmail(data["x_student-email"]);
+      if (samePhone || sameEmail) {
+        const what = samePhone && sameEmail ? "mobile number and email address" : samePhone ? "mobile number" : "email address";
+        sharedNote = "CHECK: the sponsor and the student gave the same " + what + ". The student may be applying in the sponsor's name. Confirm with the sponsor directly before any credit check.";
+        payload["x_tag_two"] = "Check: shared contact details";
+      }
+    }
+  }
+  const lead = [sharedNote, existingNote, verifiedNote].filter(Boolean).join(" ");
   if (lead) {
     payload["x_special_instruction"] = payload["x_special_instruction"] ? lead + " " + payload["x_special_instruction"] : lead;
   }
