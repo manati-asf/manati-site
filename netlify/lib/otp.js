@@ -13,7 +13,7 @@
 import crypto from "node:crypto";
 
 export const CODE_TTL_MS = 10 * 60 * 1000;      // a code is valid for 10 minutes
-export const VERIFIED_TTL_MS = 3 * 60 * 60 * 1000; // a verified number stays valid for 3 hours
+export const VERIFIED_TTL_MS = 24 * 60 * 60 * 1000; // a verified number stays valid for 24 hours (sponsor details can take a while)
 
 export const json = (status, obj) => new Response(JSON.stringify(obj), {
   status,
