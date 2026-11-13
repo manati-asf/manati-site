@@ -4,6 +4,7 @@
 // "Nati drop-off" (Applications team) via x_automatic_stage_update.
 import { store, DROPOFF_AFTER_MS, DROPOFF_MAX_AGE_MS } from "../lib/dropoff.js";
 import { buildPayload } from "./apply.js";
+import { hasOpenApplication, tfConfigured } from "../lib/tfread.js";
 
 export const config = { schedule: "*/30 * * * *" };
 
@@ -45,6 +46,14 @@ export default async () => {
     }
     if (!rec.first) { await s.delete(b.key); dropped++; continue; }
     if (rec.unlisted) { delete data["x_crm.lead-x_educational_institution_id"]; data["x_crm.lead-x_name_of_campus"] = "Not on Nati list: " + rec.institution; }
+    // Never send a drop-off for someone who already has an open application in
+    // TaskFlow (e.g. they applied through Student Hero or another route): the
+    // webhook would update that real lead. If the check fails, try again later.
+    if (tfConfigured()) {
+      try {
+        if (await hasOpenApplication(rec.phone, rec.email)) { await s.delete(b.key); dropped++; console.log("dropoff skipped: open application exists"); continue; }
+      } catch (e) { console.log("dropoff check failed, will retry", String(e).slice(0, 120)); continue; }
+    }
     const payload = buildPayload(data);
     try {
       const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
