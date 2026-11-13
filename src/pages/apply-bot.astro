@@ -335,6 +335,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   }
   backBtn.onclick=goBack;
   var EDIT_FROM=0; for(var _z=0;_z<FLOW.length;_z++){ if(FLOW[_z].k==='institution'){ EDIT_FROM=_z; break; } }
+  var OTP_IDX=0, REVIEW_IDX=0; for(var _y=0;_y<FLOW.length;_y++){ if(FLOW[_y].t==='otp') OTP_IDX=_y; if(FLOW[_y].t==='review') REVIEW_IDX=_y; }
   function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">N</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function prog(){bar.style.width=Math.round((i/(FLOW.length-1))*100)+'%';}
@@ -466,6 +467,11 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         }
         dock.innerHTML='<div class="ab-field"><button class="ab-send" id="ab-doneb" style="flex:1">Close</button></div>';
         document.getElementById('ab-doneb').onclick=closeWidget;
+      } else if(res.status===403 && /verify/i.test((out&&out.error)||'')){
+        // The verification code has expired (or no longer matches): ask for a new one, then return to the review.
+        BUSY=false; _tsToken=''; S.vtok=null; S.vwho=null; S._reverify=true; if(S._otp) S._otp.phase='enter';
+        addBot("For your security, we need to confirm it's you once more before we submit. We'll send a new code, then bring you straight back here.");
+        i=OTP_IDX; runStep();
       } else {
         addBot("Something went wrong submitting your application. Please try again, or email applications@manati.co.za.");
         _tsToken='';
@@ -497,6 +503,8 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     if(/_(phone|email)$/.test(k)) S[k+'2']=v;
   }
   async function afterVerify(){
+    // Re-verified at the end (the earlier code had expired): go straight back to the review.
+    if(S._reverify){ S._reverify=false; i=REVIEW_IDX; runStep(); return; }
     if(S.existing_customer!=='Yes'){ advance(); return; }
     dock.innerHTML='<div class="ab-hint">Looking up your previous application…</div>';
     var out=await postJSON('/api/lookup',{verifiedToken:S.vtok,role:S.who});
