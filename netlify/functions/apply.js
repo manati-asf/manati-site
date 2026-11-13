@@ -362,7 +362,13 @@ export default async (req) => {
     if (!resp.ok) {
       return json(502, { ok: false, error: "TaskFlow rejected the request", status: resp.status, detail: text.slice(0, 500) });
     }
-    if (vt) await forget(vt.ch, vt.to); // finished: not a drop-off
+    // Finished: not a drop-off. Clear the record for the verified identity and for every
+    // mobile/email on the application, in case they verified more than once (e.g. mobile, then email).
+    const done = new Set();
+    if (vt) done.add(vt.ch + "|" + vt.to);
+    for (const k of ["x_sponsor.one-phone", "x_student-phone"]) { const p = normalisePhone(data[k]); if (p) done.add("sms|" + p); }
+    for (const k of ["x_sponsor.one-email", "x_student-email"]) { const e = normaliseEmail(data[k]); if (e) done.add("email|" + e); }
+    for (const d of done) { const i = d.indexOf("|"); await forget(d.slice(0, i), d.slice(i + 1)); }
     return json(200, { ok: true, status: resp.status });
   } catch (err) {
     return json(502, { ok: false, error: "Could not reach TaskFlow", detail: String(err).slice(0, 200) });
