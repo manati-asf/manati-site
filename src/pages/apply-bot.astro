@@ -469,7 +469,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         document.getElementById('ab-doneb').onclick=closeWidget;
       } else if(res.status===403 && /verify/i.test((out&&out.error)||'')){
         // The verification code has expired (or no longer matches): ask for a new one, then return to the review.
-        BUSY=false; _tsToken=''; S.vtok=null; S.vwho=null; S._reverify=true; if(S._otp) S._otp.phase='enter';
+        BUSY=false; _tsToken=''; S.vtok=null; S.vwho=null; S._reverify=true;
+        // Pre-fill the code step with the details they already gave (the earlier code step was cleared).
+        var rsp=(S.who==='Sponsor');
+        S._otp={ch:S.vch||'sms', phase:'enter', fn:rsp?S.s1_first:S.student_first, ln:rsp?S.s1_last:S.student_last, mob:rsp?S.s1_phone:S.student_phone, em:rsp?S.s1_email:S.student_email};
         addBot("For your security, we need to confirm it's you once more before we submit. We'll send a new code, then bring you straight back here.");
         i=OTP_IDX; runStep();
       } else {
