@@ -15,7 +15,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 // (existing-customer, ID type, demographics) and institution → ei_id mapping are best-guess;
 // test mode (TASKFLOW_TEST_MODE=1) echoes the exact payload so these can be verified.
 ---
-<Base title="Apply for funding — Manati" description="Apply for a Manati study loan online. Nati, our application assistant, will guide you through a few quick questions — it takes about 5 minutes.">
+<Base title="Apply for funding — Manati" description="Apply for a Manati study loan online. Nati, our application assistant, will guide you through a few quick questions. It takes about 5 to 10 minutes.">
   <Header />
   {TS_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
   <div id="ab-ts" data-sitekey={TS_SITE_KEY} style="display:none"></div>
@@ -24,7 +24,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     <div class="wrap">
       <span class="eyebrow">Apply now</span>
       <h1>Apply for funding</h1>
-      <p>Our new in-house application — Nati will guide you through a few quick questions. It takes about 5 minutes.</p>
+      <p>Our new in-house application. Nati will guide you through a few quick questions. It takes about 5 to 10 minutes if you have your ID number and the yearly tuition fee ready, plus your sponsor's ID number, income and bank if a sponsor is helping you.</p>
       <p style="margin-top:18px"><button id="ab-open-hero" class="btn btn-primary" type="button">Start your application →</button></p>
     </div>
   </section>
@@ -227,7 +227,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
   // Flow. Types: intro|info|choice|text|consent|form|review|done
   var FLOW=[
-    {t:'intro', q:["Hi! I'm Nati 👋 I'll guide you through your Manati funding application. It takes about 5 minutes."], o:[{l:"Let's begin →",v:"start"}]},
+    {t:'intro', q:["Hi! I'm Nati 👋 I'll guide you through your Manati funding application. It takes about 5 to 10 minutes.","To make it quick, please have these ready: your ID number and the yearly tuition fee. If a sponsor is helping you, you'll also need their ID number, monthly income and bank."], o:[{l:"Let's begin →",v:"start"}]},
     {k:'wa_channel', t:'wachoice', html:WA_NOTICE_HTML, o:[{l:"Yes, you may contact me on WhatsApp",v:"WhatsApp"},{l:"No, please use SMS or email",v:"SMS/email"}]},
     {k:'existing_customer', t:'choice', q:["Are you an existing Manati customer (do you currently have a Manati loan from a previous year of study)?"], o:[{l:"No, this is my first Manati application",v:"No"},{l:"Yes, I am an existing Manati customer",v:"Yes"}]},
     {k:'institution', t:'text', q:["Which educational institution will the student study at? Start typing and pick from the list."], ph:"Start typing your institution…", list:'ab-inst-list', v:instCheck, set:instSet, suggest:suggestInst, alt:{l:"My institution isn't listed", f:instUnlisted}},
