@@ -11,7 +11,7 @@
 
 import { checkVerified, normalisePhone, normaliseEmail } from "../lib/otp.js";
 import { forget } from "../lib/dropoff.js";
-import { approvedCampaign } from "../lib/campaign.js";
+import { approvedCampaign, campaignTag } from "../lib/campaign.js";
 import { ID_KEYS, normaliseId, badSaId } from "../lib/said.js";
 
 // Canonical payload template — every key TaskFlow expects, defaulting to null.
@@ -334,7 +334,7 @@ export default async (req) => {
   }
   // Campaign tags from a tracked link, only if they match the Link Tracker (see lib/campaign.js).
   const camp = await approvedCampaign(body && body.campaign);
-  if (camp) { payload["x_tag_three"] = camp.source; payload["x_tag_four"] = camp.campaign; }
+  if (camp) payload["x_tag_four"] = campaignTag(camp); // x_tag_three is ignored by TaskFlow, see campaign.js
   // The TaskFlow webhook does not (yet) map the existing-customer flag onto the
   // lead's "Currently have a student loan?" box, so also say it in the note.
   const existingNote = data["x_crm.lead-x_current_student_loan"] === "Yes"

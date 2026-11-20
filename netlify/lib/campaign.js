@@ -4,7 +4,13 @@
 // redirect here with utm_campaign / utm_source in the address. The browser keeps
 // those two values for the session (see Base.astro) and sends them with the
 // application and the drop-off record. This file decides whether they may become
-// TaskFlow tags: x_tag_three = source, x_tag_four = campaign.
+// a TaskFlow tag.
+//
+// Campaign and source are still checked as two separate values against the Link
+// Tracker. They are only combined into one tag (x_tag_four, "Campaign - Source")
+// when the lead is sent, because TaskFlow's bot_webhook ignores x_tag_three
+// (confirmed in the 19 Nov 2026 test). Once TaskFlow maps campaign and source
+// into the lead's own Campaign and Source fields, campaignTag() can go.
 //
 // TaskFlow creates a tag for any new value it receives, so a value is only used
 // when it matches a tracked link that exists in the Link Tracker and points to
@@ -35,6 +41,14 @@ function fromFallback(campaign, source) {
   if (!key) return null;
   const src = source ? FALLBACK[key].find((x) => x.toLowerCase() === source.toLowerCase()) || null : null;
   return { campaign: key, source: src };
+}
+
+// The one tag sent to TaskFlow for an approved campaign: "Campaign - Source",
+// or just the campaign when no approved source came with it. null when there
+// is no approved campaign.
+export function campaignTag(c) {
+  if (!c || !c.campaign) return null;
+  return c.source ? c.campaign + " - " + c.source : c.campaign;
 }
 
 const CACHE_MS = 10 * 60 * 1000;

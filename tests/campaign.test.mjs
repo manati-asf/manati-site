@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-const { clean, approvedCampaign } = await import("../netlify/lib/campaign.js");
+const { clean, approvedCampaign, campaignTag } = await import("../netlify/lib/campaign.js");
 
 test("clean() accepts real names and rejects junk", () => {
   assert.equal(clean("UCT Posters 2027"), "UCT Posters 2027");
@@ -15,6 +15,13 @@ test("clean() accepts real names and rejects junk", () => {
   assert.equal(clean(""), null);
   assert.equal(clean(undefined), null);
   assert.equal(clean(["UCT"]), null);
+});
+
+test("campaignTag() combines only approved values", () => {
+  assert.equal(campaignTag({ campaign: "UCT Posters 2027", source: "UCT Poster 1" }), "UCT Posters 2027 - UCT Poster 1");
+  assert.equal(campaignTag({ campaign: "UCT Posters 2027", source: null }), "UCT Posters 2027");
+  assert.equal(campaignTag(null), null);
+  assert.equal(campaignTag({ campaign: null, source: "UCT Poster 1" }), null);
 });
 
 test("no TaskFlow login configured: fallback list, TaskFlow spelling", async () => {
@@ -75,8 +82,8 @@ test("apply: browser cannot set source or tags; approved campaign is added", asy
   assert.equal(edited["x_tag_three"], null);
   assert.equal(edited["x_tag_four"], "UCT Posters 2027");
   const good = await send({ campaign: "UCT Posters 2027", source: "UCT Poster 1" });
-  assert.equal(good["x_tag_three"], "UCT Poster 1");
-  assert.equal(good["x_tag_four"], "UCT Posters 2027");
+  assert.equal(good["x_tag_three"], null);
+  assert.equal(good["x_tag_four"], "UCT Posters 2027 - UCT Poster 1");
   const junk = await send({ campaign: "Junk Campaign", source: "UCT Poster 1" });
   assert.equal(junk["x_tag_three"], null);
   assert.equal(junk["x_tag_four"], null);
