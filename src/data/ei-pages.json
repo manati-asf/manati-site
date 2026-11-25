@@ -5,20 +5,201 @@
     "fullName": "STADIO Higher Education",
     "logo": "/assets/partners/stadio.png",
     "source": "STADIO",
-    "headline": "Fund your STADIO studies with a Manati study loan",
-    "intro": "An affordable, individually assessed study loan for STADIO students and their families. Manati pays STADIO directly, and you repay in monthly instalments. Apply online with Nati in about 10 minutes.",
-    "feesNote": "your STADIO fee quote or invoice for the year",
     "schools": [
-      { "label": "School of Administration & Management", "tf": "Stadio - School of Administration & Management" },
-      { "label": "School of Architecture & Engineering", "tf": "Stadio - School of Architecture & Engineering" },
-      { "label": "School of Arts & Humanities", "tf": "Stadio - School of Arts & Humanities" },
-      { "label": "School of Commerce", "tf": "Stadio - School of Commerce" },
-      { "label": "School of Education", "tf": "Stadio - School of Education" },
-      { "label": "School of Fashion", "tf": "Stadio - School of Fashion" },
-      { "label": "School of Information Technology", "tf": "Stadio - School of Information Technology" },
-      { "label": "School of Law", "tf": "Stadio - School of Law" },
-      { "label": "School of Media & Design", "tf": "Stadio - School of Media & Design" },
-      { "label": "School of Policing & Law Enforcement", "tf": "Stadio - School of Policing & Law Enforcement" }
+      {
+        "label": "School of Administration & Management",
+        "tf": "Stadio - School of Administration & Management"
+      },
+      {
+        "label": "School of Architecture & Engineering",
+        "tf": "Stadio - School of Architecture & Engineering"
+      },
+      {
+        "label": "School of Arts & Humanities",
+        "tf": "Stadio - School of Arts & Humanities"
+      },
+      {
+        "label": "School of Commerce",
+        "tf": "Stadio - School of Commerce"
+      },
+      {
+        "label": "School of Education",
+        "tf": "Stadio - School of Education"
+      },
+      {
+        "label": "School of Fashion",
+        "tf": "Stadio - School of Fashion"
+      },
+      {
+        "label": "School of Information Technology",
+        "tf": "Stadio - School of Information Technology"
+      },
+      {
+        "label": "School of Law",
+        "tf": "Stadio - School of Law"
+      },
+      {
+        "label": "School of Media & Design",
+        "tf": "Stadio - School of Media & Design"
+      },
+      {
+        "label": "School of Policing & Law Enforcement",
+        "tf": "Stadio - School of Policing & Law Enforcement"
+      }
+    ]
+  },
+  {
+    "slug": "afda",
+    "name": "AFDA",
+    "logo": "/assets/partners/afda.png",
+    "schools": [
+      {
+        "label": "AFDA",
+        "tf": "AFDA (part of Stadio Holdings)"
+      }
+    ]
+  },
+  {
+    "slug": "milpark",
+    "name": "Milpark",
+    "fullName": "Milpark Education",
+    "logo": "/assets/partners/milpark.png",
+    "schools": [
+      {
+        "label": "Milpark Education",
+        "tf": "Milpark Education (part of Stadio Holdings)"
+      }
+    ],
+    "logoBox": true
+  },
+  {
+    "slug": "blulever",
+    "name": "BluLever",
+    "fullName": "BluLever Education",
+    "logo": "/assets/partners/blulever.png",
+    "schools": [
+      {
+        "label": "BluLever Education",
+        "tf": "Blulever Education"
+      }
+    ]
+  },
+  {
+    "slug": "regenesys",
+    "name": "Regenesys",
+    "fullName": "Regenesys Education",
+    "logo": "/assets/partners/regenesys.png",
+    "schools": [
+      {
+        "label": "Regenesys Education",
+        "tf": "Regenesys Education"
+      }
+    ]
+  },
+  {
+    "slug": "eduvos",
+    "name": "Eduvos",
+    "logo": "/assets/partners/eduvos.png",
+    "schools": [
+      {
+        "label": "Eduvos",
+        "tf": "Eduvos"
+      }
+    ]
+  },
+  {
+    "slug": "tsiba",
+    "name": "TSIBA",
+    "fullName": "TSIBA Business School",
+    "logo": "/assets/partners/tsiba.png",
+    "schools": [
+      {
+        "label": "TSIBA Business School",
+        "tf": "TSIBA"
+      }
+    ]
+  },
+  {
+    "slug": "red-and-yellow",
+    "name": "Red & Yellow",
+    "fullName": "Red & Yellow Creative School of Business",
+    "logo": "/assets/partners/red-and-yellow.png",
+    "schools": [
+      {
+        "label": "Red & Yellow Creative School of Business",
+        "tf": "Red & Yellow Creative School of Business"
+      }
+    ]
+  },
+  {
+    "slug": "boston",
+    "name": "Boston",
+    "fullName": "Boston City Campus",
+    "logo": "/assets/partners/boston-city-campus.png",
+    "schools": [
+      {
+        "label": "Boston City Campus",
+        "tf": "Boston City Campus"
+      }
+    ]
+  },
+  {
+    "slug": "ihs-trainee",
+    "name": "IHS",
+    "fullName": "IHS Trainee Programme",
+    "logo": "/assets/partners/international-hotel-school.png",
+    "schools": [
+      {
+        "label": "IHS Trainee Programme",
+        "tf": "IHS Trainee Programme"
+      }
+    ],
+    "logoBox": true
+  },
+  {
+    "slug": "zaio",
+    "name": "Zaio",
+    "fullName": "Zaio Institute of Technology",
+    "logo": "/assets/partners/zaio.png",
+    "schools": [
+      {
+        "label": "Zaio Institute of Technology",
+        "tf": "ZAIO"
+      }
+    ]
+  },
+  {
+    "slug": "melsoft",
+    "name": "Melsoft",
+    "fullName": "Melsoft Academy",
+    "logo": "/assets/partners/melsoft.png",
+    "schools": [
+      {
+        "label": "Melsoft Academy",
+        "tf": "Melsoft Academy"
+      }
+    ]
+  },
+  {
+    "slug": "market-masters",
+    "name": "Market Masters",
+    "fullName": "Market Masters Program International",
+    "schools": [
+      {
+        "label": "Market Masters Program International",
+        "tf": "Market Masters Program International"
+      }
+    ]
+  },
+  {
+    "slug": "accelerate",
+    "name": "Accelerate",
+    "fullName": "Accelerate Management School",
+    "schools": [
+      {
+        "label": "Accelerate Management School",
+        "tf": "Accelerate Management School"
+      }
     ]
   }
 ]

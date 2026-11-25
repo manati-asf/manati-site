@@ -9,6 +9,21 @@ import INSTITUTIONS from '../data/institutions.json';
 interface Props { ei?: { name: string; schools: { label: string; tf: string }[] } | null; autoOpen?: boolean }
 const { ei = null, autoOpen = false } = Astro.props;
 const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+// Common ways applicants type institutions we fund -> [display name, exact TaskFlow name].
+// Only sent on the main apply page: institution pages carry their own institution only.
+const INST_ALIASES = {
+  'uct': ['University of Cape Town (UCT)', 'University of Cape Town (UCT)'],
+  'universityofcapetown': ['University of Cape Town (UCT)', 'University of Cape Town (UCT)'],
+  'milpark': ['Milpark Education', 'Milpark Education (part of Stadio Holdings)'],
+  'milparkeducation': ['Milpark Education', 'Milpark Education (part of Stadio Holdings)'],
+  'stadio': ['Stadio', 'Stadio'],
+  'stadiocollege': ['Stadio', 'Stadio'],
+  'stadiohighereducation': ['Stadio', 'Stadio'],
+  'zaioinstituteoftechnology': ['ZAIO', 'ZAIO'],
+  'hyperion': ['HyperionDev', 'HyperionDev'],
+  'hillcross': ['HillCross College', 'HC College'],
+  'lyceumcorrespondencecollege': ['Lyceum College', 'Lyceum Correspondence College']
+};
 ---
   {TS_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
   <div id="ab-ts" data-sitekey={TS_SITE_KEY} style="display:none"></div>
@@ -35,9 +50,10 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   </div>
 
   <script type="application/json" id="ab-ei" set:html={JSON.stringify(ei || null)}></script>
-  <script type="application/json" id="ab-inst-data" set:html={JSON.stringify(INSTITUTIONS.map((i) => ({ n: i.name, tf: i.tf || i.name })))}></script>
+  <script type="application/json" id="ab-inst-alias" set:html={JSON.stringify(ei ? {} : INST_ALIASES)}></script>
+  <script type="application/json" id="ab-inst-data" set:html={JSON.stringify(ei ? [] : INSTITUTIONS.map((i) => ({ n: i.name, tf: i.tf || i.name })))}></script>
   <datalist id="ab-inst-list">
-    {INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
+    {!ei && INSTITUTIONS.map((i) => (<option value={i.name}></option>))}
   </datalist>
 
 <style is:global>
@@ -149,24 +165,12 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   if(eiOne()){ S.institution=EI.schools[0].label; S.institution_tf=EI.schools[0].tf; S.institution_unlisted=false; }
   function instKey(v){return String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');}
   // Common ways applicants type institutions we fund -> [display name, exact TaskFlow name]
-  var INST_ALIASES={
-    'uct':['University of Cape Town (UCT)','University of Cape Town (UCT)'],
-    'universityofcapetown':['University of Cape Town (UCT)','University of Cape Town (UCT)'],
-    'milpark':['Milpark Education','Milpark Education (part of Stadio Holdings)'],
-    'milparkeducation':['Milpark Education','Milpark Education (part of Stadio Holdings)'],
-    'stadio':['Stadio','Stadio'],
-    'stadiocollege':['Stadio','Stadio'],
-    'stadiohighereducation':['Stadio','Stadio'],
-    'zaioinstituteoftechnology':['ZAIO','ZAIO'],
-    'hyperion':['HyperionDev','HyperionDev'],
-    'hillcross':['HillCross College','HC College'],
-    'lyceumcorrespondencecollege':['Lyceum College','Lyceum Correspondence College']
-  };
+  var INST_ALIASES={}; try{ INST_ALIASES=JSON.parse(document.getElementById('ab-inst-alias').textContent)||{}; }catch(e){}
   function resolveInst(v){
     var k=instKey(v); if(!k) return null;
     for(var a=0;a<INST.length;a++){ if(instKey(INST[a].n)===k) return {n:INST[a].n, tf:INST[a].tf}; }
     if(INST_ALIASES[k]) return {n:INST_ALIASES[k][0], tf:INST_ALIASES[k][1]};
-    // campus or extra words after a known name, e.g. "Eduvos Midrand"
+    // campus or extra words after a known name
     var best=null; for(var b=0;b<INST.length;b++){ var nk=instKey(INST[b].n); if(nk.length>=5 && k.indexOf(nk)===0 && (!best || nk.length>instKey(best.n).length)) best=INST[b]; }
     return best?{n:best.n, tf:best.tf}:null;
   }
