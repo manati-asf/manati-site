@@ -201,5 +201,17 @@
         "tf": "Accelerate Management School"
       }
     ]
+  },
+  {
+    "slug": "lyceum",
+    "name": "Lyceum",
+    "fullName": "Lyceum College",
+    "logo": "/assets/partners/lyceum-college.png",
+    "schools": [
+      {
+        "label": "Lyceum College",
+        "tf": "Lyceum Correspondence College"
+      }
+    ]
   }
 ]
