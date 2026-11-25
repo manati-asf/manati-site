@@ -1,0 +1,247 @@
+---
+// Institution landing pages: manati.co.za/apply/<slug>
+// One page per partner institution, all driven by src/data/ei-pages.json.
+// Replaces the institution-specific Landbot bots. Nati opens with the institution
+// already known, and the application is tagged "Institution Pages - <source>"
+// (a matching tracked link must exist in TaskFlow's Link Tracker for the tag to apply).
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Nati from '../../components/Nati.astro';
+import PAGES from '../../data/ei-pages.json';
+
+export function getStaticPaths() {
+  return PAGES.map((p) => ({ params: { slug: p.slug }, props: { page: p } }));
+}
+const { page } = Astro.props;
+const ei = { name: page.name, schools: page.schools };
+const campaign = { c: 'Institution Pages', s: page.source };
+---
+<Base title={`${page.name} student loans | Manati`} description={`${page.headline}. ${page.intro}`}>
+  <Header />
+
+  <section class="ei-hero">
+    <div class="wrap ei-hero-grid">
+      <div class="ei-hero-copy">
+        <div class="ei-lockup" aria-label={`Manati and ${page.fullName}`}>
+          <img src="/assets/manati-logo.svg" alt="Manati" class="ei-lockup-m" width="160" height="61">
+          <span class="ei-x" aria-hidden="true">×</span>
+          <img src={page.logo} alt={page.fullName} class="ei-lockup-ei" width="150" height="64">
+        </div>
+        <span class="eyebrow">Study loans for {page.name} students</span>
+        <h1>{page.headline}</h1>
+        <p class="ei-lead">{page.intro}</p>
+        <div class="ei-ctas">
+          <button class="btn btn-primary ei-big" type="button" data-nati-open>Apply with Nati →</button>
+          <a class="btn btn-ghost" href="#how">How it works</a>
+        </div>
+        <ul class="ei-trust">
+          <li><b>NCR registered</b> NCRCP8052</li>
+          <li><b>Paid to {page.name}</b> directly</li>
+          <li><b>Individually</b> assessed</li>
+        </ul>
+      </div>
+
+      <div class="ei-phone" aria-hidden="true">
+        <div class="ei-phone-head">
+          <img src="/assets/nati-avatar.svg" alt="" width="40" height="40">
+          <div><b>Nati</b><span>Manati application assistant</span></div>
+        </div>
+        <div class="ei-bubble ei-b1">Hi! I'm Nati 👋 I'll guide you through your Manati application for your {page.name} studies.</div>
+        <div class="ei-bubble ei-b2">Which {page.name} school will you study at?</div>
+        <div class="ei-chips">
+          {page.schools.slice(0, 3).map((s) => <span>{s.label}</span>)}
+          <span class="ei-more">+{page.schools.length - 3} more</span>
+        </div>
+        <div class="ei-bubble ei-b3">About 10 minutes. Documents can follow later.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">How it works</span>
+        <h2>From application to {page.name} in four steps</h2>
+        <p>Manati funds students who fall in the missing middle: families who earn too much for NSFAS but can't pay a full year's fees upfront.</p>
+      </div>
+      <div class="ei-steps">
+        <div class="ei-step"><span>1</span><h3>Apply with Nati</h3><p>Answer a few questions online. Nati already knows you're studying at {page.name}.</p></div>
+        <div class="ei-step"><span>2</span><h3>Send your documents</h3><p>A Manati consultant contacts you and asks for your documents on WhatsApp or email.</p></div>
+        <div class="ei-step"><span>3</span><h3>We assess you individually</h3><p>We look at your full situation, not just a score, to find a loan that is affordable for you.</p></div>
+        <div class="ei-step"><span>4</span><h3>Manati pays {page.name}</h3><p>If your loan is approved and signed, Manati pays {page.name} directly over your study period. You repay Manati monthly.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block bg-soft">
+    <div class="wrap ei-two">
+      <div>
+        <span class="eyebrow">Have these ready</span>
+        <h2 class="ei-h2">What you need to apply</h2>
+        <ul class="ei-check">
+          <li>The student's ID or passport number</li>
+          <li>The yearly tuition fee, from {page.feesNote}</li>
+          <li>If a sponsor is helping: their ID number, monthly income and bank</li>
+        </ul>
+        <p class="ei-small">After you apply we'll ask for 3 months' bank statements and payslips, a copy of the ID and the fee quote. Clear photos are fine.</p>
+      </div>
+      <div>
+        <span class="eyebrow">{page.schools.length} schools</span>
+        <h2 class="ei-h2">We fund students across {page.name}</h2>
+        <ul class="ei-schools">
+          {page.schools.map((s) => <li>{s.label}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap" style="max-width:820px">
+      <div class="sec-head">
+        <span class="eyebrow">Questions</span>
+        <h2>Good to know</h2>
+      </div>
+      <div class="ei-faq">
+        <details open>
+          <summary>Is this a bursary?</summary>
+          <p>No. It is a study loan that is repaid in monthly instalments. The instalment is made up of capital, interest and the agreed fees, and everything is set out in your loan agreement before you sign.</p>
+        </details>
+        <details>
+          <summary>Do I need a sponsor?</summary>
+          <p>If you're employed, you can apply on your own income. If not, a sponsor such as a parent, guardian, spouse or family member can apply with their income. The loan is then in the sponsor's name and they pay the instalments.</p>
+        </details>
+        <details>
+          <summary>Who does Manati pay?</summary>
+          <p>Manati pays {page.name} directly, in parts across your study programme. The money is not paid into the student's or sponsor's bank account.</p>
+        </details>
+        <details>
+          <summary>Does applying affect my credit record?</summary>
+          <p>With your consent, we check the applicant's credit record with a registered credit bureau as part of the assessment. We only do this once you have agreed to it at the end of your application.</p>
+        </details>
+        <details>
+          <summary>What happens after I apply?</summary>
+          <p>A Manati consultant will contact you about your documents and next steps. You can also reach us on WhatsApp at <a href="https://wa.me/27646050554">064 605 0554</a> or email <a href="mailto:applications@manati.co.za">applications@manati.co.za</a>.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="ei-cta">
+    <div class="wrap ei-cta-in">
+      <img src="/assets/nati-avatar.svg" alt="" width="72" height="72">
+      <div>
+        <h2>Ready to start your {page.name} studies?</h2>
+        <p>Apply online in about 10 minutes. No paperwork to start.</p>
+      </div>
+      <button class="btn btn-primary ei-big" type="button" data-nati-open>Apply with Nati →</button>
+    </div>
+  </section>
+
+  <script type="application/json" id="ei-campaign" set:html={JSON.stringify(campaign)}></script>
+  <script is:inline>
+    // Tag applications from this page, unless the visitor already arrived on a tracked campaign link.
+    try {
+      if (!sessionStorage.getItem('manati-utm')) {
+        sessionStorage.setItem('manati-utm', document.getElementById('ei-campaign').textContent);
+      }
+    } catch (e) {}
+  </script>
+
+  <Nati ei={ei} />
+  <script is:inline>
+    // Hide the floating "Apply with Nati" button while a page button that opens Nati is on screen.
+    (function () {
+      var l = document.getElementById('ab-launch'); var t = document.querySelectorAll('[data-nati-open]');
+      if (!l || !t.length || !('IntersectionObserver' in window)) return;
+      var seen = new Set();
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { e.isIntersecting ? seen.add(e.target) : seen.delete(e.target); });
+        l.style.display = seen.size ? 'none' : '';
+      });
+      t.forEach(function (x) { io.observe(x); });
+    })();
+  </script>
+
+  <Footer />
+</Base>
+
+<style>
+  .ei-hero{position:relative;overflow:hidden;color:#fff;background:radial-gradient(900px 420px at 85% -10%,rgba(222,195,35,.28),transparent 70%),radial-gradient(600px 400px at -10% 110%,rgba(222,195,35,.12),transparent 70%),linear-gradient(160deg,#231f20 0%,#2c2723 60%,#161311 100%)}
+  .ei-hero:before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(180deg,#000,transparent 85%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 85%);pointer-events:none}
+  .ei-hero-grid{position:relative;display:grid;grid-template-columns:1.2fr .8fr;gap:56px;align-items:center;padding:64px 24px 84px}
+  .ei-lockup{display:flex;width:fit-content;align-items:center;gap:18px;background:#fff;border-radius:18px;padding:14px 22px;box-shadow:0 14px 40px rgba(0,0,0,.25);margin-bottom:26px}
+  .ei-lockup-m{height:44px;width:auto}
+  .ei-lockup-ei{height:46px;width:auto}
+  .ei-x{color:#8a8580;font-size:22px;font-weight:300}
+  .ei-hero .eyebrow{color:var(--gold)}
+  .ei-hero h1{font-size:48px;line-height:1.08;font-weight:800;margin:12px 0 16px;letter-spacing:-.01em}
+  .ei-lead{font-size:18.5px;color:#e5e1d6;max-width:620px}
+  .ei-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .ei-big{padding:16px 30px;font-size:16.5px;box-shadow:0 10px 26px rgba(222,195,35,.28)}
+  .ei-trust{list-style:none;display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+  .ei-trust li{font-size:13.5px;color:#d9d4c8;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 14px;background:rgba(255,255,255,.04)}
+  .ei-trust b{color:#fff;font-weight:700}
+
+  .ei-phone{background:#fff;color:var(--ink);border-radius:28px;padding:18px 16px 22px;box-shadow:0 30px 70px rgba(0,0,0,.45),0 0 0 8px rgba(255,255,255,.06);transform:rotate(1.5deg);max-width:360px;justify-self:center;width:100%}
+  .ei-phone-head{display:flex;gap:10px;align-items:center;padding:4px 4px 14px;border-bottom:1px solid var(--line);margin-bottom:14px}
+  .ei-phone-head img{width:40px;height:40px;border-radius:50%;background:var(--navy);padding:2px}
+  .ei-phone-head b{display:block;font-family:'Varela Round',Verdana,sans-serif;color:var(--navy)}
+  .ei-phone-head span{font-size:12px;color:var(--muted)}
+  .ei-bubble{background:#f3f1ea;border-radius:16px 16px 16px 4px;padding:11px 14px;font-size:14px;margin:0 30px 10px 0;opacity:0;animation:ei-in .5s ease forwards}
+  .ei-b1{animation-delay:.2s}.ei-b2{animation-delay:.9s}.ei-b3{animation-delay:2.2s}
+  .ei-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px;opacity:0;animation:ei-in .5s ease 1.5s forwards}
+  .ei-chips span{font-size:12.5px;border:1.5px solid var(--gold);border-radius:999px;padding:5px 10px;color:var(--navy);background:#fffbe6}
+  .ei-chips .ei-more{border-style:dashed;background:#fff;color:var(--muted)}
+  @keyframes ei-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.ei-bubble,.ei-chips{animation:none;opacity:1}}
+
+  .ei-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .ei-step{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px 22px 24px;transition:transform .2s,box-shadow .2s}
+  .ei-step:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .ei-step span{position:absolute;top:-18px;left:22px;width:40px;height:40px;border-radius:12px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font-weight:800;font-family:'Varela Round',Verdana,sans-serif}
+  .ei-step h3{font-family:'Varela Round',Verdana,sans-serif;font-size:17px;color:var(--navy);margin:10px 0 8px}
+  .ei-step p{color:var(--muted);font-size:14.5px}
+
+  .ei-two{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .ei-h2{font-family:'Varela Round',Verdana,sans-serif;font-size:28px;color:var(--navy);margin:8px 0 18px;line-height:1.2}
+  .ei-check{list-style:none;display:grid;gap:12px}
+  .ei-check li{position:relative;padding-left:34px;font-size:16px}
+  .ei-check li:before{content:"✓";position:absolute;left:0;top:1px;width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-size:13px;font-weight:700}
+  .ei-small{color:var(--muted);font-size:14px;margin-top:18px}
+  .ei-schools{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+  .ei-schools li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--navy)}
+
+  .ei-faq details{border:1px solid var(--line);border-radius:14px;padding:4px 20px;margin-bottom:12px;background:#fff}
+  .ei-faq summary{cursor:pointer;list-style:none;padding:14px 28px 14px 0;font-family:'Varela Round',Verdana,sans-serif;font-size:17px;color:var(--navy);position:relative}
+  .ei-faq summary::-webkit-details-marker{display:none}
+  .ei-faq summary:after{content:"+";position:absolute;right:0;top:10px;font-size:24px;color:var(--teal-d)}
+  .ei-faq details[open] summary:after{content:"−"}
+  .ei-faq p{color:var(--muted);padding:0 0 16px}
+  .ei-faq a{color:var(--navy);text-decoration:underline}
+
+  .ei-cta{background:var(--gold);padding:48px 0}
+  .ei-cta-in{display:flex;align-items:center;gap:24px}
+  .ei-cta-in img{width:72px;height:72px;border-radius:50%;background:var(--navy);padding:4px;flex:none}
+  .ei-cta-in div{flex:1}
+  .ei-cta h2{font-family:'Varela Round',Verdana,sans-serif;color:var(--navy);font-size:28px;line-height:1.2}
+  .ei-cta p{color:#3a3531}
+  .ei-cta .btn-primary{background:var(--navy);color:#fff;box-shadow:none}
+  .ei-cta .btn-primary:hover{background:var(--navy-2)}
+
+  @media (max-width:960px){
+    .ei-hero-grid{grid-template-columns:1fr;gap:40px;padding:40px 16px 60px}
+    .ei-steps{grid-template-columns:1fr 1fr;row-gap:34px}
+    .ei-two{grid-template-columns:1fr;gap:40px}
+  }
+  @media (max-width:600px){
+    .ei-hero h1{font-size:34px}
+    .ei-lead{font-size:16.5px}
+    .ei-lockup{padding:10px 16px;gap:12px}
+    .ei-lockup-m{height:34px}.ei-lockup-ei{height:36px}
+    .ei-steps{grid-template-columns:1fr}
+    .ei-ctas .btn{width:100%;justify-content:center}
+    .ei-cta-in{flex-direction:column;text-align:center}
+    .ei-phone{transform:none}
+  }
+</style>

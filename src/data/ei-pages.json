@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "stadio",
+    "name": "STADIO",
+    "fullName": "STADIO Higher Education",
+    "logo": "/assets/partners/stadio.png",
+    "source": "STADIO",
+    "headline": "Fund your STADIO studies with a Manati study loan",
+    "intro": "An affordable, individually assessed study loan for STADIO students and their families. Manati pays STADIO directly, and you repay in monthly instalments. Apply online with Nati in about 10 minutes.",
+    "feesNote": "your STADIO fee quote or invoice for the year",
+    "schools": [
+      { "label": "School of Administration & Management", "tf": "Stadio - School of Administration & Management" },
+      { "label": "School of Architecture & Engineering", "tf": "Stadio - School of Architecture & Engineering" },
+      { "label": "School of Arts & Humanities", "tf": "Stadio - School of Arts & Humanities" },
+      { "label": "School of Commerce", "tf": "Stadio - School of Commerce" },
+      { "label": "School of Education", "tf": "Stadio - School of Education" },
+      { "label": "School of Fashion", "tf": "Stadio - School of Fashion" },
+      { "label": "School of Information Technology", "tf": "Stadio - School of Information Technology" },
+      { "label": "School of Law", "tf": "Stadio - School of Law" },
+      { "label": "School of Media & Design", "tf": "Stadio - School of Media & Design" },
+      { "label": "School of Policing & Law Enforcement", "tf": "Stadio - School of Policing & Law Enforcement" }
+    ]
+  }
+]
