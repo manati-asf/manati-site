@@ -173,9 +173,10 @@ const campaign = { c: 'Institution Pages', s: page.source };
 
   <script type="application/json" id="ei-campaign" set:html={JSON.stringify(campaign)}></script>
   <script is:inline>
-    // Tag applications from this page, unless the visitor already arrived on a tracked campaign link.
+    // Tag applications from this page. A tracked link that brought the visitor to this page wins;
+    // otherwise this page's tag replaces any tag from an earlier page in the same browser session.
     try {
-      if (!sessionStorage.getItem('manati-utm')) {
+      if (!new URLSearchParams(location.search).get('utm_campaign')) {
         sessionStorage.setItem('manati-utm', document.getElementById('ei-campaign').textContent);
       }
     } catch (e) {}
