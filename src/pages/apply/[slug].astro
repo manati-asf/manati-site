@@ -13,7 +13,17 @@ import PAGES from '../../data/ei-pages.json';
 export function getStaticPaths() {
   return PAGES.map((p) => ({ params: { slug: p.slug }, props: { page: p } }));
 }
-const { page } = Astro.props;
+const { page: raw } = Astro.props;
+// Defaults keep each entry in ei-pages.json short. Any field can be overridden per institution.
+const page = {
+  fullName: raw.name,
+  source: raw.name,
+  headline: `Fund your ${raw.name} studies with a Manati study loan`,
+  intro: `An affordable, individually assessed study loan for ${raw.name} students and their families. Manati pays ${raw.name} directly, and you repay in monthly instalments. Apply online with Nati in about 10 minutes.`,
+  feesNote: `your ${raw.name} fee quote or invoice for the year`,
+  ...raw,
+};
+const many = page.schools.length > 1;
 const ei = { name: page.name, schools: page.schools };
 const campaign = { c: 'Institution Pages', s: page.source };
 ---
@@ -26,7 +36,9 @@ const campaign = { c: 'Institution Pages', s: page.source };
         <div class="ei-lockup" aria-label={`Manati and ${page.fullName}`}>
           <img src="/assets/manati-logo.svg" alt="Manati" class="ei-lockup-m" width="160" height="61">
           <span class="ei-x" aria-hidden="true">×</span>
-          <img src={page.logo} alt={page.fullName} class="ei-lockup-ei" width="150" height="64">
+          {page.logo
+            ? <img src={page.logo} alt={page.fullName} class={page.logoBox ? "ei-lockup-ei ei-box" : "ei-lockup-ei"} width="150" height="64">
+            : <span class="ei-lockup-name">{page.fullName}</span>}
         </div>
         <span class="eyebrow">Study loans for {page.name} students</span>
         <h1>{page.headline}</h1>
@@ -48,11 +60,20 @@ const campaign = { c: 'Institution Pages', s: page.source };
           <div><b>Nati</b><span>Manati application assistant</span></div>
         </div>
         <div class="ei-bubble ei-b1">Hi! I'm Nati 👋 I'll guide you through your Manati application for your {page.name} studies.</div>
-        <div class="ei-bubble ei-b2">Which {page.name} school will you study at?</div>
-        <div class="ei-chips">
-          {page.schools.slice(0, 3).map((s) => <span>{s.label}</span>)}
-          <span class="ei-more">+{page.schools.length - 3} more</span>
-        </div>
+        {many ? (
+          <Fragment>
+            <div class="ei-bubble ei-b2">Which {page.name} school will you study at?</div>
+            <div class="ei-chips">
+              {page.schools.slice(0, 3).map((s) => <span>{s.label}</span>)}
+              {page.schools.length > 3 && <span class="ei-more">+{page.schools.length - 3} more</span>}
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div class="ei-bubble ei-b2">Are you the student, or a sponsor supporting the student?</div>
+            <div class="ei-chips"><span>I'm the student</span><span>I'm a parent / sponsor</span></div>
+          </Fragment>
+        )}
         <div class="ei-bubble ei-b3">About 10 minutes. Documents can follow later.</div>
       </div>
     </div>
@@ -86,13 +107,25 @@ const campaign = { c: 'Institution Pages', s: page.source };
         </ul>
         <p class="ei-small">After you apply we'll ask for 3 months' bank statements and payslips, a copy of the ID and the fee quote. Clear photos are fine.</p>
       </div>
-      <div>
-        <span class="eyebrow">{page.schools.length} schools</span>
-        <h2 class="ei-h2">We fund students across {page.name}</h2>
-        <ul class="ei-schools">
-          {page.schools.map((s) => <li>{s.label}</li>)}
-        </ul>
-      </div>
+      {many ? (
+        <div>
+          <span class="eyebrow">{page.schools.length} schools</span>
+          <h2 class="ei-h2">We fund students across {page.name}</h2>
+          <ul class="ei-schools">
+            {page.schools.map((s) => <li>{s.label}</li>)}
+          </ul>
+        </div>
+      ) : (
+        <div>
+          <span class="eyebrow">Why Manati</span>
+          <h2 class="ei-h2">Made for the missing middle</h2>
+          <ul class="ei-check">
+            <li>Each application is assessed individually, so we look at your whole situation</li>
+            <li>Manati pays {page.name} directly, in parts across your studies</li>
+            <li>Apply on your own income, or with a sponsor such as a parent or guardian</li>
+          </ul>
+        </div>
+      )}
     </div>
   </section>
 
@@ -140,9 +173,10 @@ const campaign = { c: 'Institution Pages', s: page.source };
 
   <script type="application/json" id="ei-campaign" set:html={JSON.stringify(campaign)}></script>
   <script is:inline>
-    // Tag applications from this page, unless the visitor already arrived on a tracked campaign link.
+    // Tag applications from this page. A tracked link that brought the visitor to this page wins;
+    // otherwise this page's tag replaces any tag from an earlier page in the same browser session.
     try {
-      if (!sessionStorage.getItem('manati-utm')) {
+      if (!new URLSearchParams(location.search).get('utm_campaign')) {
         sessionStorage.setItem('manati-utm', document.getElementById('ei-campaign').textContent);
       }
     } catch (e) {}
@@ -173,6 +207,8 @@ const campaign = { c: 'Institution Pages', s: page.source };
   .ei-lockup{display:flex;width:fit-content;align-items:center;gap:18px;background:#fff;border-radius:18px;padding:14px 22px;box-shadow:0 14px 40px rgba(0,0,0,.25);margin-bottom:26px}
   .ei-lockup-m{height:44px;width:auto}
   .ei-lockup-ei{height:46px;width:auto}
+  .ei-lockup-name{font-family:'Varela Round',Verdana,sans-serif;font-weight:700;font-size:18px;color:var(--navy);max-width:220px;line-height:1.2}
+  .ei-lockup-ei.ei-box{height:72px;border-radius:8px}
   .ei-x{color:#8a8580;font-size:22px;font-weight:300}
   .ei-hero .eyebrow{color:var(--gold)}
   .ei-hero h1{font-size:48px;line-height:1.08;font-weight:800;margin:12px 0 16px;letter-spacing:-.01em}
@@ -238,7 +274,7 @@ const campaign = { c: 'Institution Pages', s: page.source };
     .ei-hero h1{font-size:34px}
     .ei-lead{font-size:16.5px}
     .ei-lockup{padding:10px 16px;gap:12px}
-    .ei-lockup-m{height:34px}.ei-lockup-ei{height:36px}
+    .ei-lockup-m{height:34px}.ei-lockup-ei{height:36px}.ei-lockup-ei.ei-box{height:56px}
     .ei-steps{grid-template-columns:1fr}
     .ei-ctas .btn{width:100%;justify-content:center}
     .ei-cta-in{flex-direction:column;text-align:center}
