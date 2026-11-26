@@ -213,5 +213,17 @@
         "tf": "Lyceum Correspondence College"
       }
     ]
+  },
+  {
+    "slug": "sa-maritime",
+    "name": "SA Maritime",
+    "fullName": "SA Maritime School & Transport College",
+    "logo": "/assets/partners/sa-maritime.png",
+    "schools": [
+      {
+        "label": "SA Maritime School & Transport College",
+        "tf": "SA Maritime School & Transport College"
+      }
+    ]
   }
 ]
