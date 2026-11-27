@@ -695,7 +695,14 @@ const INST_ALIASES = {
         if(opts.length){ document.getElementById('ab-err').textContent="We couldn't find \""+v.trim()+"\" exactly. Did you mean:"; opts.forEach(function(n){ var b=document.createElement('button'); b.className='ab-choice'; b.type='button'; b.textContent=n; b.onclick=function(){pick(n);}; sg.appendChild(b); }); }
         else document.getElementById('ab-err').textContent=e;
         return;}} var shown=step.set?step.set(v):(S[step.k]=(v||'').trim()); addMe(shown); advance();}
-    if(step.alt){ document.getElementById('ab-alt').onclick=function(){ var v=(inp.value||'').trim(); if(!v){document.getElementById('ab-err').textContent="Please type the name of your institution first.";return;} addMe(step.alt.f(v)); advance(); }; }
+    if(step.alt){ var altSeen=null; document.getElementById('ab-alt').onclick=function(){ var v=(inp.value||'').trim(), er=document.getElementById('ab-err'), sg=document.getElementById('ab-sug'); if(!v){er.textContent="Please type the name of your institution first.";return;}
+        // Check the typed name against the list before accepting "not listed": an exact or campus match is
+        // saved as the listed institution; a close match ("Stellenbosch") shows "Did you mean" buttons first,
+        // and a second tap on "not listed" with the same text accepts it as unlisted.
+        if(step.v && !step.v(v)){ pick(v); return; }
+        var opts=(step.suggest && altSeen!==v.toLowerCase())?step.suggest(v):[];
+        if(opts.length){ altSeen=v.toLowerCase(); sg.innerHTML=''; er.textContent="\""+v+"\" may already be on our list. Did you mean one of these? If not, tap \"My institution isn't listed\" again."; opts.forEach(function(n){ var b=document.createElement('button'); b.className='ab-choice'; b.type='button'; b.textContent=n; b.onclick=function(){pick(n);}; sg.appendChild(b); }); return; }
+        addMe(step.alt.f(v)); advance(); }; }
     document.getElementById('ab-go').onclick=go;
     inp.addEventListener('keydown',function(e){if(e.key==='Enter')go();});
   }
